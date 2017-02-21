@@ -137,9 +137,9 @@ class Engine(object):
         '''
         keys_on = 'PRAGMA foreign_keys = ON'
         stmnt = 'CREATE TABLE exercise(exercise_id INTEGER PRIMARY KEY AUTOINCREMENT, \
-                    username TEXT, user_id INTEGER \
+                    user_id INTEGER, username TEXT, \
                     type TEXT, value INTEGER, valueunit TEXT, \
-                    date TEXT, time REAL, \
+                    date TEXT, time INTEGER, \
                     timeunit TEXT, \
                     FOREIGN KEY(user_id,username) \
                     REFERENCES users(user_id, username) ON DELETE SET NULL)'
