@@ -1,0 +1,1531 @@
+FORMAT: 1A
+HOST: http://localhost:5000
+
+# PWP Forum App
+
+The discussion forum Web API offers different functionalities to structure non-real-time conversations among the people 
+of a group about topics they are interested in certain topic. User can register in the application to share their personal
+information with other users. Users can create new message or reply to message sent by other users. 
+
+# Group Link Relations 
+
+This document uses IANA standard link relations (http://www.iana.org/assignments/link-relations/link-relations.xhtml). In addition the following link relations have been defined:
+
+## add-message [/link-relations/add-message]
+
+Creates a new message, starting a new thread (for creating a reply, see [reply](reference/link-relations/reply). Use via POST.
+
+### GET
+
+Return the link relation description in HTML format
++ Response 200 (text/html)
+
+## add-user [/link-relations/add-user]
+
+Creates a new user. Use via POST.
+
+### GET
+
+Return the link relation description in HTML format
++ Response 200 (text/html)
+
+## delete [/link-relations/delete]
+
+Deletes the current context. Use via DELETE.
+
+### GET
+
+Return the link relation description in HTML format
++ Response 200 (text/html)
+
+## messages-all [/link-relations/messages-all]
+
+This action list all messages in the forum. Each item is an instance of the type Message defined in this profile. Can only be accessed through GET.
+
+### GET
+
+Return the link relation description in HTML format
++ Response 200 (text/html)
+
+## messages-history [/link-relations/messages-history]
+
+This action is a message history search by user, with optional parameters defining timeframe and maximum number of results. Each item is an instance of the type Message defined in this profile. Can only be accessed through GET.
+
+### GET
+
+Return the link relation description in HTML format
++ Response 200 (text/html)
+
+## public-data [/link-relations/public-data]
+
+This action represents the public information of a user. Can only be accessible through GET.
+
+### GET
+
+Return the link relation description in HTML format
++ Response 200 (text/html)
+
+## private-data [/link-relations/private-data]
+
+This action represents the public information of a user. Can only be accessible through GET.
+
+### GET
+
+Return the link relation description in HTML format
++ Response 200 (text/html)
+
+## reply [/link-relations/reply]
+
+This action creates a new message as a reply to the message that is the current context. Use via POST.
+
+### GET
+
+Return the link relation description in HTML format
++ Response 200 (text/html)
+
+## users-all [/link-relations/users-all]
+
+This action list all users registered in the forum. Each item is an instance of the type User defined in the profile [User Profile](profiles/user-profile). Can only be accessible with GET.
+
+### GET
+
+Return the link relation description in HTML format
++ Response 200 (text/html)
+
+
+
+
+
+# Group Profiles
+
+## Message Profile [/profiles/message_profile]
+
+Profile definition for all messages related resources.
+
+### Dependencies
+
+This profile inherits:
+ * Some semantic descriptors from http://schema.org/Article
+ * Some link  relations from IANA Web linking [RFC5988](http://www.iana.org/assignments/link-relations/link-relations.xhtml)
+ * Some link relations from [RFC4685: Atom threading extensions](https://www.ietf.org/rfc/rfc4685.txt).
+
+### Link relations
+
+ * [users-all](reference/link-relations/users-all)
+ * [reply](reference/link-relations/reply)
+ * [delete](reference/link-relations/delete)
+ * [add-message](reference/link-relations/add-message)
+ * [messages-all](reference/link-relations/messages-all)
+ 
+Inherited from [IANA RFC5988](http://www.iana.org/assignments/link-relations/link-relations.xhtml)
+ * `author`: See [author](https://www.w3.org/TR/html5/links.html#link-type-author). The href might be null when a message does not have a recognized author. Only accessible through GET.
+ * `collection`: See [collection](http://tools.ietf.org/html/rfc6573). Only accessible through GET.
+ * `edit`: See [edit](https://tools.ietf.org/html/rfc5023#section-11.1). This link allows editing the message via PUT.
+ * `profile`: See [profile](https://tools.ietf.org/html/rfc6906). The link contains the location of the resource profile. 
+ 
+Inherited from [RFC4685](https://www.rfc-editor.org/rfc/rfc4685.txt)
+ * `in-reply-to` See [Atom Threading Extensions](https://tools.ietf.org/html/rfc4685#page-2). It indicates that an entry is a response to another resource. The href might be null if this is the root message in a thread. Only accessible through GET. 
+
+### Semantic Descriptors
+
+#### Data Type Message
+
+ * `author` (string): Nickname of a message's author. The system will use Anonymous by default. Mandatory in representations in which a new message is generated.
+ * `editor` (string): Nickname of a user who last edited a message. Mandatory in representations in which a message is edited. 
+
+Inherited from [schema.org/Article](http://schema.org/Article)
+ * `articleBody`(string): See [http://schema.org/articleBody](http://schema.org/articleBody)
+ * `headline` (string): See[http://schema.org/headline](http://schema.org/headline)
+ 
+### GET
+
+Return the Message Profile in HTML format
++ Response 200 (text/html)
+
+
+## Error Profile [/profiles/error_profile]
+
+Profile definition for all errors messages in the system
+
++ Attributes 
+    + resource_url (string, required) - A url of the resource generating the error
+
+### GET
+
+Return the Error Profile in HTML format
++ Response 200 (text/html)
+
+## User Profile [/profiles/user_profile]
+
+Profile definition for all user resources
+
+### Dependencies
+
+This profile inherits:
+ * Some semantic descriptors from http://schema.org/Person
+ * Some link relations from IANA Web linking RFC5988
+
+### Link Relations
+
+ * [messages-history](reference/link-relations/messages-history)
+ * [messages-all](reference/link-relations/messages-all)
+ * [delete](reference/link-relations/delete)
+ * [public-data](reference/link-relations/public-data)
+ * [private-data](reference/link-relations/private-data)
+ * [add-user](reference/link-relations/add-user)
+ 
+Inherited from [IANA RFC5988](http://www.iana.org/assignments/link-relations/link-relations.xhtml)
+ * `collection`: See [collection](http://tools.ietf.org/html/rfc6573). Only accessible through GET.
+ * `profile`: See [profile](https://tools.ietf.org/html/rfc6906). The link contains the location of the resource profile. 
+ * `up`: See [up](http://www.iana.org/go/rfc5988). The link contains information about the parent in the hierarchy. For instance, if our context is [public_profile](reference/users/users-public-profile), up resource would be a [User](reference/users/user)
+ * `edit`: See [edit](https://tools.ietf.org/html/rfc5023#section-11.1). This link allows editing the public/private profile of user via PUT.
+ 
+### Semantic descriptors
+
+#### Data Type User
+
+ * nickname (string, required): The user's nickname in the forum. Nicknames are unique. 
+ * address (string): See [http://schema.org/address](http://schema.org/address)
+ * avatar (string): URL that points to the user's avatar
+ * birthDate (date):  See [http://schema.org/birthDate](http://schema.org/birthDate)
+ * email (string): See [http://schema.org/email](http://schema.org/email)
+ * familyName (string): See [http://schema.org/familyName](http://schema.org/familyName)
+ * givenName (string): See [http://schema.org/givenName](http://schema.org/givenName)
+ * image (string): See [http://schema.org/image](http://schema.org/image)
+ * signature (string): The user's forum signature. Referenced by all messages by the user, attached to the end at runtime. 
+ * skype (string): The user's Skype handle
+ * telephone (string): See [http://schema.org/telephone](http://schema.org/telephone)
+ * website (string): URL of the user's website
+
+### GET
+
+Return the User Profile in HTML format
++ Response 200 (text/html)
+    
+    
+# Group Messages
+
+All these resources use the [Message Profile](reference/profiles/message-profile).
+
+In addition all error messages follow the profile defined [Error Profile](reference/profiles/error-profile)
+
+
+
+
+## Messages List [/forum/api/messages]
+
+A list of all messages in the Forum. For the sake of simplicity we do not include message topics. 
+
+### List messages [GET]
+
+Get a list of all users in the system
+
++ Relation: self    
++ Request
+    
+    + Headers
+    
+            Accept: application/vnd.mason+json
+    
++ Response 200 (application/vnd.mason+json)
+
+    Messages list was successfully retrieved.
+   
+    + Body 
+    
+            {
+                "@namespaces": {
+                    "forum": {
+                        "name": "/forum/link-relations/"
+                    }
+                },
+                
+                "items": [
+                    {
+                        "id": "msg-21",
+                        "headline": "Do not use IE",            
+                        "@controls": {
+                            "self": {
+                                "href": "/forum/api/messages/msg-21/"
+                            },
+                            "profile": {
+                                "href": "/profiles/message-profile/"
+                            }                            
+                        }
+                    },
+                    {
+                        "id": "msg-17",
+                        "headline": "Try hello",            
+                        "@controls": {
+                            "self": {
+                                "href": "/forum/api/messages/msg-17/"
+                            },
+                            "profile": {
+                                "href": "/profiles/message-profile/"
+                            }                            
+                        }
+                    }
+                ],
+                
+                "@controls": {
+                    "self": {
+                        "href": "/forum/api/messages/"
+                    },
+                    "forum:add-message": {
+                        "title": "Create message",
+                        "href": "/forum/api/messages/",
+                        "encoding": "json",
+                        "method": "POST",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "headline": {
+                                    "title": "Headline",
+                                    "description": "Message headline",
+                                    "type": "string"
+                                },
+                                "articleBody": {
+                                    "title": "Contents",
+                                    "description": "Message contents",
+                                    "type": "string"
+                                },
+                                "author": {
+                                    "title": "Author",
+                                    "description": "Nickname of the message author",
+                                    "type": "string"
+                                },
+                            },
+                            "required": ["headline", "articleBody"]
+                        }
+                    },
+                    "forum:users-all": {
+                        "title": "List users", 
+                        "href": "/forum/api/users/"
+                    }
+                }
+            }
+
+    
+### Create a new message initiating a thread [POST]       
+
+Create a new message, utilized as a parent thread. 
+
+If the attribute `author` is not included the system will consider it as `Anonymous` user. 
+
++ Request (application/json)
+
+    + Headers
+    
+            Accept: application/vnd.mason+json
+        
+    + Body 
+    
+            {
+                "headline": "Do not use IE",
+                "articleBody": "Do not try to fix what others broke",
+                "author": "HockeyFan"
+            }
+
++ Response 201
+
+    The message is created correctly. 
+        
+    + Headers
+                
+            Location: URL of the new created resource
+
++ Response 400 (application/vnd.mason+json)
+
+    The message is not well formed. Some of the parameters is not correctly received. 
+    
+    + Body
+    
+            {
+                "@error": {
+                    "@message": "Wrong request format"
+                    "@messages": [
+                        "Be sure you include message title and body"
+                    ]
+                }
+                "resource_url": "/forum/api/messages/"
+            }
+
+
++ Response 415 (application/vnd.mason+json)
+
+    The server cannot understand the format of the response.
+    
+    + Body 
+    
+            {
+                "@error": {
+                    "@message": "Unsupported media type"
+                    "@messages": [
+                        "Use a JSON compatible format"
+                    ]
+                }
+                "resource_url": "/forum/api/messages/"
+            }
+
++ Response 500  (application/vnd.mason+json)
+
+    The server cannot store the message in the database.
+    
+    + Body 
+
+            {
+                "@error": {
+                    "@message": "Problem with the database"
+                    "@messages": [
+                        "Cannot access the database"
+                    ]
+                }
+                "resource_url": "/forum/api/messages/"
+            }
+        
+## Message [/forum/api/messages/{messageid}]
+
+A message stored in the Forum database. A message contains a title which describes the information of the message,
+the body (the message itself), information about the sender and a unique id that identifies this message in the database.
+Some messages might contain links to other messages (one message is the reply of another).
+
++ Parameters 
+    + messageid: `msg-1` (string)   - The id of the new message. Using regex syntax this parameter follows format: msg-\d+
+
+### Receive message information [GET]
+
+Receives the information of a particular message
+
++ Relation: self
++ Request
+    
+    + Headers
+    
+            Accept: application/vnd.mason+json
+    
++ Response 200 (application/vnd.mason+json)
+
+    Message correctly retrieved
+
+    + Body 
+    
+            {
+                "@namespaces": {
+                    "forum": {
+                        "name": "/forum/link-relations/"
+                    },
+                    "atom-thread": {
+                        "name": "https://tools.ietf.org/html/rfc4685"
+                    }
+                },
+                
+                "articleBody": "I am using a float layout on my website but I've run into some problems with Internet Explorer. I have set the left margin of a float to 100 pixels, but IE uses a margin of 200px instead. Why is that? Is this one of the many bugs in IE?",
+                "author": "AxelW",
+                "headline": "CSS: Margin problems with IE",
+                "editor": null,
+                
+                "@controls": {
+                    "self": {
+                        "href": "/forum/api/messages/msg-1/"
+                    },
+                    "profile": {
+                        "href": "/profiles/message-profile/"
+                    },
+                    "author": {
+                        "href": "/forum/api/users/AxelW/"
+                    },
+                    "collection": {
+                        "href": "/forum/api/messages/"
+                    },
+                    "edit": {
+                        "title": "Edit this message",
+                        "href": "/forum/api/messages/msg-1/",
+                        "encoding": "json",
+                        "method": "GET",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "headline": {
+                                    "title": "Headline",
+                                    "description": "Message headline",
+                                    "type": "string"
+                                },
+                                "articleBody": {
+                                    "title": "Contents",
+                                    "description": "Message contents",
+                                    "type": "string"
+                                },
+                                "editor": {
+                                    "title": "Editor",
+                                    "description": "Nickname of the last person to edit the message",
+                                    "type": "string"
+                                }
+                            },
+                            "required": ["headline", "articleBody"]
+                        }
+                    },
+                    "forum:delete": {
+                        "href": "/forum/api/messages/msg-1/",
+                        "method": "DELETE"
+                    },
+                    "forum:reply": {
+                        "title": "Reply to this message",
+                        "href": "/forum/api/messages/msg-1/",
+                        "encoding": "json",
+                        "method": "POST",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "headline": {
+                                    "title": "Headline",
+                                    "description": "Message headline",
+                                    "type": "string"
+                                },
+                                "articleBody": {
+                                    "title": "Contents",
+                                    "description": "Message contents",
+                                    "type": "string"
+                                },
+                                "author": {
+                                    "title": "Author",
+                                    "description": "Nickname of the message author",
+                                    "type": "string"
+                                },
+                            },
+                            "required": ["headline", "articleBody"]
+                        }
+                    }
+                }
+            }
+    
++ Response 404 (application/vnd.mason+json)
+
+    The message with id `messageid` does not exist in the database.
+        
+    + Body 
+    
+            {
+                "@error": {
+                    "@message": "Message does not exist"
+                    "@messages": [
+                        "There is no a message with id msg-1"
+                    ]
+                }
+                "resource_url": "/forum/api/messages/msg-1/"
+            }
+
+### Delete a message [DELETE]
+
+Delete a message from the system
+
++ Request
+    
+    + Headers
+    
+            Accept: application/vnd.mason+json
+    
++ Response 204
+
+    The message was successfully deleted
+        
+    + Body 
+        
+
++ Response 404 (application/vnd.mason+json)
+
+    The message with id `messageid` does not exist in the database.
+        
+    + Body 
+    
+            {
+                "@error": {
+                    "@message": "Message does not exist"
+                    "@messages": [
+                        "There is no a message with id msg-1"
+                    ]
+                }
+                "resource_url": "/forum/api/messages/msg-1"
+            }
+
+### Edit a message [PUT]       
+
+Edit the information of a message. The field  `editor` should be included, otherwise the system answers with status code 404.
+
++ Request (application/json)
+
+    + Headers
+    
+            Accept: application/vnd.mason+json
+        
+    + Body 
+    
+            {
+                "headline": "Do not use IE",
+                "articleBody": "Do not try to fix what others borked",
+                "editor": "HockeyFan"
+            }
+
+
++ Response 204
+
+    The message is modified correctly
+        
+    + Body
+
++ Response 400 (application/vnd.mason+json)
+
+    The message is not well formed. Some of the parameters is not correctly received. 
+    
+    + Body
+    
+            {
+                "@error": {
+                    "@message": "Wrong request format"
+                    "@messages": [
+                        "Be sure you include message title and body"
+                    ]
+                }
+                "resource_url": "/forum/api/messages/msg-1/"
+            }
+
++ Response 404 (application/vnd.mason+json)
+
+    The message with id `messageid` does not exist in the database.
+        
+    + Body 
+    
+            {
+                "@error": {
+                    "@message": "Message does not exist"
+                    "@messages": [
+                        "There is no a message with id msg-1/"
+                    ]
+                }
+                "resource_url": "/forum/api/messages/msg-1"
+            }
+
++ Response 415 (application/vnd.mason+json)
+
+    The server cannot understand the format of the response.
+    
+    + Body 
+    
+            {
+                "@error": {
+                    "@message": "Unsupported media type"
+                    "@messages": [
+                        "Use a JSON compatible format"
+                    ]
+                }
+                "resource_url": "/forum/api/messages/msg-1/"
+            }
+
++ Response 500  (application/vnd.mason+json)
+
+    The server cannot store the message in the database.
+    
+    + Body 
+
+            {
+                "@error": {
+                    "@message": "Problem with the database"
+                    "@messages": [
+                        "Cannot access the database"
+                    ]
+                }
+                "resource_url": "/forum/api/messages/msg-1/"
+            }
+
+### Reply an existing message [POST]       
+
+Create a new message replying the message with id `messageid`. 
+If the attribute `author` is not included the system will consider it as `Anonymous` user. 
+
++ Relation: reply
++ Request (application/json)
+
+    + Headers
+    
+            Accept: application/vnd.mason+json
+        
+    + Body 
+    
+            {
+                "headline": "Do not use IE",
+                "articleBody": "Do not try to fix what others borked",
+                "editor": "HockeyFan"
+            }
+
++ Response 201
+
+    The message is created correctly. 
+        
+    + Headers
+                
+            Location: URL of the new created resource
+
++ Response 400 (application/vnd.mason+json)
+
+    The message is not well formed. Some of the parameters is not correctly received. 
+    
+    + Body
+    
+            {
+                "@error": {
+                    "@message": "Wrong request format"
+                    "@messages": [
+                        "Be sure you include message title and body"
+                    ]
+                }
+                "resource_url": "/forum/api/messages/msg-1/"
+            }
+
++ Response 404 (application/vnd.mason+json)
+
+    The message with id `messageid` does not exist in the database.
+        
+    + Body 
+    
+            {
+                "@error": {
+                    "@message": "Message does not exist"
+                    "@messages": [
+                        "There is no a message with id msg-1"
+                    ]
+                }
+                "resource_url": "/forum/api/messages/msg-1/"
+            }
+
++ Response 415 (application/vnd.mason+json)
+
+    The server cannot understand the format of the response.
+    
+    + Body 
+    
+            {
+                "@error": {
+                    "@message": "Unsupported media type"
+                    "@messages": [
+                        "Use a JSON compatible format"
+                    ]
+                }
+                "resource_url": "/forum/api/messages/msg-1/"
+            }
+
++ Response 500  (application/vnd.mason+json)
+
+    The server cannot store the message in the database.
+    
+    + Body 
+
+            {
+                "@error": {
+                    "@message": "Problem with the database"
+                    "@messages": [
+                        "Cannot access the database"
+                    ]
+                }
+                "resource_url": "/forum/api/messages/msg-1/"
+            }
+
+#Group Users
+All these resources use [User Profile](reference/profiles/user_profile).
+
+In addition all error messages follow the profile defined [Error Profile](reference/profiles/error_profile)
+
+## Users List [/api/users]
+
+A list of all the users registered in the Forum.
+
+### List users [GET]
+
+Get a list of all users in the system
+    
++ Request
+    
+    + Headers
+    
+            Accept: application/vnd.mason+json
+    
++ Response 200 (application/vnd.mason+json)
+    
+    + Body 
+    
+            {
+
+                "@namespaces": {
+                    "forum": {
+                        "name": "/forum/link-relations/"
+                    }
+                },
+                
+
+                "items": [
+                    {
+                        "nickname": "Mystery",
+                        "registrationdate": 1362015937,
+                        "@controls": {
+                            "self": {
+                                "href": "/forum/api/users/Mystery/",                                
+                            },
+                            "profile": {
+                                "self": "/profiles/user-profile/"
+                            },
+                            "forum:messages-history": {
+                                "title": "Message history",                    
+                                "href": "/forum/api/users/Mystery/history{?length,before,after}",
+                                "isHrefTemplate": true, 
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "after": {
+                                            "description": "Find messages after (timestamp as seconds)", 
+                                            "type": "integer"
+                                        }, 
+                                        "before": {
+                                            "description": "Find messages before (timestamp as seconds)", 
+                                            "type": "integer"
+                                        }, 
+                                        "length": {
+                                            "description": "Maximum number of messages returned", 
+                                            "type": "integer"
+                                        }
+                                    },                   
+                                    "required": []
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "nickname": "AxelW",
+                        "registrationdate": 1357724086,
+                        "@controls": {
+                            "self": {
+                                "href": "/forum/api/users/AxelW/",
+                            },
+                            "profile": {
+                                "self": "/profiles/user-profile/"
+                            },
+                            "forum:messages-history": {
+                                "title": "Message history",                    
+                                "href": "/forum/api/users/AxelW/history{?length,before,after}",
+                                "isHrefTemplate": true,
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "after": {
+                                            "description": "Find messages after (timestamp as seconds)", 
+                                            "type": "integer"
+                                        }, 
+                                        "before": {
+                                            "description": "Find messages before (timestamp as seconds)", 
+                                            "type": "integer"
+                                        }, 
+                                        "length": {
+                                            "description": "Maximum number of messages returned", 
+                                            "type": "integer"
+                                        }
+                                    },                   
+                                    "required": []
+                                }
+                            }
+                        }
+                    }
+                ],
+                
+                "@controls": {
+                    "self": {
+                        "href": "/forum/api/users/"
+                    },
+                    "forum:add-user": {
+                        "title": "Create user",
+                        "href": "/forum/api/users/",
+                        "encoding": "json",
+                        "method": "POST",
+                        "schemaUrl": "/forum/schema/user/"
+                    },
+                    "forum:messages-all": {
+                        "href": "/forum/api/messages/",
+                        "title": "All messages"
+                    }
+                }
+            }
+
+### Register a user [POST]       
+
+Create a new user. Note that in the example the properties telephone, skype and image are not included in the request example.
+
++ Request (application/json)
+
+    Note that in the example the properties `telephone`, `skype` and `image` are not included in the request example.
+
+    + Headers
+    
+            Accept: application/vnd.mason+json
+        
+    + Body 
+    
+            {
+                "nickname": "SuperDonkey",
+                "address": {
+                    "addressLocality": "Palencia",
+                    "addressCountry": "Spain"
+                },
+                "avatar": "file2.jpg",
+                "birthDate": "1990-10-12",
+                "email": "john@notanyone.com",
+                "familyName": "DonNadie",
+                "gender": "male",
+                "givenName": "John",
+                "signature": "What is born in Palencia stays in Palencia",
+                "website": "http://nothingisnothin.com"
+            }
+
++ Response 201
+
+    The user is created correctly. 
+        
+    + Headers
+                
+            Location: URL of the new created resource
+
++ Response 400 (application/vnd.mason+json)
+
+    The message is not well formed. Some of the parameters is not correctly received. 
+    
+    + Body
+    
+            {
+                "@error": {
+                    "@message": "Wrong request format",
+                    "@messages": [
+                        "Be sure you include all mandatory properties"
+                    ]
+                }
+                "resource_url: "/forum/api/users/"
+            }
+
++ Response 409 (application/vnd.mason+json)
+
+    Exists a user when the same nickname
+    
+    + Body
+    
+            {
+                "@error": {
+                    "@message": "Reserved nickname",
+                    "@messages": [
+                        "There is already a user with same nickname: AxelW"
+                    ]
+                }
+                "resource_url: "/forum/api/users/"
+            }
+
++ Response 415 (application/vnd.mason+json)
+
+    The server cannot understand the format of the response.
+    
+    + Body 
+    
+            {
+                "@error": {
+                    "@message": "Unsupported media type",
+                    "@messages": [
+                        "Use a JSOn compatible format"
+                    ]
+                }
+                "resource_url": "/forum/api/users/",
+            }
+
+
++ Response 500 (application/vnd.mason+json)
+
+    The server cannot store the user in the database.
+    
+    + Body 
+    
+            {
+                "@error": {
+                    "@message": "Problem with the database"
+                    "@messages": [
+                        "Cannot access the database"
+                    ]
+                },
+                "resource_url": "/forum/api/users/",
+            }
+
+## User [/api/users/{nickname}]
+
+A user is a member of the Forum. A user can send messages to the Forum. Each user has a unique nickname that serves as a unique identifier in the system. 
+One user cannot register using an existing nickname. Anyone can register in the Forum to become a user. 
+
+The user profile information is splitted in two different resources [User's public profile](reference/users/users-public-profile) and [User's private profile](references/users/users-private-profile) 
+
+Note that a user is read-only in the [Users](reference/users/users-list) collection. Hence, it cannot be modified nor deleted unless the corresponding link relation is included in the body of the user.
+
+
++ Parameters 
+    + nickname: `AxelW` (string)   - The nickname of the user
+
+### Receive user information [GET]
+
+Receives the information of a particular user
+
++ Relation: self
++ Request
+    
+    + Headers
+    
+            Accept: application/vnd.mason+json
+    
++ Response 200 (application/vnd.mason+json)
+
+    User correctly retrieved. 
+
+    + Body 
+    
+            {
+                "@namespaces": {
+                    "forum": {
+                      "name": "/forum/link-relations/"
+                    }
+                },
+                "nickname": "AxelW",
+                "registrationdate": 1357724086,
+                "@controls": {
+                    "self": {
+                        "href": "/forum/api/users/AxelW/"
+                    },
+                    "profile": {
+                        "href": "/profiles/user-profile/"
+                    },
+                    "forum:private-data": {
+                        "href": "/forum/api/users/AxelW/restricted_profile/"
+                    },
+                    "forum:public-data": {
+                        "href": "/forum/api/users/AxelW/public_profile/"
+                    },
+                    "forum:messages": {
+                        "href": "/forum/api/users/AxelW/history/"
+                    },
+                    "forum:messages-all": {
+                        "href": "/forum/api/messages/"
+                    },
+                    "collection": {"href": "/forum/api/users/"},
+                    "forum:delete": {
+                        "href": "/forum/api/users/AxelW/",
+                        "method": "DELETE"
+                    }
+                }
+            }
+
++ Response 404 (application/vnd.mason+json)
+
+    The user with inickname `AxelW` does not exist in the database.
+        
+    + Body 
+    
+            {
+                "@error": {
+                    "@message": "User does not exist"
+                    "@messages": [
+                        "There is no user named AxelW"
+                    ]
+                },
+                "resource_url": "/forum/api/users/AxelW/"
+            }
+
+### Delete a user [DELETE]
+
+Delete a user from the system
+
++ Relation: delete
++ Request
+    
+    + Headers
+    
+            Accept: application/vnd.mason+json
+    
++ Response 204
+
+    The user was successfully deleted
+        
+    + Body 
+        
+
++ Response 404 (application/vnd.mason+json)
+
+    The user with inickname `AxelW` does not exist in the database.
+        
+    + Body 
+    
+            {
+                "@error": {
+                    "@message": "User does not exist"
+                    "@messages": [
+                        "There is no user named AxelW"
+                    ]
+                },
+                "resource_url": "/forum/api/users/AxelW/"
+            }
+
+
+## User's public profile [/api/users/{nickname}/public_profile]
+
+Users information visible to everybody. Only authorized users can modify this information.
+
++ Parameters 
+    + nickname: `AxelW` (string)   - The nickname of the user
+
+### Get user's public profile [GET]
+
+Retrive user public information
+
++ Relation: self
++ Request
+    
+    + Headers
+    
+            Accept: application/vnd.mason+json
+    
++ Response 200 (application/vnd.mason+json)
+
+    User correctly retrieved. 
+
+    + Body 
+    
+            {   
+                "nickname": "AxelW",
+                "registrationdate": 1357724086,
+                "signature": "Without an exception, there is no rule...",
+                "avatar": null,
+                "@namespaces": {
+                    "forum": {
+                        "name": "/forum/link-relations/"
+                    }
+                },
+                "@controls": {
+                    "edit": {
+                        "encoding": "json",
+                        "schema": {
+                            "required": [
+                              "signature",
+                              "avatar"
+                            ],
+                            "type": "object",
+                            "properties": {
+                                "signature": {
+                                    "type": "string",
+                                    "description": "Avatar image file location",
+                                    "title": "Avatar"
+                                }
+                            }
+                        },
+                        "href": "/forum/api/users/AxelW/public_profile/",
+                        "method": "PUT",
+                        "title": "Edit this public profile"
+                    },
+                    "self": {
+                        "href": "/forum/api/users/AxelW/public_profile/"
+                    },
+                    "forum:messages-history": {
+                        "schema": {
+                            "required": [],
+                            "type": "object",
+                            "properties": {
+                                "length": {
+                                    "type": "integer",
+                                    "description": "Maximum number of messages returned"
+                                },
+                                "after": {
+                                    "type": "integer",
+                                    "description": "Find messages after (timestamp as seconds)"
+                                },
+                                "before": {
+                                    "type": "integer",
+                                    "description": "Find messages before (timestamp as seconds)"
+                                }
+                            }
+                        },
+                        "href": "/forum/api/users/AxelW/history{?length,before,after}",
+                        "isHrefTemplate": true,
+                        "title": "Message history"
+                    },
+                    "parent": {
+                        "href": "/forum/api/users/AxelW/"
+                    },
+                    "forum:private-data": {
+                        "href": "/forum/api/users/AxelW/restricted_profile/"
+                    }
+                }
+            }
+
++ Response 404 (application/vnd.mason+json)
+
+    The user with inickname `AxelW` does not exist in the database.
+        
+    + Body 
+    
+            {
+                "@error": {
+                    "@message": "User does not exist",
+                    "@messages": [
+                        "There is no user named AxelW"
+                    ]
+                },
+                "resource_url": "/forum/api/users/AxelW/public_profile"
+            } 
+
+
+### Modify user's public profile [PUT]
+
+Modify aspects of the public profile of a user. Note that image and skype are not included so they will be set to Null
+
++ Request (application/json)
+
+    + Headers
+    
+            Accept: application/vnd.mason+json
+        
+    + Body 
+    
+            {
+                "signature": "PWP rocks...",
+                "avatar": "myavatar.jpg"
+            }
+
++ Response 201
+
+    The user public profile has been modified correctly. 
+        
+    + Headers
+                
+            Location: URL of the new created resource
+
++ Response 400 (application/vnd.mason+json)
+
+    The message is not well formed. Some of the parameters is not correctly received. 
+    
+    + Body
+    
+            {
+                "@error": {
+                    "@message": "Wrong request format",
+                    "@messages": [
+                        "Be sure you include all mandatory properties"
+                    ]
+                },
+                "resource_url": "/forum/api/users/AxelW/public_profile/"
+            }
+
+
++ Response 415 (application/vnd.mason+json)
+
+    The server cannot understand the format of the response.
+    
+    + Body 
+    
+            {
+                "@error": {
+                    "@message": "Unsupported media type",
+                    "@messages": [
+                        "Use a JSOn compatible format"
+                    ]
+                },
+                "resource_url": "/forum/api/users/AxelW/public_profile/"
+            }
+
+
++ Response 500 (application/vnd.mason+json)
+
+    The server cannot modify the informaton in the database.
+    
+    + Body 
+    
+            {
+                "@error": {
+                    "@message": "Problem with the database"
+                    "@messages": [
+                        "Cannot access the database"
+                    ]
+                },
+                "resource_url": "/forum/api/users/AxelW/public_profile/"
+            }
+
+## User's private profile  [/api/users/{nickname}/restricted_profile/]
+
+Users information only visible to forum administration staff. Only user itself and administrators can modify this information.
+
++ Parameters 
+    + nickname: `AxelW` (string)   - The nickname of the user
+
+### Get user's restricted profile [GET]
+
+Retrive user private information
+
++ Relation: self
++ Request
+    
+    + Headers
+    
+            Accept: application/vnd.mason+json
+    
++ Response 200 (application/vnd.mason+json)
+
+    User correctly retrieved. 
+
+    + Body 
+    
+            {
+                "website": null,
+                "gender": "Male",
+                "image": "photo3.png",
+                "familyName": "Watts",
+                "@namespaces": {
+                    "forum": {
+                        "name": "/forum/link-relations/"
+                    }
+                },
+                "telephone": null,
+                "birthDate": "200-11-11",
+                "@controls": {
+                    "forum:public-data": {
+                        "href": "/forum/api/users/AxelW/public_profile/"
+                    },
+                    "edit": {
+                        "encoding": "json",
+                        "href": "/forum/api/users/AxelW/restricted_profile/",
+                        "method": "PUT",
+                        "schemaUrl": "/forum/schema/private-profile/",
+                        "title": "Edit this private profile"
+                    },
+                    "self": {
+                        "href": "/forum/api/users/AxelW/restricted_profile/"
+                    },
+                    "forum:messages-history": {
+                        "schema": {
+                            "required": [],
+                            "type": "object",
+                            "properties": {
+                                "length": {
+                                    "type": "integer",
+                                    "description": "Maximum number of messages returned"
+                                },
+                                "after": {
+                                    "type": "integer",
+                                    "description": "Find messages after (timestamp as seconds)"
+                                },
+                                "before": {
+                                    "type": "integer",
+                                    "description": "Find messages before (timestamp as seconds)"
+                                }
+                            }
+                        },
+                        "href": "/forum/api/users/AxelW/history{?length,before,after}",
+                        "isHrefTemplate": true,
+                        "title": "Message history"
+                    },
+                    "parent": {
+                        "href": "/forum/api/users/AxelW/"
+                    }
+                },
+                "skype": null,
+                "givenName": "Axel",
+                "nickname": "AxelW",
+                "email": "aw@hotmail.com",
+                "address": null
+            }
+
+
++ Response 404 (application/vnd.mason+json)
+
+    The user with inickname `AxelW` does not exist in the database.
+        
+    + Body 
+    
+            {
+                "@error": {
+                    "@message": "User does not exist",
+                    "@messages": [
+                        "There is no user named AxelW"
+                    ]
+                },
+                "resource_url": "/forum/api/users/AxelW/public_profile"
+            } 
+
+
+### Modify user's private profile [PUT]
+
+Modify aspects of the private profile of a user. 
+
++ Request (application/json)
+
+    Note that in the example the properties  `skype` and `image` are not included in the request example.
+
+    + Headers
+    
+            Accept: application/vnd.mason+json
+
+    + Body 
+    
+            {
+                "address":"Taidonkaari 2 A 20",
+                "birthDate":"30.08.1975",
+                "email":"ivan@pwp.com",
+                "familyName": "Nokelainen",
+                "gender":"Male",
+                "givenName": "Jukka",
+                "website": "www.ee.oulu.fi",
+                "telephone":"555-555-555"
+            }
+
++ Response 201
+
+    The user restricted profile has been modified correctly. 
+        
+    + Headers
+                
+            Location: URL of the new created resource
+
++ Response 400 (application/vnd.mason+json)
+
+    The request body is not well formed. Some of the parameters is not correctly received. 
+    
+    + Body
+    
+            {
+                "@error": {
+                    "@message": "Wrong request format",
+                    "@messages": [
+                        "Be sure you include all mandatory properties"
+                    ]
+                },
+                "resource_url": "/forum/api/users/AxelW/restricted_profile/"
+            }
+
+
++ Response 415 (application/vnd.mason+json)
+
+    The server cannot understand the format of the response.
+    
+    + Body 
+    
+            {
+                "@error": {
+                    "@message": "Unsupported media type",
+                    "@messages": [
+                        "Use JSON format"
+                    ]
+                },
+                "resource_url": "/forum/api/users/AxelW/restricted_profile/"
+            }
+
+
++ Response 500 (application/vnd.mason+json)
+
+    The server cannot modify the informaton in the database.
+    
+    + Body 
+    
+            {
+                "@error": {
+                    "@message": "Problem with the database"
+                    "@messages": [
+                        "Cannot access the database"
+                    ]
+                },
+                "resource_url": "/forum/api/users/AxelW/public_profile/"
+            }
+
+## User's history [/api/users/{nickname}/history{?length,before,after}]
+
+List of messages sent by a user. It is the result of an algorithm which searches the messages sent by a specific user.
+The algorithm might receive 3 arguments to filter the results: the amount of messages to return, a date to remove all messages before it  and a date to remove all messages after it. 
+
++ Parameters 
+    + nickname: `AxelW` (string)   - The nickname of the user
+    + length: 2 (integer, optional) - Maximum number of messages to be returned
+    + before: 1456936437  (long, optional) - Return all messages sent before this timestamp.
+    + after: 1456936437  (long, optional) - Return all messages sent after this timestamp.
+
+### List message history [GET]
+
+Get a list of messages by user
+    
++ Request
+    
+    + Headers
+    
+            Accept: application/vnd.mason+json
+    
++ Response 200 (application/vnd.mason+json)
+    
+    + Body 
+    
+            {
+                "@namespaces": {
+                    "forum": {
+                        "name": "/forum/link-relations/"
+                    }
+                },
+                
+                "items": [
+                    {
+                        "id": "msg-1",
+                        "headline": "CSS: Margin problems with IE",
+                        "@controls": {
+                            "self": {
+                                "href": "/forum/api/messages/msg-1/"
+                            },
+                            "profile": {
+                                "href": "/profiles/message-profile/"
+                            }                            
+                        }
+                    },
+                    {
+                        "id": "msg-17",
+                        "headline": "Try hello",            
+                        "@controls": {
+                            "self": {
+                                "href": "/forum/api/messages/msg-17/"
+                            },
+                            "profile": {
+                                "href": "/profiles/message-profile/"
+                            }                            
+                        }
+                    }
+                ],
+                
+                "@controls": {
+                    "self": {
+                        "href": "/forum/api/users/AxelW/history/"
+                    },
+                    "author": {
+                        "href": "/forum/api/users/AxelW/"
+                    },
+                    "forum:users-all": {
+                        "title": "List users", 
+                        "href": "/forum/api/users/"
+                    },
+                    "forum:messages-all": {
+                        "title": "List messages",
+                        "href": "/forum/api/messages/"
+                    }
+                }
+            }
+        
++ Response 404 (application/vnd.mason+json)
+
+    There is no message with given conditions 
+        
+    + Body 
+    
+            {
+                "@error": {
+                    "@message": "Empty list",
+                    "@messages": [
+                        "Cannot find any message with the given restrictions"
+                    ]
+                }
+                "resource_url": "/forum/api/users/AxelW/history/"
+            }

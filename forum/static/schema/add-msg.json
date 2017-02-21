@@ -1,0 +1,18 @@
+{
+    "type": "object",
+    "properties": {
+        "headline": {
+            "description": "Message headline",
+            "type": "string"
+        },
+        "articleBody": {
+            "description": "Message contents",
+            "type": "string"
+        },
+        "author": {
+            "description": "Nickname of the message author",
+            "type": "string"
+        },
+    },
+    "required": ["headline", "articleBody"]
+}

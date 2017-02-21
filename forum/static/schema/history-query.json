@@ -1,0 +1,18 @@
+{
+    "type": "object",
+    "properties": {
+        "after": {
+            "description": "Find messages after (timestamp as seconds)", 
+            "type": "integer"
+        }, 
+        "before": {
+            "description": "Find messages before (timestamp as seconds)", 
+            "type": "integer"
+        }, 
+        "length": {
+            "description": "Maximum number of messages returned", 
+            "type": "integer"
+        }
+    },                   
+    "required": []
+}
