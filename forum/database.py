@@ -78,7 +78,7 @@ class Engine(object):
         cur.execute(keys_on)
         with con:
             cur = con.cursor()
-            cur.execute("DELETE FROM messages")
+            cur.execute("DELETE FROM exercise")
             cur.execute("DELETE FROM users")
             #NOTE since we have ON DELETE CASCADE BOTH IN users_profile AND
             #friends, WE DO NOT HAVE TO WORRY TO CLEAR THOSE TABLES.
@@ -91,7 +91,7 @@ class Engine(object):
         :param schema: path to the .sql schema file. If this parmeter is
             None, then *db/forum_schema_dump.sql* is utilized.
 
-        '''
+        
         con = sqlite3.connect(self.db_path)
         if schema is None:
             schema = DEFAULT_SCHEMA
@@ -102,7 +102,11 @@ class Engine(object):
                 cur.executescript(sql)
         finally:
             con.close()
-
+'''
+       
+        self.create_users_table()
+        self.create_exercise_table()
+        self.create_friends_table()   
     def populate_tables(self, dump=None):
         '''
         Populate programmatically the tables from a dump file.
@@ -415,22 +419,12 @@ class Connection(object):
             Note that all values are string if they are not otherwise indicated.
 
         '''
-        reg_date = row['regDate']
-        return {'public_profile': {'registrationdate': reg_date,
-                                   'nickname': row['nickname'],
-                                   'signature': row['signature'],
-                                   'avatar': row['avatar']},
-                'restricted_profile': {'firstname': row['firstname'],
-                                       'lastname': row['lastname'],
-                                       'email': row['email'],
-                                       'website': row['website'],
-                                       'mobile': row['mobile'],
-                                       'skype': row['skype'],
-                                       'birthday': row['birthday'],
-                                       'residence': row['residence'],
-                                       'gender': row['gender'],
-                                       'picture': row['picture']}
-                }
+        #reg_date = row['regDate']
+        return {'username': row['username'],
+                            'avatar': row['avatar'],
+                            'description': row ['description']    }
+
+                
 
     def _create_user_list_object(self, row):
         '''
@@ -443,7 +437,9 @@ class Connection(object):
             ``nickname``
 
         '''
-        return {'registrationdate': row['regDate'], 'nickname': row['nickname']}
+        return {'username': row['username'],
+                            'avatar': row['avatar'],
+                            'description': row ['description']    }
 
     #API ITSELF
     #Message Table API.
@@ -893,8 +889,7 @@ class Connection(object):
         '''
         #Create the SQL Statements
           #SQL Statement for retrieving the users
-        query = 'SELECT users.*, users_profile.* FROM users, users_profile \
-                 WHERE users.user_id = users_profile.user_id'
+        query = 'SELECT users.* FROM users'
         #Activate foreign key support
         self.set_foreign_keys_support()
         #Create the cursor
@@ -912,7 +907,7 @@ class Connection(object):
             users.append(self._create_user_list_object(row))
         return users
 
-    def get_user(self, nickname):
+    def get_user(self, username):
         '''
         Extracts all the information of a user.
 
@@ -923,11 +918,11 @@ class Connection(object):
         '''
         #Create the SQL Statements
           #SQL Statement for retrieving the user given a nickname
-        query1 = 'SELECT user_id from users WHERE nickname = ?'
+        query1 = 'SELECT user_id from users WHERE username = ?'
           #SQL Statement for retrieving the user information
-        query2 = 'SELECT users.*, users_profile.* FROM users, users_profile \
-                  WHERE users.user_id = ? \
-                  AND users_profile.user_id = users.user_id'
+
+        query2 = 'SELECT users.* FROM users\
+                  WHERE users.user_id = ?'
           #Variable to be used in the second query.
         user_id = None
         #Activate foreign key support
@@ -936,7 +931,7 @@ class Connection(object):
         self.con.row_factory = sqlite3.Row
         cur = self.con.cursor()
         #Execute SQL Statement to retrieve the id given a nickname
-        pvalue = (nickname,)
+        pvalue = (username,)
         cur.execute(query1, pvalue)
         #Extract the user id
         row = cur.fetchone()
@@ -952,7 +947,7 @@ class Connection(object):
         row = cur.fetchone()
         return self._create_user_object(row)
 
-    def delete_user(self, nickname):
+    def delete_user(self, username):
         '''
         Remove all user information of the user with the nickname passed in as
         argument.
@@ -964,14 +959,14 @@ class Connection(object):
         '''
         #Create the SQL Statements
           #SQL Statement for deleting the user information
-        query = 'DELETE FROM users WHERE nickname = ?'
+        query = 'DELETE FROM users WHERE username = ?'
         #Activate foreign key support
         self.set_foreign_keys_support()
         #Cursor and row initialization
         self.con.row_factory = sqlite3.Row
         cur = self.con.cursor()
         #Execute the statement to delete
-        pvalue = (nickname,)
+        pvalue = (username,)
         cur.execute(query, pvalue)
         self.con.commit()
         #Check that it has been deleted
@@ -979,7 +974,7 @@ class Connection(object):
             return False
         return True
 
-    def modify_user(self, nickname, user):
+    def modify_user(self, username, user):
         '''
         Modify the information of a user.
 
@@ -1027,14 +1022,11 @@ class Connection(object):
         '''
                 #Create the SQL Statements
            #SQL Statement for extracting the userid given a nickname
-        query1 = 'SELECT user_id from users WHERE nickname = ?'
+        query1 = 'SELECT user_id from users WHERE username = ?'
           #SQL Statement to update the user_profile table
         #START UPDATE statement
-        query2_start = 'UPDATE users_profile SET '
-        query2_public = 'signature = ?,avatar = ?,'
-        query2_private = 'firstname = ?,lastname = ?, email = ?,website = ?, \
-                          picture = ?,mobile = ?, skype = ?, \
-                          birthday = ?,residence = ?, gender = ?'
+        query2_start = 'UPDATE users SET '
+        query2_public = 'avatar = ?, description = ?'
         query2_end = ' WHERE user_id = ?'
           #SQL Statement to update the user_profile table
         query2 = query2_start

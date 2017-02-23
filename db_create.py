@@ -18,3 +18,4 @@ with open (dump) as f:
     sql = f.read()
     cur = con.cursor()
     cur.executescript(sql)
+    
