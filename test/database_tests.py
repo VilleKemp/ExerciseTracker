@@ -75,7 +75,8 @@ INITIAL_SIZE = 4
 USER1_NICKNAME = 'Mystery'
 USER1_ID = 1
 EXERCISE1_ID=4
-EXERCISE1 = { 'user_id': 1,
+EXERCISE1 = { 'exercise_id': 4,
+              'user_id': 1,
     'username': USER1_NICKNAME,
                             'type' : 'jump',
                             'value': 1,
@@ -85,7 +86,9 @@ EXERCISE1 = { 'user_id': 1,
                             'timeunit': 'h'
 }
          
-MODIFIED_EXERCISE1 =  { 'user_id': 1,
+MODIFIED_EXERCISE1 =  {
+'exercise_id' : 4,
+'user_id': 1,
     'username': USER1_NICKNAME,
                             'type' : 'jump2',
                             'value': 11111,
@@ -96,7 +99,9 @@ MODIFIED_EXERCISE1 =  { 'user_id': 1,
 }
 USER2_NICKNAME = 'M'
 USER2_ID = 2
-EXERCISE2 = { 'user_id': 2,
+EXERCISE2 = {
+'exercise_id': 1, 
+'user_id': 2,
     'username': USER2_NICKNAME,
                             'type' : 'run',
                             'value': 101,
@@ -106,7 +111,9 @@ EXERCISE2 = { 'user_id': 2,
                             'timeunit': 'h'
 }
 
-EXERCISE3 = { 'user_id': 2,
+EXERCISE3 = {
+'exercise_id': 2, 
+'user_id': 2,
     'username': USER2_NICKNAME,
                             'type' : 'jog',
                             'value': 1010000,
@@ -117,7 +124,9 @@ EXERCISE3 = { 'user_id': 2,
 }
 
 #NEW_USER_NICKNAME = 'sully'
-NEW_EXERCISE = { 'user_id': 1,
+NEW_EXERCISE = {
+ 
+'user_id': 1,
     'username': USER1_NICKNAME,
                             'type' : 'run',
                             'value': 100,

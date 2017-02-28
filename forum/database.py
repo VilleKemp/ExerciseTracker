@@ -327,7 +327,8 @@ class Connection(object):
     def _create_exercise_object(self, row):
 
         #reg_date = row['regDate']
-        return {'user_id' : row['user_id'], 
+        return {'exercise_id': row['exercise_id'],
+                    'user_id' : row['user_id'], 
                     'username': row['username'],
                     'type' : row['type'],
                     'value' : row['value'],
@@ -339,7 +340,8 @@ class Connection(object):
     def _create_exercise_list_object(self, row):
 
         #reg_date = row['regDate']
-        return {'user_id' : row['user_id'], 
+        return {'exercise_id': row['exercise_id'],
+                    'user_id' : row['user_id'], 
                     'username': row['username'],
                     'type' : row['type'],
                     'value' : row['value'],
