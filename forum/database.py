@@ -324,6 +324,33 @@ class Connection(object):
     #similarly to ORM
 
     #Helpers for messages
+    def _create_exercise_object(self, row):
+
+        #reg_date = row['regDate']
+        return {'user_id' : row['user_id'], 
+                    'username': row['username'],
+                    'type' : row['type'],
+                    'value' : row['value'],
+                    'valueunit' : row['valueunit'],
+                    'date' : row['date'],
+                    'time' : row['time'],
+                    'timeunit' : row['timeunit']}
+
+    def _create_exercise_list_object(self, row):
+
+        #reg_date = row['regDate']
+        return {'user_id' : row['user_id'], 
+                    'username': row['username'],
+                    'type' : row['type'],
+                    'value' : row['value'],
+                    'valueunit' : row['valueunit'],
+                    'date' : row['date'],
+                    'time' : row['time'],
+                    'timeunit' : row['timeunit']}
+
+
+
+
     def _create_message_object(self, row):
         '''
         It takes a :py:class:`sqlite3.Row` and transform it into a dictionary.
@@ -421,8 +448,10 @@ class Connection(object):
         '''
         #reg_date = row['regDate']
         return {'username': row['username'],
+                            'password':row['password'],
                             'avatar': row['avatar'],
-                            'description': row ['description']    }
+                            'description': row ['description'],
+                            'visibility': row ['visibility'] }
 
                 
 
@@ -438,8 +467,10 @@ class Connection(object):
 
         '''
         return {'username': row['username'],
+                            'password':row['password'],
                             'avatar': row['avatar'],
-                            'description': row ['description']    }
+                            'description': row ['description'],
+                            'visibility': row ['visibility'] }
 
     #API ITSELF
     #Message Table API.
@@ -1026,20 +1057,23 @@ class Connection(object):
           #SQL Statement to update the user_profile table
         #START UPDATE statement
         query2_start = 'UPDATE users SET '
-        query2_public = 'avatar = ?, description = ?'
+        query2_public = 'password = ?,avatar = ?, description = ?, visibility = ?'
         query2_end = ' WHERE user_id = ?'
           #SQL Statement to update the user_profile table
         query2 = query2_start
         #temporal variables
         user_id = None
         pvalue_array = []
-        p_profile = user.get('public_profile', None)
-        r_profile = user.get('restricted_profile', None)
-        if p_profile:
-            _signature = p_profile.get('signature', None)
-            _avatar = p_profile.get('avatar', None)
-            query2 += query2_public
-            pvalue_array.extend([_signature, _avatar])
+       # p_profile = user.get('public_profile', None)
+       # r_profile = user.get('restricted_profile', None)
+        #if p_profile:
+        _password = user.get('password', None)
+        _avatar = user.get('avatar', None)
+        _description = user.get('description', None)
+        _visibility = user.get('visibility', None)        
+        query2 += query2_public
+        pvalue_array.extend([_password,_avatar,_description,_visibility])
+        '''
         if r_profile:
             _firstname = r_profile.get('firstname', None)
             _lastname = r_profile.get('lastname', None)
@@ -1057,21 +1091,23 @@ class Connection(object):
             pvalue_array.extend([_firstname, _lastname, _email, _website,
                                  _picture, _mobile, _skype, _birthday,
                                  _residence, _gender])
+        
         #Remove the , if the query2_public is not none.
         if query2[-1] == ",":
             query2 = query2[:-1]
         query2 += query2_end
         print query2
-
+        
         if p_profile is None and r_profile is None:
             return nickname
+        '''
         #Activate foreign key support
         self.set_foreign_keys_support()
         #Cursor and row initialization
         self.con.row_factory = sqlite3.Row
         cur = self.con.cursor()
         #Execute the statement to extract the id associated to a nickname
-        pvalue = (nickname,)
+        pvalue = (username,)
         cur.execute(query1, pvalue)
         #Only one value expected
         row = cur.fetchone()
@@ -1080,7 +1116,7 @@ class Connection(object):
             return None
         else:
             user_id = row["user_id"]
-            pvalue_array.append(user_id)
+            #pvalue_array.append(user_id)
             #execute the main statement
             pvalue = tuple(pvalue_array)
             print query2
@@ -1090,9 +1126,9 @@ class Connection(object):
             #Check that I have modified the user
             if cur.rowcount < 1:
                 return None
-            return nickname
+            return username
 
-    def append_user(self, nickname, user):
+    def append_user(self, username, user):
         '''
         Create a new user in the database.
 
@@ -1137,43 +1173,35 @@ class Connection(object):
         '''
         #Create the SQL Statements
           #SQL Statement for extracting the userid given a nickname
-        query1 = 'SELECT user_id from users WHERE nickname = ?'
+        query1 = 'SELECT user_id from users WHERE username = ?'
           #SQL Statement to create the row in  users table
-        query2 = 'INSERT INTO users(nickname,regDate,lastLogin,timesviewed)\
-                  VALUES(?,?,?,?)'
+        query2 = 'INSERT INTO users(username,password,avatar,description,visibility)\
+                  VALUES(?,?,?,?,?)'
           #SQL Statement to create the row in user_profile table
+        '''
         query3 = 'INSERT INTO users_profile (user_id, firstname,lastname, \
                                              email,website, \
                                              picture,mobile, \
                                              skype,birthday,residence, \
                                              gender,signature,avatar)\
                   VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)'
+        '''
         #temporal variables for user table
         #timestamp will be used for lastlogin and regDate.
-        timestamp = time.mktime(datetime.now().timetuple())
-        timesviewed = 0
+       # timestamp = time.mktime(datetime.now().timetuple())
+        #timesviewed = 0
         #temporal variables for user profiles
-        p_profile = user['public_profile']
-        r_profile = user['restricted_profile']
-        _firstname = r_profile.get('firstname', None)
-        _lastname = r_profile.get('lastname', None)
-        _email = r_profile.get('email', None)
-        _website = r_profile.get('website', None)
-        _picture = r_profile.get('picture', None)
-        _mobile = r_profile.get('mobile', None)
-        _skype = r_profile.get('skype', None)
-        _birthday = r_profile.get('birthday', None)
-        _residence = r_profile.get('residence', None)
-        _gender = r_profile.get('gender', None)
-        _signature = p_profile.get('signature', None)
-        _avatar = p_profile.get('avatar', None)
+        _password = user.get('password', None)
+        _avatar = user.get('avatar', None)
+        _description = user.get('description', None)
+        _visibility = user.get('visibility', None)
         #Activate foreign key support
         self.set_foreign_keys_support()
         #Cursor and row initialization
         self.con.row_factory = sqlite3.Row
         cur = self.con.cursor()
         #Execute the statement to extract the id associated to a nickname
-        pvalue = (nickname,)
+        pvalue = (username,)
         cur.execute(query1, pvalue)
         #No value expected (no other user with that nickname expected)
         row = cur.fetchone()
@@ -1181,9 +1209,10 @@ class Connection(object):
         if row is None:
             #Add the row in users table
             # Execute the statement
-            pvalue = (nickname, timestamp, timestamp, timesviewed)
+            pvalue = (username, _password, _avatar, _description, _visibility)
             cur.execute(query2, pvalue)
             #Extrat the rowid => user-id
+            '''
             lid = cur.lastrowid
             #Add the row in users_profile table
             # Execute the statement
@@ -1191,11 +1220,332 @@ class Connection(object):
                       _picture, _mobile, _skype, _birthday,_residence, _gender,
                       _signature, _avatar)
             cur.execute(query3, pvalue)
+            '''
             self.con.commit()
             #We do not do any comprobation and return the nickname
-            return nickname
+            return username
         else:
             return None
+
+#exercise
+
+    def create_exercise(self, exercise):
+        #Create the SQL Statements
+          #SQL Statement for extracting the userid given a nickname
+        query1 = 'SELECT user_id from users WHERE username = ?'
+          #SQL Statement to create the row in  users table
+        query2 = 'INSERT INTO exercise(user_id,username,type,value,valueunit,date,time,timeunit)\
+                  VALUES(?,?,?,?,?,?,?,?)'
+          #SQL Statement to create the row in user_profile table
+        '''
+        query3 = 'INSERT INTO users_profile (user_id, firstname,lastname, \
+                                             email,website, \
+                                             picture,mobile, \
+                                             skype,birthday,residence, \
+                                             gender,signature,avatar)\
+                  VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)'
+                      return {'user_id' : row['user_id'], 
+                    'username': row['username'],
+                    'type' : row['type'],
+                    'value' : row['value'],
+                    'valueunit' : row['valueunit'],
+                    'date' : row['date'],
+                    'time' : row['time'],
+                    'timeunit' : row['timeunit']}
+        '''
+        #temporal variables for user table
+        #timestamp will be used for lastlogin and regDate.
+       # timestamp = time.mktime(datetime.now().timetuple())
+        #timesviewed = 0
+        #temporal variables for user profiles
+        _user_id = exercise.get('user_id', None)
+        _username = exercise.get('username', None)
+        _type = exercise.get('type', None)
+        _value = exercise.get('value', None)
+        _valueunit = exercise.get('valueunit', None)
+        _date = exercise.get('date', None)
+        _time = exercise.get('time', None)
+        _timeunit = exercise.get('timeunit', None)
+
+        #Activate foreign key support
+        self.set_foreign_keys_support()
+        #Cursor and row initialization
+        self.con.row_factory = sqlite3.Row
+        cur = self.con.cursor()
+        #Execute the statement to extract the id associated to a nickname
+        pvalue = (_username,)
+        cur.execute(query1, pvalue)
+        #No value expected (no other user with that nickname expected)
+        row = cur.fetchone()
+        #If there is no user add rows in user and user profile
+        if row is not None:
+            #Add the row in users table
+            # Execute the statement
+            pvalue = (_user_id,_username,_type,_value,_valueunit,_date,_time,_timeunit)
+            cur.execute(query2, pvalue)
+            #Extrat the rowid => user-id
+            
+            lid = cur.lastrowid
+            '''
+            #Add the row in users_profile table
+            # Execute the statement
+            pvalue = (lid, _firstname, _lastname, _email, _website,
+                      _picture, _mobile, _skype, _birthday,_residence, _gender,
+                      _signature, _avatar)
+            cur.execute(query3, pvalue)
+            '''
+            self.con.commit()
+            #We do not do any comprobation and return the nickname
+            return lid
+        else:
+            return None
+
+    def get_exercise(self, exercise_id):
+
+        #Create the SQL Statements
+          #SQL Statement for retrieving the user given a nickname
+        query1 = 'SELECT * from exercise WHERE exercise_id = ?'
+          #SQL Statement for retrieving the user information
+
+        #query2 = 'SELECT users.* FROM users\
+         #         WHERE users.user_id = ?'
+          #Variable to be used in the second query.
+        user_id = None
+        #Activate foreign key support
+        self.set_foreign_keys_support()
+        #Cursor and row initialization
+        self.con.row_factory = sqlite3.Row
+        cur = self.con.cursor()
+        #Execute SQL Statement to retrieve the id given a nickname
+        pvalue = (exercise_id,)
+        cur.execute(query1, pvalue)
+        #Extract the user id
+        row = cur.fetchone()
+        if row is None:
+            return None
+        #user_id = row["user_id"]
+        # Execute the SQL Statement to retrieve the user invformation.
+        # Create first the valuse
+        #pvalue = (user_id, )
+        #execute the statement
+        #cur.execute(query2, pvalue)
+        #Process the response. Only one posible row is expected.
+        #row = cur.fetchone()
+        return self._create_exercise_object(row)
+
+    def get_exercises(self):
+        '''
+        Extracts all users in the database.
+
+        :return: list of Users of the database. Each user is a dictionary
+            that contains two keys: ``nickname``(str) and ``registrationdate``
+            (long representing UNIX timestamp). None is returned if the database
+            has no users.
+
+        '''
+        #Create the SQL Statements
+          #SQL Statement for retrieving the users
+        query = 'SELECT exercise.* FROM exercise'
+        #Activate foreign key support
+        self.set_foreign_keys_support()
+        #Create the cursor
+        self.con.row_factory = sqlite3.Row
+        cur = self.con.cursor()
+        #Execute main SQL Statement
+        cur.execute(query)
+        #Process the results
+        rows = cur.fetchall()
+        if rows is None:
+            return None
+        #Process the response.
+        exercises = []
+        for row in rows:
+            exercises.append(self._create_exercise_list_object(row))
+        return exercises
+
+    def get_user_exercises(self,username):
+        '''
+        Extracts all users in the database.
+
+        :return: list of Users of the database. Each user is a dictionary
+            that contains two keys: ``nickname``(str) and ``registrationdate``
+            (long representing UNIX timestamp). None is returned if the database
+            has no users.
+
+        '''
+        #Create the SQL Statements
+          #SQL Statement for retrieving the users
+        query = 'SELECT exercise.* FROM exercise WHERE username= ?'
+        #Activate foreign key support
+        self.set_foreign_keys_support()
+        #Create the cursor
+        self.con.row_factory = sqlite3.Row
+        cur = self.con.cursor()
+        #Execute main SQL Statement
+        pvalue=(username,)
+        cur.execute(query,pvalue)
+        #Process the results
+        rows = cur.fetchall()
+        if rows is None:
+            return None
+        #Process the response.
+        exercises = []
+        for row in rows:
+            exercises.append(self._create_exercise_list_object(row))
+        return exercises
+
+    def delete_exercise(self, exercise_id):
+        '''
+        Remove all user information of the user with the nickname passed in as
+        argument.
+
+        :param str nickname: The nickname of the user to remove.
+
+        :return: True if the user is deleted, False otherwise.
+
+        '''
+        #Create the SQL Statements
+          #SQL Statement for deleting the user information
+        query = 'DELETE FROM exercise WHERE exercise_id = ?'
+        #Activate foreign key support
+        self.set_foreign_keys_support()
+        #Cursor and row initialization
+        self.con.row_factory = sqlite3.Row
+        cur = self.con.cursor()
+        #Execute the statement to delete
+        pvalue = (exercise_id,)
+        cur.execute(query, pvalue)
+        self.con.commit()
+        #Check that it has been deleted
+        if cur.rowcount < 1:
+            return False
+        return True
+
+    def modify_exercise(self, exercise_id, exercise):
+        '''
+        Modify the information of a user.
+
+        :param str nickname: The nickname of the user to modify
+        :param dict user: a dictionary with the information to be modified. The
+            dictionary has the following structure:
+
+                .. code-block:: javascript
+
+                    {'public_profile':{'registrationdate':,'signature':'',
+                                       'avatar':''},
+                    'restricted_profile':{'firstname':'','lastname':'',
+                                          'email':'', 'website':'','mobile':'',
+                                          'skype':'','age':'','residence':'',
+                                          'gender':'', 'picture':''}
+                    }
+
+                where:
+
+                * ``registrationdate``: UNIX timestamp when the user registered
+                    in the system (long integer)
+                * ``signature``: text chosen by the user for signature
+                * ``avatar``: name of the image file used as avatar
+                * ``firstanme``: given name of the user
+                * ``lastname``: family name of the user
+                * ``email``: current email of the user.
+                * ``website``: url with the user's personal page. Can be None
+                * ``mobile``: string showing the user's phone number. Can be
+                    None.
+                * ``skype``: user's nickname in skype. Can be None.
+                * ``residence``: complete user's home address.
+                * ``picture``: file which contains an image of the user.
+                * ``gender``: User's gender ('male' or 'female').
+                * ``birthday``: string containing the birthday of the user.
+
+            Note that all values are string if they are not otherwise indicated.
+
+            Either public_profile or restricted_profile might not being
+            presented. Then that information is not processed.
+
+        :return: the nickname of the modified user or None if the
+            ``nickname`` passed as parameter is not  in the database.
+        :raise ValueError: if the user argument is not well formed.
+
+        '''
+                #Create the SQL Statements
+           #SQL Statement for extracting the userid given a nickname
+        #query1 = 'SELECT u_id from users WHERE username = ?'
+          #SQL Statement to update the user_profile table
+        #START UPDATE statement
+        query1 = 'SELECT * from exercise WHERE exercise_id = ?'
+        query2_start = 'UPDATE exercise SET '
+        query2_public = 'type = ?,value = ?, valueunit = ?, date = ?, time = ? , timeunit = ?'
+        query2_end = ' WHERE exercise_id = ?'
+          #SQL Statement to update the user_profile table
+        query2 = query2_start
+        #temporal variables
+        #user_id = None
+        pvalue_array = []
+       # p_profile = user.get('public_profile', None)
+       # r_profile = user.get('restricted_profile', None)
+        #if p_profile:
+        _type = exercise.get('type', None)
+        _value = exercise.get('value', None)
+        _valueunit = exercise.get('valueunit', None)
+        _date = exercise.get('date', None)
+        _time = exercise.get('time', None)
+        _timeunit = exercise.get('timeunit', None)
+        query2 += query2_public
+        pvalue_array.extend([_type,_value,_valueunit,_date,_time,_timeunit])
+        '''
+        if r_profile:
+            _firstname = r_profile.get('firstname', None)
+            _lastname = r_profile.get('lastname', None)
+            _email = r_profile.get('email', None)
+            _website = r_profile.get('website', None)
+            _picture = r_profile.get('picture', None)
+            _mobile = r_profile.get('mobile', None)
+            _skype = r_profile.get('skype', None)
+            _birthday = r_profile.get('birthday', None)
+            _residence = r_profile.get('residence', None)
+            _gender = r_profile.get('gender', None)
+            if query2[-1] == ",":
+                query2 = query2[:-1]
+            query2 += query2_private
+            pvalue_array.extend([_firstname, _lastname, _email, _website,
+                                 _picture, _mobile, _skype, _birthday,
+                                 _residence, _gender])
+        
+        #Remove the , if the query2_public is not none.
+        if query2[-1] == ",":
+            query2 = query2[:-1]
+        query2 += query2_end
+        print query2
+        
+        if p_profile is None and r_profile is None:
+            return nickname
+        '''
+        #Activate foreign key support
+        self.set_foreign_keys_support()
+        #Cursor and row initialization
+        self.con.row_factory = sqlite3.Row
+        cur = self.con.cursor()
+        #Execute the statement to extract the id associated to a nickname
+        pvalue = (exercise_id,)
+        cur.execute(query1, pvalue)
+        #Only one value expected
+        row = cur.fetchone()
+        #if does not exist, return
+        if row is None:
+            return None
+        else:
+            #user_id = row["user_id"]
+            #pvalue_array.append(user_id)
+            #execute the main statement
+            pvalue = tuple(pvalue_array)
+            print query2
+            print pvalue
+            cur.execute(query2, pvalue)
+            self.con.commit()
+            #Check that I have modified the user
+            if cur.rowcount < 1:
+                return None
+            return True
 
     # UTILS
     def get_friends(self, nickname):
@@ -1208,7 +1558,7 @@ class Connection(object):
         '''
         raise NotImplementedError("")
 
-    def get_user_id(self, nickname):
+    def get_user_id(self, username):
         '''
         Get the key of the database row which contains the user with the given
         nickname.
@@ -1235,14 +1585,14 @@ class Connection(object):
                 * test_get_user_id
                 * test_get_user_id_unknown_user
         '''
-        query = 'SELECT user_id from users WHERE nickname = ?'
+        query = 'SELECT user_id from users WHERE username = ?'
         #Activate foreign key support
         self.set_foreign_keys_support()
         #Cursor and row initialization
         self.con.row_factory = sqlite3.Row
         cur = self.con.cursor()
         #Execute the  main statement
-        pvalue = (nickname,)
+        pvalue = (username,)
         cur.execute(query, pvalue)
         #Extract the results. Just one row expected.
         row = cur.fetchone()
@@ -1251,8 +1601,8 @@ class Connection(object):
         else:
             return row["user_id"]
 
-    def contains_user(self, nickname):
+    def contains_user(self, username):
         '''
         :return: True if the user is in the database. False otherwise
         '''
-        return self.get_user_id(nickname) is not None
+        return self.get_user_id(username) is not None
