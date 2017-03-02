@@ -55,6 +55,8 @@ MODIFIED_USER1 =  {'username': USER1_NICKNAME,
                             'avatar': 999,
                             'description': 'Olen vanha user',
                             'visibility': 0}
+
+USER1_FRIEND = {'friend_id': 2}
 USER2_NICKNAME = 'M'
 USER2_ID = 2
 USER2 = {'username': USER2_NICKNAME,
@@ -474,6 +476,45 @@ class UserDBAPITestCase(unittest.TestCase):
         resp = self.connection.modify_user(EXERCISE_WRONG_ID, EXERCISE1)
         self.assertIsNone(resp)
     
+    def test_get_friends(self):
+        '''
+        Test get_friends with 
+        '''
+        print '('+self.test_get_friends.__name__+')', \
+              self.test_get_friends.__doc__
+
+
+        #Test with an existing user
+        friends = self.connection.get_friends(USER1_NICKNAME)
+        self.assertEquals(len(friends), 3)
+
+    def test_add_friend(self):
+        '''
+        Test get_friends with 
+        '''
+        print '('+self.test_add_friend.__name__+')', \
+              self.test_add_friend.__doc__
+
+
+        #Test with an existing user
+        resp = self.connection.add_friend(USER2_NICKNAME,USER1_NICKNAME)
+        self.assertTrue(resp)
+        friends = self.connection.get_friends(USER2_NICKNAME)
+        for friend in friends:
+            if friend['friend_id'] == 1:
+                return True            
+
+    def test_delete_friend(self):
+        '''
+        Test that the 
+        '''
+        print '('+self.test_delete_friend.__name__+')', \
+              self.test_delete_friend.__doc__
+        resp = self.connection.delete_friend(USER1_NICKNAME,USER2_NICKNAME)
+        self.assertTrue(resp)
+        #Check that the users has been really deleted throug a get
+        resp2 = self.connection.get_friends(USER1_NICKNAME)
+        self.assertEquals(len(resp2), 2)
 
  
 if __name__ == '__main__':

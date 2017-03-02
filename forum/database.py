@@ -474,6 +474,20 @@ class Connection(object):
                             'description': row ['description'],
                             'visibility': row ['visibility'] }
 
+    def _create_friends_list_object(self,row):
+  
+        '''
+        Same as :py:meth:`_create_message_object`. However, the resulting
+        dictionary is targeted to build messages in a list.
+
+        :param row: The row obtained from the database.
+        :type row: sqlite3.Row
+        :return: a dictionary with the keys ``registrationdate`` and
+            ``nickname``
+
+        '''
+        return {'friend_id': row['friend_id']}
+
     #API ITSELF
     #Message Table API.
     def get_message(self, messageid):
@@ -485,7 +499,7 @@ class Connection(object):
         :return: A dictionary with the format provided in
             :py:meth:`_create_message_object` or None if the message with target
             id does not exist.
-        :raises ValueError: when ``messageid`` is not well formed
+        :raises ValueError: when ``messaeid`` is not well formed
 
         '''
         #Extracts the int which is the id for a message in the database
@@ -1550,7 +1564,7 @@ class Connection(object):
             return True
 
     # UTILS
-    def get_friends(self, nickname):
+    def get_friends(self, username):
         '''
         Get a list with friends of a user.
 
@@ -1558,7 +1572,131 @@ class Connection(object):
         :return: a list of users nicknames or None if ``nickname`` is not in the
             database
         '''
-        raise NotImplementedError("")
+        #Create the SQL Statements
+        #SQL Statement for retrieving the users
+        query = 'SELECT friends.* FROM friends WHERE user_id= ?'
+        query2= 'SELECT user_id FROM users WHERE username=?'
+        #Activate foreign key support
+        self.set_foreign_keys_support()
+        #Create the cursor
+        self.con.row_factory = sqlite3.Row
+        cur = self.con.cursor()
+        #Execute main SQL Statement
+        pvalue=(username,)
+        cur.execute(query2,pvalue)
+        #Process the results
+        rows = cur.fetchone()
+
+        if rows is None:
+            return None
+        #Process the response.
+        user_id=rows['user_id']
+        pvalue=(user_id,)
+        cur.execute(query,pvalue)
+        #Process the results
+        rows = cur.fetchall()
+        if rows is None:
+            return None
+        
+        friends = []
+        for row in rows:
+            friends.append(self._create_friends_list_object(row))
+        print friends
+        return friends
+        
+
+    def add_friend(self, username, friendname):
+        '''
+        
+        '''
+        #Create the SQL Statements
+          #SQL Statement for extracting the userid given a nickname
+        query1 = 'SELECT user_id from users WHERE username = ?'
+          #SQL Statement to create the row in  users table
+        query2 = 'INSERT INTO friends(user_id,friend_id)\
+                  VALUES(?,?)'
+          #SQL Statement to create the row in user_profile table
+
+
+        #Activate foreign key support
+        self.set_foreign_keys_support()
+        #Cursor and row initialization
+        self.con.row_factory = sqlite3.Row
+        cur = self.con.cursor()
+        #Execute the statement to extract the id associated to a nickname
+        pvalue = (username,)
+        cur.execute(query1, pvalue)
+        #No value expected (no other user with that nickname expected)
+        user = cur.fetchone()
+        user_id=user['user_id']
+        #Execute the statement to extract the id associated to a nickname
+        pvalue = (friendname,)
+        cur.execute(query1, pvalue)
+        #No value expected (no other user with that nickname expected)
+        friend = cur.fetchone()
+        friend_id=friend['user_id']
+        #If there is no user add rows in user and user profile
+        
+        if user_id is None or friend_id is None:
+            return None
+        pvalue = (user_id, friend_id)
+        cur.execute(query2, pvalue)
+        self.con.commit()
+            #We do not do any comprobation and return the nickname
+        return True
+
+
+    def delete_friend(self, username,friendname):
+        '''
+        Remove all user information of the user with the nickname passed in as
+        argument.
+
+        :param str nickname: The nickname of the user to remove.
+
+        :return: True if the user is deleted, False otherwise.
+
+        '''
+        #Create the SQL Statements
+          #SQL Statement for deleting the user information
+        query2 = 'DELETE FROM friends WHERE user_id = ? AND friend_id =?'
+       #Create the SQL Statements
+          #SQL Statement for extracting the userid given a nickname
+        query1 = 'SELECT user_id from users WHERE username = ?'
+          #SQL Statement to create the row in  users table
+
+          #SQL Statement to create the row in user_profile table
+
+
+        #Activate foreign key support
+        self.set_foreign_keys_support()
+        #Cursor and row initialization
+        self.con.row_factory = sqlite3.Row
+        cur = self.con.cursor()
+        #Execute the statement to extract the id associated to a nickname
+        pvalue = (username,)
+        cur.execute(query1, pvalue)
+        #No value expected (no other user with that nickname expected)
+        user = cur.fetchone()
+        user_id=user['user_id']
+        #Execute the statement to extract the id associated to a nickname
+        pvalue = (friendname,)
+        cur.execute(query1, pvalue)
+        #No value expected (no other user with that nickname expected)
+        friend = cur.fetchone()
+        friend_id=friend['user_id']
+        #If there is no user add rows in user and user profile
+        
+        if user_id is None or friend_id is None:
+            return None
+        pvalue = (user_id, friend_id)
+        cur.execute(query2, pvalue)
+        self.con.commit()
+
+                #Check that it has been deleted
+        if cur.rowcount < 1:
+            return False
+        return True
+
 
     def get_user_id(self, username):
         '''
