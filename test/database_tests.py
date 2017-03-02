@@ -238,8 +238,8 @@ class UserDBAPITestCase(unittest.TestCase):
 
 #TODO testataan cascade
  #Check that the user does not have associated any message
- #       resp3 = self.connection.get_exercise(username=USER1_NICKNAME)
-  #      self.assertEquals(len(resp3), 0)
+        #resp3 = self.connection.get_exercise(exercise_id)
+        #self.assertEquals(len(resp3), 0)
 
     def test_delete_user_noexistingusername(self):
         '''
@@ -351,7 +351,9 @@ class UserDBAPITestCase(unittest.TestCase):
 ##Exercise tests
 
     def test_create_exercise(self):
-
+        '''
+        Tests that new exercise is created correctly
+        '''
         print '('+self.test_create_exercise.__name__+')', \
               self.test_create_exercise.__doc__
         exercise_id = self.connection.create_exercise(NEW_EXERCISE)
@@ -366,7 +368,7 @@ class UserDBAPITestCase(unittest.TestCase):
 
     def test_get_exercise(self):
         '''
-        Test get_user with id Mystery and HockeyFan
+        Test get_exercise with EXERCISE1_ID
         '''
         print '('+self.test_get_exercise.__name__+')', \
               self.test_get_exercise.__doc__
@@ -379,7 +381,7 @@ class UserDBAPITestCase(unittest.TestCase):
 
     def test_get_exercises(self):
         '''
-        Test that get_users work correctly and extract required user info
+        Test that get_exercises work correctly and extract required exercise info
         '''
         print '('+self.test_get_exercises.__name__+')', \
               self.test_get_exercises.__doc__
@@ -396,7 +398,7 @@ class UserDBAPITestCase(unittest.TestCase):
 
     def test_get_user_exercises(self):
         '''
-        Test that get_users work correctly and extract required user info
+        Test that get_user_exercise work correctly and extract required exercise info from user
         '''
         print '('+self.test_get_user_exercises.__name__+')', \
               self.test_get_user_exercises.__doc__
@@ -414,7 +416,7 @@ class UserDBAPITestCase(unittest.TestCase):
 
     def test_delete_exercise(self):
         '''
-        Test that the user Mystery is deleted
+        Test that the exercise with EXERCISE1_ID is deleted
         '''
         print '('+self.test_delete_exercise.__name__+')', \
               self.test_delete_exercise.__doc__
@@ -431,7 +433,7 @@ class UserDBAPITestCase(unittest.TestCase):
 
     def test_delete_exercise_noexistingusername(self):
         '''
-        Test delete_user with  Batty (no-existing)
+        Test delete_exercise with EXERCISE_WRONG_ID (no-existing)
         '''
         print '('+self.test_delete_exercise_noexistingusername.__name__+')', \
               self.test_delete_exercise_noexistingusername.__doc__
@@ -442,7 +444,7 @@ class UserDBAPITestCase(unittest.TestCase):
 
     def test_modify_exercise(self):
         '''
-        Test that the user Mystery is modifed
+        Test that the exercise with EXERCISE1_ID is modifed
         '''
         print '('+self.test_modify_exercise.__name__+')', \
               self.test_modify_exercise.__doc__
@@ -468,7 +470,7 @@ class UserDBAPITestCase(unittest.TestCase):
 
     def test_modify_exercise_noexistingID(self):
         '''
-        Test modify_user with  user Batty (no-existing)
+        Test modify_exercise with EXERCISE_WRONG_ID (no-existing)
         '''
         print '('+self.test_modify_exercise_noexistingID.__name__+')', \
               self.test_modify_exercise_noexistingID.__doc__
@@ -478,7 +480,7 @@ class UserDBAPITestCase(unittest.TestCase):
     
     def test_get_friends(self):
         '''
-        Test get_friends with 
+        Test get_friends with USER1_NICKNAME
         '''
         print '('+self.test_get_friends.__name__+')', \
               self.test_get_friends.__doc__
@@ -490,7 +492,7 @@ class UserDBAPITestCase(unittest.TestCase):
 
     def test_add_friend(self):
         '''
-        Test get_friends with 
+        Test add_friends with USER2_NICKNAME (as a user) and USER1_NICKNAME (as a friend)
         '''
         print '('+self.test_add_friend.__name__+')', \
               self.test_add_friend.__doc__
@@ -506,7 +508,7 @@ class UserDBAPITestCase(unittest.TestCase):
 
     def test_delete_friend(self):
         '''
-        Test that the 
+        Test that the friend with matching USER1_NICKNAME and USER2_NICKNAME is deleted
         '''
         print '('+self.test_delete_friend.__name__+')', \
               self.test_delete_friend.__doc__
