@@ -131,7 +131,7 @@ class Engine(object):
     #METHODS TO CREATE THE TABLES PROGRAMMATICALLY WITHOUT USING SQL SCRIPT
     def create_exercise_table(self):
         '''
-        Create the table ```` programmatically, without using .sql file.
+        Create the table ``exercise`` programmatically, without using .sql file.
 
         Print an error message in the console if it could not be created.
 
@@ -323,10 +323,25 @@ class Connection(object):
     #Here the helpers that transform database rows into dictionary. They work
     #similarly to ORM
 
-    #Helpers for messages
+    #Helpers for exercises
     def _create_exercise_object(self, row):
 
-        #reg_date = row['regDate']
+        '''
+        It takes a :py:class:`sqlite3.Row` and transform it into a dictionary.
+
+        :param row: The row obtained from the database.
+        :type row: sqlite3.Row
+        :return: a dictionary containing the following keys:
+
+            * ``exercise_id``: Id of the exercise (int)
+            * ``user_id``: Id of the user who submitted the exercise(int)
+            * ``username``: Name of the user who submitted the exercise (string)
+            * ``type``: Type of the exercise. For example "running" (string)
+            * ``value``: Value of the exercise.(int)
+            * ``valueunit``: Values unit. For example "km". (string)
+            * ``time``: Time the exercise took.(int)
+            * ``timeunit``: Times unit. For example 'h'(string)
+        '''
         return {'exercise_id': row['exercise_id'],
                     'user_id' : row['user_id'], 
                     'username': row['username'],
@@ -339,7 +354,23 @@ class Connection(object):
 
     def _create_exercise_list_object(self, row):
 
-        #reg_date = row['regDate']
+        '''
+        Same as :py:meth:`_create_exercise_object`. However, the resulting
+        dictionary is targeted to build messages in a list.
+
+        :param row: The row obtained from the database.
+        :type row: sqlite3.Row
+        :return: a dictionary containing the following keys:
+
+            * ``exercise_id``: Id of the exercise (int)
+            * ``user_id``: Id of the user who submitted the exercise(int)
+            * ``username``: Name of the user who submitted the exercise (string)
+            * ``type``: Type of the exercise. For example "running" (string)
+            * ``value``: Value of the exercise.(int)
+            * ``valueunit``: Values unit. For example "km". (string)
+            * ``time``: Time the exercise took.(int)
+            * ``timeunit``: Times unit. For example 'h'(string)
+        '''
         return {'exercise_id': row['exercise_id'],
                     'user_id' : row['user_id'], 
                     'username': row['username'],
@@ -353,7 +384,10 @@ class Connection(object):
 
 
 
-    def _create_message_object(self, row):
+   
+
+    #Helpers for users
+    def _create_user_object(self, row):
         '''
         It takes a :py:class:`sqlite3.Row` and transform it into a dictionary.
 
@@ -361,94 +395,14 @@ class Connection(object):
         :type row: sqlite3.Row
         :return: a dictionary containing the following keys:
 
-            * ``messageid``: id of the message (int)
-            * ``title``: message's title
-            * ``body``: message's text
-            * ``timestamp``: UNIX timestamp (long integer) that specifies when
-              the message was created.
-            * ``replyto``: The id of the parent message. String with the format
-              msg-{id}. Its value can be None.
-            * ``sender``: The nickname of the message's creator.
-            * ``editor``: The nickname of the message's editor.
-
-            Note that all values in the returned dictionary are string unless
-            otherwise stated.
+            * ``username``: Name of the user (string)
+            * ``password``: Password of the user(string)
+            * ``avatar``: Users avatar (blob)
+            * ``description``: Users description (string)
+            * ``visibility``: Users visibility value (int)
 
         '''
-        message_id = 'msg-' + str(row['message_id'])
-        message_replyto = 'msg-' + str(row['reply_to']) \
-            if row['reply_to'] is not None else None
-        message_sender = row['user_nickname']
-        message_editor = row['editor_nickname']
-        message_title = row['title']
-        message_body = row['body']
-        message_timestamp = row['timestamp']
-        message = {'messageid': message_id, 'title': message_title,
-                   'timestamp': message_timestamp, 'replyto': message_replyto,
-                   'body': message_body, 'sender': message_sender,
-                   'editor': message_editor}
-        return message
 
-    def _create_message_list_object(self, row):
-        '''
-        Same as :py:meth:`_create_message_object`. However, the resulting
-        dictionary is targeted to build messages in a list.
-
-        :param row: The row obtained from the database.
-        :type row: sqlite3.Row
-        :return: a dictionary with the keys ``messageid``, ``title``,
-            ``timestamp`` and ``sender``.
-
-        '''
-        message_id = 'msg-' + str(row['message_id'])
-        message_sender = row['user_nickname']
-        message_title = row['title']
-        message_timestamp = row['timestamp']
-        message = {'messageid': message_id, 'title': message_title,
-                   'timestamp': message_timestamp, 'sender': message_sender}
-        return message
-
-    #Helpers for users
-    def _create_user_object(self, row):
-        '''
-        It takes a database Row and transform it into a python dictionary.
-
-        :param row: The row obtained from the database.
-        :type row: sqlite3.Row
-        :return: a dictionary with the following format:
-
-            .. code-block:: javascript
-
-                {'public_profile':{'registrationdate':,'nickname':'',
-                                   'signature':'','avatar':''},
-                'restricted_profile':{'firstname':'','lastname':'','email':'',
-                                      'website':'','mobile':'','skype':'',
-                                      'birthday':'','residence':'','gender':'',
-                                      'picture':''}
-                }
-
-            where:
-
-            * ``registrationdate``: UNIX timestamp when the user registered in
-                                 the system (long integer)
-            * ``nickname``: nickname of the user
-            * ``signature``: text chosen by the user for signature
-            * ``avatar``: name of the image file used as avatar
-            * ``firstanme``: given name of the user
-            * ``lastname``: family name of the user
-            * ``email``: current email of the user.
-            * ``website``: url with the user's personal page. Can be None
-            * ``mobile``: string showing the user's phone number. Can be None.
-            * ``skype``: user's nickname in skype. Can be None.
-            * ``residence``: complete user's home address.
-            * ``picture``: file which contains an image of the user.
-            * ``gender``: User's gender ('male' or 'female').
-            * ``birthday``: string containing the birthday of the user.
-
-            Note that all values are string if they are not otherwise indicated.
-
-        '''
-        #reg_date = row['regDate']
         return {'username': row['username'],
                             'password':row['password'],
                             'avatar': row['avatar'],
@@ -459,14 +413,18 @@ class Connection(object):
 
     def _create_user_list_object(self, row):
         '''
-        Same as :py:meth:`_create_message_object`. However, the resulting
-        dictionary is targeted to build messages in a list.
+        Same as :py:meth:`_create_user_object`. However, the resulting
+        dictionary is targeted to build users in a list.
 
         :param row: The row obtained from the database.
         :type row: sqlite3.Row
-        :return: a dictionary with the keys ``registrationdate`` and
-            ``nickname``
+        :return: a dictionary containing the following keys:
 
+            * ``username``: Name of the user (string)
+            * ``password``: Password of the user(string)
+            * ``avatar``: Users avatar (blob)
+            * ``description``: Users description (string)
+            * ``visibility``: Users visibility value (int)
         '''
         return {'username': row['username'],
                             'password':row['password'],
@@ -477,461 +435,25 @@ class Connection(object):
     def _create_friends_list_object(self,row):
   
         '''
-        Same as :py:meth:`_create_message_object`. However, the resulting
-        dictionary is targeted to build messages in a list.
-
         :param row: The row obtained from the database.
         :type row: sqlite3.Row
-        :return: a dictionary with the keys ``registrationdate`` and
-            ``nickname``
+        :return: a dictionary containing the following keys:
+
+            * ``friend_id``: Friends id.  (int)
 
         '''
         return {'friend_id': row['friend_id']}
 
     #API ITSELF
-    #Message Table API.
-    def get_message(self, messageid):
-        '''
-        Extracts a message from the database.
+   
 
-        :param messageid: The id of the message. Note that messageid is a
-            string with format ``msg-\d{1,3}``.
-        :return: A dictionary with the format provided in
-            :py:meth:`_create_message_object` or None if the message with target
-            id does not exist.
-        :raises ValueError: when ``messaeid`` is not well formed
-
-        '''
-        #Extracts the int which is the id for a message in the database
-        match = re.match(r'msg-(\d{1,3})', messageid)
-        if match is None:
-            raise ValueError("The messageid is malformed")
-        messageid = int(match.group(1))
-        #Activate foreign key support
-        self.set_foreign_keys_support()
-        #Create the SQL Query
-        query = 'SELECT * FROM messages WHERE message_id = ?'
-        #Cursor and row initialization
-        self.con.row_factory = sqlite3.Row
-        cur = self.con.cursor()
-        #Execute main SQL Statement
-        pvalue = (messageid,)
-        cur.execute(query, pvalue)
-        #Process the response.
-        #Just one row is expected
-        row = cur.fetchone()
-        if row is None:
-            return None
-        #Build the return object
-        return self._create_message_object(row)
-
-    def get_messages(self, nickname=None, number_of_messages=-1,
-                     before=-1, after=-1):
-        '''
-        Return a list of all the messages in the database filtered by the
-        conditions provided in the parameters.
-
-        :param nickname: default None. Search messages of a user with the given
-            nickname. If this parameter is None, it returns the messages of
-            any user in the system.
-        :type nickname: str
-        :param number_of_messages: default -1. Sets the maximum number of
-            messages returning in the list. If set to -1, there is no limit.
-        :type number_of_messages: int
-        :param before: All timestamps > ``before`` (UNIX timestamp) are removed.
-            If set to -1, this condition is not applied.
-        :type before: long
-        :param after: All timestamps < ``after`` (UNIX timestamp) are removed.
-            If set to -1, this condition is not applied.
-        :type after: long
-
-        :return: A list of messages. Each message is a dictionary containing
-            the following keys:
-
-            * ``messageid``: string with the format msg-\d{1,3}.Id of the
-                message.
-            * ``sender``: nickname of the message's author.
-            * ``title``: string containing the title of the message.
-            * ``timestamp``: UNIX timestamp (long int) that specifies when the
-                message was created.
-
-            Note that all values in the returned dictionary are string unless
-            otherwise stated.
-
-        :raises ValueError: if ``before`` or ``after`` are not valid UNIX
-            timestamps
-
-        '''
-        #Create the SQL Statement build the string depending on the existence
-        #of nickname, numbero_of_messages, before and after arguments.
-        query = 'SELECT * FROM messages'
-          #Nickname restriction
-        if nickname is not None or before != -1 or after != -1:
-            query += ' WHERE'
-        if nickname is not None:
-            query += " user_nickname = '%s'" % nickname
-          #Before restriction
-        if before != -1:
-            if nickname is not None:
-                query += ' AND'
-            query += " timestamp < %s" % str(before)
-          #After restriction
-        if after != -1:
-            if nickname is not None or before != -1:
-                query += ' AND'
-            query += " timestamp > %s" % str(after)
-          #Order of results
-        query += ' ORDER BY timestamp DESC'
-          #Limit the number of resulst return
-        if number_of_messages > -1:
-            query += ' LIMIT ' + str(number_of_messages)
-        #Activate foreign key support
-        self.set_foreign_keys_support()
-        #Cursor and row initialization
-        self.con.row_factory = sqlite3.Row
-        cur = self.con.cursor()
-        #Execute main SQL Statement
-        cur.execute(query)
-        #Get results
-        rows = cur.fetchall()
-        if rows is None:
-            return None
-        #Build the return object
-        messages = []
-        for row in rows:
-            message = self._create_message_list_object(row)
-            messages.append(message)
-        return messages
-
-    def delete_message(self, messageid):
-        '''
-        Delete the message with id given as parameter.
-
-        :param str messageid: id of the message to remove.Note that messageid
-            is a string with format ``msg-\d{1,3}``
-        :return: True if the message has been deleted, False otherwise
-        :raises ValueError: if the messageId has a wrong format.
-
-        '''
-        #Extracts the int which is the id for a message in the database
-        match = re.match(r'msg-(\d{1,3})', messageid)
-        if match is None:
-            raise ValueError("The messageid is malformed")
-        messageid = int(match.group(1))
-        '''
-        #TASK5 TODO:#
-        * Implement this method.
-        * HINTS:
-           * To remove a message use the DELETE sql command
-           * To check if the message has been previously deleted you can check
-             the size of the rows returned in the cursor. You can check it from
-             the attribute cursor.rowcount. If the rowcount is < 1 means that
-             no row has been  deleted and hence you should return False.
-             Otherwise return True.
-           * Be sure that you commit the current transaction
-        * HOW TO TEST: Use the database_api_tests_message. The following tests
-          must pass without failure or error:
-            * test_delete_message
-            * test_delete_message_malformed_id
-            * test_delete_message_noexisting_id
-        '''
-        #Create the SQL statment
-        stmnt = 'DELETE FROM messages WHERE message_id = ?'
-        #Activate foreign key support
-        self.set_foreign_keys_support()
-        #Cursor and row initialization
-        self.con.row_factory = sqlite3.Row
-        cur = self.con.cursor()
-        pvalue = (messageid,)
-        cur.execute(stmnt, pvalue)
-        #Commit the message
-        self.con.commit()
-        #Check that the message has been deleted
-        if cur.rowcount < 1:
-            return False
-        #Return true if message is deleted.
-        return True
-
-    def modify_message(self, messageid, title, body, editor="Anonymous"):
-        '''
-        Modify the title, the body and the editor of the message with id
-        ``messageid``
-
-        :param str messageid: The id of the message to remove. Note that
-            messageid is a string with format msg-\d{1,3}
-        :param str title: the message's title
-        :param str body: the message's content
-        :param str editor: default 'Anonymous'. The nickname of the person
-            who is editing this message. If it is not provided "Anonymous"
-            will be stored in db.
-        :return: the id of the edited message or None if the message was
-              not found. The id of the message has the format ``msg-\d{1,3}``,
-              where \d{1,3} is the id of the message in the database.
-        :raises ValueError: if the messageid has a wrong format.
-
-        '''
-        #Extracts the int which is the id for a message in the database
-        match = re.match(r'msg-(\d{1,3})', messageid)
-        if match is None:
-            raise ValueError("The messageid is malformed")
-        messageid = int(match.group(1))
-        '''
-        TASK5 TODO:
-        * Finish this method
-        HINTS:
-        * Remember that to modify the value of a row you have to use the UPDATE
-         sql command
-        * You have to modify just the title, the body and the
-          editor_nickname of the message
-        * You can check if a database has been modifed after an UPDATE using
-          the attribute cur.rowcount. If rowcount < 1, there has not been an
-          update.
-        * Remember to activate the foreign key support
-        HOW TO TEST: Use the database_api_tests_message. The following tests
-                     must pass without failure or error:
-                        * test_modify_message
-                        * test_modify_message_malformed_id
-                        * test_modify_message_noexisting_id
-        '''
-        #Create the SQL statment
-        stmnt = 'UPDATE messages SET title=? , body=?, editor_nickname=?\
-                 WHERE message_id = ?'
-        #Activate foreign key support
-        self.set_foreign_keys_support()
-        #Cursor and row initialization
-        self.con.row_factory = sqlite3.Row
-        cur = self.con.cursor()
-        #Execute main SQL Statement
-        pvalue = (title, body, editor, messageid)
-        cur.execute(stmnt, pvalue)
-        self.con.commit()
-        if cur.rowcount < 1:
-            return None
-        return 'msg-'+str(messageid)
-
-    def create_message(self, title, body, sender="Anonymous",
-                       ipaddress="0.0.0.0", replyto=None):
-        '''
-        Create a new message with the data provided as arguments.
-
-        :param str title: the message's title
-        :param str body: the message's content
-        :param str sender: the nickname of the person who is editing this
-            message. If it is not provided "Anonymous" will be stored in db.
-        :param str ipaddress: The ip address from which the message was created.
-            It is a string with format "xxx.xxx.xxx.xxx". If no ipaddress is
-            provided then database will store "0.0.0.0"
-        :param str replyto: Only provided if this message is an answer to a
-            previous message (parent). Otherwise, Null will be stored in the
-            database. The id of the message has the format msg-\d{1,3}
-
-        :return: the id of the created message or None if the message could not
-            be created, or the ``replyto`` parameter does not exist. Note that 
-            the returned value is a string with the format msg-\d{1,3}.
-
-        :raises ForumDatabaseError: if the database could not be modified.
-        :raises ValueError: if the replyto has a wrong format.
-
-        '''
-        #Extracts the int which is the id for a message in the database
-        if replyto is not None:
-            match = re.match('msg-(\d{1,3})', replyto)
-            if match is None:
-                raise ValueError("The replyto is malformed")
-            replyto = int(match.group(1))
-        '''
-        TASK5 TODO:
-        * Finish this method
-        HINTS
-        * Remember that add a new row you must use the INSERT command.
-         sql command
-        * You have to add the following fields in the INSERT command:
-            - title -> passed as argument
-            - body -> passed as argument
-            - timestamp -> Use the expression:
-                           time.mktime(datetime.now().timetuple()) to get
-                           current timestamp.
-            - ip -> passed as argument ipaddres
-            - timesviewed -> Use the int 0.
-            - reply_to -> passed as argument replyto. It is recommended
-                          that you check that the message exists.
-                          Otherwise, return None.
-                          To check if the message exists check the messages
-                          table using the following SQL Query:
-                          'SELECT * from messages WHERE message_id = ?'
-            - user_nickname -> passed as sender argument
-            - user_id -> You must find the user_id accessing the users table.
-                         Use the following statement:
-                         'SELECT user_id from users WHERE nickname = ?'
-        * You can extract the id of the new row using lastrowid property
-          in cursor
-        * Be sure that you commit the current transaction
-        * Remember to activate the foreign key support
-        RECOMMENDED PROCEDURE:
-          - Activate foreign key support
-          - Calculate current timestamp
-          - Check that the replyto message exists, otherwise return None
-            'SELECT * from messages WHERE message_id = ?'
-          - Get the user_id from a given nickname
-            'SELECT user_id from users WHERE nickname = ?'
-          - Append the new message to the database using a INSERT statement
-
-        * HOW TO TEST: Use the database_api_tests_message. The following tests
-                       must pass without failure or error:
-                * test_create_message
-                * test_append_answer
-                * test_append_answer_malformed_id
-                * test_append_answer_noexistingid
-        '''
-        #Create the SQL statment
-          #SQL to test that the message which I am answering does exist
-        query1 = 'SELECT * from messages WHERE message_id = ?'
-          #SQL Statement for getting the user id given a nickname
-        query2 = 'SELECT user_id from users WHERE nickname = ?'
-          #SQL Statement for inserting the data
-        stmnt = 'INSERT INTO messages (title,body,timestamp,ip, \
-                 timesviewed,reply_to,user_nickname,user_id) \
-                 VALUES(?,?,?,?,?,?,?,?)'
-          #Variables for the statement.
-          #user_id is obtained from first statement.
-        user_id = None
-        timestamp = time.mktime(datetime.now().timetuple())
-        #Activate foreign key support
-        self.set_foreign_keys_support()
-        #Cursor and row initialization
-        self.con.row_factory = sqlite3.Row
-        cur = self.con.cursor()
-        #If exists the replyto argument, check that the message exists in
-        #the database table
-        if replyto is not None:
-            pvalue = (replyto,)
-            cur.execute(query1, pvalue)
-            messages = cur.fetchall()
-            if len(messages) < 1:
-                return None
-        #Execute SQL Statement to get userid given nickname
-        pvalue = (sender,)
-        cur.execute(query2, pvalue)
-        #Extract user id
-        row = cur.fetchone()
-        if row is not None:
-            user_id = row["user_id"]
-        #Generate the values for SQL statement
-        pvalue = (title, body, timestamp, ipaddress, 0, replyto, sender,
-                  user_id)
-        #Execute the statement
-        cur.execute(stmnt, pvalue)
-        self.con.commit()
-        #Extract the id of the added message
-        lid = cur.lastrowid
-        #Return the id in
-        return 'msg-' + str(lid) if lid is not None else None
-
-    def append_answer(self, replyto, title, body, sender="Anonymous",
-                      ipaddress="0.0.0.0"):
-        '''
-        Same as :py:meth:`create_message`. The ``replyto`` parameter is not
-        a keyword argument, though.
-
-        :param str replyto: Only provided if this message is an answer to a
-            previous message (parent). Otherwise, Null will be stored in the
-            database. The id of the message has the format msg-\d{1,3}
-        :param str title: the message's title
-        :param str body: the message's content
-        :param str sender: the nickname of the person who is editing this
-            message. If it is not provided "Anonymous" will be stored in db.
-        :param str ipaddress: The ip address from which the message was created.
-            It is a string with format "xxx.xxx.xxx.xxx". If no ipaddress is
-            provided then database will store "0.0.0.0"
-
-        :return: the id of the created message or None if the message could not
-            be created, or the ``replyto`` parameter does not exist. Note that 
-            the returned value is a string with the format msg-\d{1,3}.
-
-        :raises ForumDatabaseError: if the database could not be modified.
-        :raises ValueError: if the replyto has a wrong format.
-
-        '''
-        return self.create_message(title, body, sender, ipaddress, replyto)
-
-    #MESSAGE UTILS
-    def get_sender(self, messageid):
-        '''
-        Get the information of the user who sent a message which id is
-        ``messageid``
-
-        :param str messageid: Id of the message to search. Note that messageid
-            is a string with the format msg-\d{1,3}.
-
-        :return: a dictionary with the following format:
-
-            .. code-block:: javascript
-
-                {'public_profile':{'registrationdate':,'nickname':'',
-                                   'signature':'','avatar':''},
-                'restricted_profile':{'firstname':'','lastname':'','email':'',
-                                      'website':'','mobile':'','skype':'',
-                                      'age':'','residence':'','gender':'',
-                                      'picture':''}
-                }
-
-            where:
-
-            * ``registrationdate``: UNIX timestamp when the user registered in
-                                 the system (long integer)
-            * ``nickname``: nickname of the user
-            * ``signature``: text chosen by the user for signature
-            * ``avatar``: name of the image file used as avatar
-            * ``firstanme``: given name of the user
-            * ``lastname``: family name of the user
-            * ``email``: current email of the user.
-            * ``website``: url with the user's personal page. Can be None
-            * ``mobile``: string showing the user's phone number. Can be None.
-            * ``skype``: user's nickname in skype. Can be None.
-            * ``residence``: complete user's home address.
-            * ``picture``: file which contains an image of the user.
-            * ``gender``: User's gender ('male' or 'female').
-            * ``birthday``: string containing the birthday of the user.
-
-            Note that all values are string if they are not otherwise indicated.
-            In the case that it is an unregistered user the dictionary just
-            contains the key ``nickname``;
-
-        '''
-        raise NotImplementedError("")
-
-    def contains_message(self, messageid):
-        '''
-        Checks if a message is in the database.
-
-        :param str messageid: Id of the message to search. Note that messageid
-            is a string with the format msg-\d{1,3}.
-        :return: True if the message is in the database. False otherwise.
-
-        '''
-        return self.get_message(messageid) is not None
-
-    def get_message_time(self, messageid):
-        '''
-        Get the time when the message was sent.
-
-        :param str messageid: Id of the message to search. Note that messageid
-            is a string with the format msg-\d{1,3}.
-        :return: message time as a string or None if that message does not
-            exist.
-        :raises ValueError: if messageId is not well formed
-        '''
-        raise NotImplementedError("")
-
-    #ACCESSING THE USER and USER_PROFILE tables
+    #USER
     def get_users(self):
         '''
         Extracts all users in the database.
 
         :return: list of Users of the database. Each user is a dictionary
-            that contains two keys: ``nickname``(str) and ``registrationdate``
-            (long representing UNIX timestamp). None is returned if the database
-            has no users.
+            that contains same keys as user_list_object
 
         '''
         #Create the SQL Statements
@@ -958,7 +480,7 @@ class Connection(object):
         '''
         Extracts all the information of a user.
 
-        :param str nickname: The nickname of the user to search for.
+        :param str username: The nickname of the user to search for.
         :return: dictionary with the format provided in the method:
             :py:meth:`_create_user_object`
 
@@ -999,7 +521,7 @@ class Connection(object):
         Remove all user information of the user with the nickname passed in as
         argument.
 
-        :param str nickname: The nickname of the user to remove.
+        :param str username: The nickname of the user to remove.
 
         :return: True if the user is deleted, False otherwise.
 
@@ -1025,47 +547,25 @@ class Connection(object):
         '''
         Modify the information of a user.
 
-        :param str nickname: The nickname of the user to modify
+        :param str username: The nickname of the user to modify
         :param dict user: a dictionary with the information to be modified. The
             dictionary has the following structure:
 
                 .. code-block:: javascript
 
-                    {'public_profile':{'registrationdate':,'signature':'',
-                                       'avatar':''},
-                    'restricted_profile':{'firstname':'','lastname':'',
-                                          'email':'', 'website':'','mobile':'',
-                                          'skype':'','age':'','residence':'',
-                                          'gender':'', 'picture':''}
-                    }
+                    {'username:'',password:'','avatar':'', 'description:'','visibility:''}
 
                 where:
 
-                * ``registrationdate``: UNIX timestamp when the user registered
-                    in the system (long integer)
-                * ``signature``: text chosen by the user for signature
-                * ``avatar``: name of the image file used as avatar
-                * ``firstanme``: given name of the user
-                * ``lastname``: family name of the user
-                * ``email``: current email of the user.
-                * ``website``: url with the user's personal page. Can be None
-                * ``mobile``: string showing the user's phone number. Can be
-                    None.
-                * ``skype``: user's nickname in skype. Can be None.
-                * ``residence``: complete user's home address.
-                * ``picture``: file which contains an image of the user.
-                * ``gender``: User's gender ('male' or 'female').
-                * ``birthday``: string containing the birthday of the user.
+            * ``username``: Name of the user (string)
+            * ``password``: Password of the user(string)
+            * ``avatar``: Users avatar (blob)
+            * ``description``: Users description (string)
+            * ``visibility``: Users visibility value (int)
 
-            Note that all values are string if they are not otherwise indicated.
 
-            Either public_profile or restricted_profile might not being
-            presented. Then that information is not processed.
-
-        :return: the nickname of the modified user or None if the
-            ``nickname`` passed as parameter is not  in the database.
-        :raise ValueError: if the user argument is not well formed.
-
+        :return: the username of the modified user or None if the
+            `username`` passed as parameter is not  in the database.
         '''
                 #Create the SQL Statements
            #SQL Statement for extracting the userid given a nickname
@@ -1089,34 +589,7 @@ class Connection(object):
         _visibility = user.get('visibility', None)        
         query2 += query2_public
         pvalue_array.extend([_password,_avatar,_description,_visibility])
-        '''
-        if r_profile:
-            _firstname = r_profile.get('firstname', None)
-            _lastname = r_profile.get('lastname', None)
-            _email = r_profile.get('email', None)
-            _website = r_profile.get('website', None)
-            _picture = r_profile.get('picture', None)
-            _mobile = r_profile.get('mobile', None)
-            _skype = r_profile.get('skype', None)
-            _birthday = r_profile.get('birthday', None)
-            _residence = r_profile.get('residence', None)
-            _gender = r_profile.get('gender', None)
-            if query2[-1] == ",":
-                query2 = query2[:-1]
-            query2 += query2_private
-            pvalue_array.extend([_firstname, _lastname, _email, _website,
-                                 _picture, _mobile, _skype, _birthday,
-                                 _residence, _gender])
-        
-        #Remove the , if the query2_public is not none.
-        if query2[-1] == ",":
-            query2 = query2[:-1]
-        query2 += query2_end
-        print query2
-        
-        if p_profile is None and r_profile is None:
-            return nickname
-        '''
+ 
         #Activate foreign key support
         self.set_foreign_keys_support()
         #Cursor and row initialization
@@ -1148,43 +621,25 @@ class Connection(object):
         '''
         Create a new user in the database.
 
-        :param str nickname: The nickname of the user to modify
+        :param str username: The nickname of the user to modify
         :param dict user: a dictionary with the information to be modified. The
-                dictionary has the following structure:
+            dictionary has the following structure:
 
                 .. code-block:: javascript
 
-                    {'public_profile':{'registrationdate':,'signature':'',
-                                       'avatar':''},
-                    'restricted_profile':{'firstname':'','lastname':'',
-                                          'email':'', 'website':'','mobile':'',
-                                          'skype':'','birthday':'','residence':'',
-                                          'gender':'', 'picture':''}
-                    }
+                    {'username:'',password:'','avatar':'', 'description:'','visibility:''}
 
                 where:
 
-                * ``registrationdate``: UNIX timestamp when the user registered
-                    in the system (long integer)
-                * ``signature``: text chosen by the user for signature
-                * ``avatar``: name of the image file used as avatar
-                * ``firstanme``: given name of the user
-                * ``lastname``: family name of the user
-                * ``email``: current email of the user.
-                * ``website``: url with the user's personal page. Can be None
-                * ``mobile``: string showing the user's phone number. Can be
-                    None.
-                * ``skype``: user's nickname in skype. Can be None.
-                * ``residence``: complete user's home address.
-                * ``picture``: file which contains an image of the user.
-                * ``gender``: User's gender ('male' or 'female').
-                * ``birthday``: string containing the birthday of the user.
+            * ``username``: Name of the user (string)
+            * ``password``: Password of the user(string)
+            * ``avatar``: Users avatar (blob)
+            * ``description``: Users description (string)
+            * ``visibility``: Users visibility value (int)
 
-            Note that all values are string if they are not otherwise indicated.
+        :return: the username of the modified user or None if the
+            `username`` passed as parameter is not  in the database.
 
-        :return: the nickname of the modified user or None if the
-            ``nickname`` passed as parameter is already  in the database.
-        :raise ValueError: if the user argument is not well formed.
 
         '''
         #Create the SQL Statements
@@ -1194,14 +649,7 @@ class Connection(object):
         query2 = 'INSERT INTO users(username,password,avatar,description,visibility)\
                   VALUES(?,?,?,?,?)'
           #SQL Statement to create the row in user_profile table
-        '''
-        query3 = 'INSERT INTO users_profile (user_id, firstname,lastname, \
-                                             email,website, \
-                                             picture,mobile, \
-                                             skype,birthday,residence, \
-                                             gender,signature,avatar)\
-                  VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)'
-        '''
+
         #temporal variables for user table
         #timestamp will be used for lastlogin and regDate.
        # timestamp = time.mktime(datetime.now().timetuple())
@@ -1228,15 +676,7 @@ class Connection(object):
             pvalue = (username, _password, _avatar, _description, _visibility)
             cur.execute(query2, pvalue)
             #Extrat the rowid => user-id
-            '''
-            lid = cur.lastrowid
-            #Add the row in users_profile table
-            # Execute the statement
-            pvalue = (lid, _firstname, _lastname, _email, _website,
-                      _picture, _mobile, _skype, _birthday,_residence, _gender,
-                      _signature, _avatar)
-            cur.execute(query3, pvalue)
-            '''
+
             self.con.commit()
             #We do not do any comprobation and return the nickname
             return username
@@ -1246,34 +686,38 @@ class Connection(object):
 #exercise
 
     def create_exercise(self, exercise):
-        #Create the SQL Statements
+        '''
+        Create new exercise
+
+        :param dict exercise:a dictionary with the information to be modified. The
+            dictionary has the following structure:
+
+                .. code-block:: javascript
+
+                    {'exercise_id:'','user_id':'','username':'', 'type:'','value:'','valueunit:''
+                    ,'time:'','timeunit:''}
+
+                where:
+
+            * ``exercise_id``: Id of the exercise (int)
+            * ``user_id``: Id of the user who submitted the exercise(int)
+            * ``username``: Name of the user who submitted the exercise (string)
+            * ``type``: Type of the exercise. For example "running" (string)
+            * ``value``: Value of the exercise.(int)
+            * ``valueunit``: Values unit. For example "km". (string)
+            * ``time``: Time the exercise took.(int)
+            * ``timeunit``: Times unit. For example 'h'(string)
+
+        :return exercise_id if succesfull. None otherwise    
+        '''
+
+ #Create the SQL Statements
           #SQL Statement for extracting the userid given a nickname
         query1 = 'SELECT user_id from users WHERE username = ?'
           #SQL Statement to create the row in  users table
         query2 = 'INSERT INTO exercise(user_id,username,type,value,valueunit,date,time,timeunit)\
                   VALUES(?,?,?,?,?,?,?,?)'
-          #SQL Statement to create the row in user_profile table
-        '''
-        query3 = 'INSERT INTO users_profile (user_id, firstname,lastname, \
-                                             email,website, \
-                                             picture,mobile, \
-                                             skype,birthday,residence, \
-                                             gender,signature,avatar)\
-                  VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)'
-                      return {'user_id' : row['user_id'], 
-                    'username': row['username'],
-                    'type' : row['type'],
-                    'value' : row['value'],
-                    'valueunit' : row['valueunit'],
-                    'date' : row['date'],
-                    'time' : row['time'],
-                    'timeunit' : row['timeunit']}
-        '''
-        #temporal variables for user table
-        #timestamp will be used for lastlogin and regDate.
-       # timestamp = time.mktime(datetime.now().timetuple())
-        #timesviewed = 0
-        #temporal variables for user profiles
+
         _user_id = exercise.get('user_id', None)
         _username = exercise.get('username', None)
         _type = exercise.get('type', None)
@@ -1302,14 +746,7 @@ class Connection(object):
             #Extrat the rowid => user-id
             
             lid = cur.lastrowid
-            '''
-            #Add the row in users_profile table
-            # Execute the statement
-            pvalue = (lid, _firstname, _lastname, _email, _website,
-                      _picture, _mobile, _skype, _birthday,_residence, _gender,
-                      _signature, _avatar)
-            cur.execute(query3, pvalue)
-            '''
+
             self.con.commit()
             #We do not do any comprobation and return the nickname
             return lid
@@ -1317,9 +754,32 @@ class Connection(object):
             return None
 
     def get_exercise(self, exercise_id):
+        '''
+        Get all information of an exercise
 
-        #Create the SQL Statements
-          #SQL Statement for retrieving the user given a nickname
+        :param int exercise_id 
+        :return dict exercise:a dictionary with the exercise information. The
+            dictionary has the following structure:
+
+                .. code-block:: javascript
+
+                    {'exercise_id:'','user_id':'','username':'', 'type:'','value:'','valueunit:''
+                    ,'time:'','timeunit:''}
+
+                where:
+
+            * ``exercise_id``: Id of the exercise (int)
+            * ``user_id``: Id of the user who submitted the exercise(int)
+            * ``username``: Name of the user who submitted the exercise (string)
+            * ``type``: Type of the exercise. For example "running" (string)
+            * ``value``: Value of the exercise.(int)
+            * ``valueunit``: Values unit. For example "km". (string)
+            * ``time``: Time the exercise took.(int)
+            * ``timeunit``: Times unit. For example 'h'(string)
+
+        '''
+
+        
         query1 = 'SELECT * from exercise WHERE exercise_id = ?'
           #SQL Statement for retrieving the user information
 
@@ -1339,24 +799,31 @@ class Connection(object):
         row = cur.fetchone()
         if row is None:
             return None
-        #user_id = row["user_id"]
-        # Execute the SQL Statement to retrieve the user invformation.
-        # Create first the valuse
-        #pvalue = (user_id, )
-        #execute the statement
-        #cur.execute(query2, pvalue)
-        #Process the response. Only one posible row is expected.
-        #row = cur.fetchone()
+ 
         return self._create_exercise_object(row)
 
     def get_exercises(self):
         '''
-        Extracts all users in the database.
+        Extracts all exercises in the database.
 
-        :return: list of Users of the database. Each user is a dictionary
-            that contains two keys: ``nickname``(str) and ``registrationdate``
-            (long representing UNIX timestamp). None is returned if the database
-            has no users.
+        :return list exercise:a list of dictionarys with the exercise information. Otherwise return None The
+            dictionary has the following structure:
+
+                .. code-block:: javascript
+
+                    {'exercise_id:'','user_id':'','username':'', 'type:'','value:'','valueunit:''
+                    ,'time:'','timeunit:''}
+
+                where:
+
+            * ``exercise_id``: Id of the exercise (int)
+            * ``user_id``: Id of the user who submitted the exercise(int)
+            * ``username``: Name of the user who submitted the exercise (string)
+            * ``type``: Type of the exercise. For example "running" (string)
+            * ``value``: Value of the exercise.(int)
+            * ``valueunit``: Values unit. For example "km". (string)
+            * ``time``: Time the exercise took.(int)
+            * ``timeunit``: Times unit. For example 'h'(string)
 
         '''
         #Create the SQL Statements
@@ -1381,13 +848,30 @@ class Connection(object):
 
     def get_user_exercises(self,username):
         '''
-        Extracts all users in the database.
+        Get all of the users exercises
 
-        :return: list of Users of the database. Each user is a dictionary
-            that contains two keys: ``nickname``(str) and ``registrationdate``
-            (long representing UNIX timestamp). None is returned if the database
-            has no users.
+        :param str username: Name of the user whose exercise are to be fetch
+        :return list exercise:a list containing dictionaries with the exercise information. The
+        dictionary has the following structure:
 
+                .. code-block:: javascript
+
+                    {'exercise_id:'','user_id':'','username':'', 'type:'','value:'','valueunit:''
+                    ,'time:'','timeunit:''}
+
+                where:
+
+            * ``exercise_id``: Id of the exercise (int)
+            * ``user_id``: Id of the user who submitted the exercise(int)
+            * ``username``: Name of the user who submitted the exercise (string)
+            * ``type``: Type of the exercise. For example "running" (string)
+            * ``value``: Value of the exercise.(int)
+            * ``valueunit``: Values unit. For example "km". (string)
+            * ``time``: Time the exercise took.(int)
+            * ``timeunit``: Times unit. For example 'h'(string)
+
+
+  
         '''
         #Create the SQL Statements
           #SQL Statement for retrieving the users
@@ -1412,12 +896,11 @@ class Connection(object):
 
     def delete_exercise(self, exercise_id):
         '''
-        Remove all user information of the user with the nickname passed in as
-        argument.
+        Remove a specific exercise
 
-        :param str nickname: The nickname of the user to remove.
+        :param int exercise_id: Exercises id.
 
-        :return: True if the user is deleted, False otherwise.
+        :return: True if the exercise is deleted, False otherwise.
 
         '''
         #Create the SQL Statements
@@ -1439,48 +922,31 @@ class Connection(object):
 
     def modify_exercise(self, exercise_id, exercise):
         '''
-        Modify the information of a user.
+        Modify the information of an exercise.
 
-        :param str nickname: The nickname of the user to modify
-        :param dict user: a dictionary with the information to be modified. The
+        :param int exercise_id: The id of the exercise to be modified
+        :param dict exercise: a dictionary with the information to be modified. The
             dictionary has the following structure:
 
                 .. code-block:: javascript
 
-                    {'public_profile':{'registrationdate':,'signature':'',
-                                       'avatar':''},
-                    'restricted_profile':{'firstname':'','lastname':'',
-                                          'email':'', 'website':'','mobile':'',
-                                          'skype':'','age':'','residence':'',
-                                          'gender':'', 'picture':''}
-                    }
+                    {'exercise_id:'','user_id':'','username':'', 'type:'','value:'','valueunit:''
+                    ,'time:'','timeunit:''}
 
                 where:
 
-                * ``registrationdate``: UNIX timestamp when the user registered
-                    in the system (long integer)
-                * ``signature``: text chosen by the user for signature
-                * ``avatar``: name of the image file used as avatar
-                * ``firstanme``: given name of the user
-                * ``lastname``: family name of the user
-                * ``email``: current email of the user.
-                * ``website``: url with the user's personal page. Can be None
-                * ``mobile``: string showing the user's phone number. Can be
-                    None.
-                * ``skype``: user's nickname in skype. Can be None.
-                * ``residence``: complete user's home address.
-                * ``picture``: file which contains an image of the user.
-                * ``gender``: User's gender ('male' or 'female').
-                * ``birthday``: string containing the birthday of the user.
+            * ``exercise_id``: Id of the exercise (int)
+            * ``user_id``: Id of the user who submitted the exercise(int)
+            * ``username``: Name of the user who submitted the exercise (string)
+            * ``type``: Type of the exercise. For example "running" (string)
+            * ``value``: Value of the exercise.(int)
+            * ``valueunit``: Values unit. For example "km". (string)
+            * ``time``: Time the exercise took.(int)
+            * ``timeunit``: Times unit. For example 'h'(string)
 
-            Note that all values are string if they are not otherwise indicated.
+ 
 
-            Either public_profile or restricted_profile might not being
-            presented. Then that information is not processed.
-
-        :return: the nickname of the modified user or None if the
-            ``nickname`` passed as parameter is not  in the database.
-        :raise ValueError: if the user argument is not well formed.
+        :return: True if successful, None otherwise
 
         '''
                 #Create the SQL Statements
@@ -1508,34 +974,7 @@ class Connection(object):
         _timeunit = exercise.get('timeunit', None)
         query2 += query2_public
         pvalue_array.extend([_type,_value,_valueunit,_date,_time,_timeunit])
-        '''
-        if r_profile:
-            _firstname = r_profile.get('firstname', None)
-            _lastname = r_profile.get('lastname', None)
-            _email = r_profile.get('email', None)
-            _website = r_profile.get('website', None)
-            _picture = r_profile.get('picture', None)
-            _mobile = r_profile.get('mobile', None)
-            _skype = r_profile.get('skype', None)
-            _birthday = r_profile.get('birthday', None)
-            _residence = r_profile.get('residence', None)
-            _gender = r_profile.get('gender', None)
-            if query2[-1] == ",":
-                query2 = query2[:-1]
-            query2 += query2_private
-            pvalue_array.extend([_firstname, _lastname, _email, _website,
-                                 _picture, _mobile, _skype, _birthday,
-                                 _residence, _gender])
-        
-        #Remove the , if the query2_public is not none.
-        if query2[-1] == ",":
-            query2 = query2[:-1]
-        query2 += query2_end
-        print query2
-        
-        if p_profile is None and r_profile is None:
-            return nickname
-        '''
+
         #Activate foreign key support
         self.set_foreign_keys_support()
         #Cursor and row initialization
@@ -1568,8 +1007,8 @@ class Connection(object):
         '''
         Get a list with friends of a user.
 
-        :param str nickname: nickname of the target user
-        :return: a list of users nicknames or None if ``nickname`` is not in the
+        :param str username: username of the target user
+        :return: a list of users ids or None if ``user_id`` is not in the
             database
         '''
         #Create the SQL Statements
@@ -1601,13 +1040,18 @@ class Connection(object):
         friends = []
         for row in rows:
             friends.append(self._create_friends_list_object(row))
-        print friends
+        
         return friends
         
 
     def add_friend(self, username, friendname):
         '''
-        
+        Add a new friend to the user
+
+        :param str username: Name of the user who will receive a friend
+        :param str friendname: username of a user who will be added as a friend
+
+        :return True if succesful, None otherwise
         '''
         #Create the SQL Statements
           #SQL Statement for extracting the userid given a nickname
@@ -1648,10 +1092,11 @@ class Connection(object):
 
     def delete_friend(self, username,friendname):
         '''
-        Remove all user information of the user with the nickname passed in as
-        argument.
+        Remove friend from users friendlist
 
-        :param str nickname: The nickname of the user to remove.
+        :param str username: Name of the user whos friend will be removed
+        :param str friendname: Username of a friend who will be removed from the friendlist
+    
 
         :return: True if the user is deleted, False otherwise.
 
