@@ -1,11 +1,11 @@
 '''
 Created on 13.02.2013
 
-Modified on 05.02.2016
+Modified on 09.03.2017
 
 Provides the database API to access the forum persistent data.
 
-@author: ivan
+@authors: Toni Närhi & Ville Kemppainen 
 '''
 
 #from datetime import datetime
@@ -131,6 +131,8 @@ class Engine(object):
     #METHODS TO CREATE THE TABLES PROGRAMMATICALLY WITHOUT USING SQL SCRIPT
     def create_exercise_table(self):
         '''
+        (Own implementation)
+
         Create the table ``exercise`` programmatically, without using .sql file.
 
         Print an error message in the console if it could not be created.
@@ -163,6 +165,7 @@ class Engine(object):
 
     def create_users_table(self):
         '''
+        (Own implementation)
         Create the table ``users`` programmatically, without using .sql file.
 
         Print an error message in the console if it could not be created.
@@ -322,7 +325,7 @@ class Connection(object):
     #HELPERS
     #Here the helpers that transform database rows into dictionary. They work
     #similarly to ORM
-
+    #EVERYTHING below this is our own implementation
     #Helpers for exercises
     def _create_exercise_object(self, row):
 
