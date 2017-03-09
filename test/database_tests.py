@@ -1,41 +1,13 @@
 '''
 Created on 13.02.2014
-Modified on 01.02.2016
-Database interface testing for all users related methods.
-The user has a data model represented by the following User dictionary:
-    {'public_profile': {'registrationdate': ,'nickname': ''
-                       'signature': '','avatar': ''},
-    'restricted_profile': {'firstname': '','lastname': '','email': '',
-                          'website': '','mobile': '','skype': '',
-                          'birthday': '','residence': '','gender': '',
-                          'picture': ''}
-    }
-    where:
-     - registrationdate: UNIX timestamp when the user registered in
-                         the system
-     - nickname: nickname of the user
-     - signature: text chosen by the user for signature
-     - avatar: name of the image file used as avatar
-     - firstanme: given name of the user
-     - lastname: of the user
-     - email: current email of the user.
-     - website: url with the user's personal page
-     - mobile: string showing the user's phone number
-     - skype: user's nickname in skype
-     - residence: complete user's home address.
-     - picture: file which contains an image of the user.
-     - gender: User's gender ('male' or 'female').
-     - birthday: int with the birthday of the user.
+Modified on 09.03.2017
 
-
-List of users has the following data model:
-[{'nickname':'', 'registrationdate':''}, {'nickname':'', 'registrationdate':''}]
-
-
-@author: ivan
+@author: Toni Närhi, Ville Kemppainen
 '''
 import unittest, sqlite3
 from forum import database
+
+###Own Implemantation starts
 
 #Path to the database file, different from the deployment db
 DB_PATH = 'db/forum.db'
@@ -140,7 +112,7 @@ NEW_EXERCISE = {
 EXERCISE_WRONG_ID = 999
 EXERCISE_SIZE = 4
 
-
+###Own implementation ends
 
 
 class UserDBAPITestCase(unittest.TestCase):
@@ -192,7 +164,7 @@ class UserDBAPITestCase(unittest.TestCase):
         self.connection.close()
         ENGINE.clear()
 
-
+ ###Own implementation starts
 
     def test_get_user(self):
         '''
@@ -517,7 +489,7 @@ class UserDBAPITestCase(unittest.TestCase):
         #Check that the users has been really deleted throug a get
         resp2 = self.connection.get_friends(USER1_NICKNAME)
         self.assertEquals(len(resp2), 2)
-
+###Own implementation ends
  
 if __name__ == '__main__':
     print 'Start running user tests'
