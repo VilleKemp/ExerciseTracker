@@ -1,0 +1,28 @@
+title Friends
+
+Client->API: Get()
+
+alt friends does not exist
+    API->Client: Error 404
+else friends exist
+    API->Client: OK 200 (friend_id)
+end
+
+Client->API: Post(user_id, (friend_id))
+
+alt user_id for friend does not exist
+    API->Client: Error 404
+else Friend already exists
+    API->Client: Error 415
+else Friend added succesful
+    API->Client: OK 200 (friend_id)
+end
+
+Client->API: Delete(Friend by user_id, (friend_id))
+
+alt user_id does not exist
+    API->Client: Error 404
+alt friend_id does not exist
+    API->Client: Error 404
+else friend deletion succesful
+    API->Client: OK 200 ()

@@ -1,0 +1,22 @@
+title Users
+
+Client->API: Get()
+
+alt users does not exist
+    API->Client: Error 404
+else users exist
+    API->Client: OK 200 (Users)
+end
+
+Client->API: Post(User)
+
+alt User does exist
+    API->Client: Error 404
+else data restriction failed
+    API->Client: Error 415
+else data incorrect format
+    API->Client: Error 416
+else User added succesful
+    API->Client: OK 200 (User Information)
+end
+
