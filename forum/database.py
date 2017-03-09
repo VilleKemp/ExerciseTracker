@@ -8,8 +8,8 @@ Provides the database API to access the forum persistent data.
 @author: ivan
 '''
 
-from datetime import datetime
-import time, sqlite3, re, os
+#from datetime import datetime
+import time, sqlite3, os#, re
 #Default paths for .db and .sql files to create and populate the database.
 DEFAULT_DB_PATH = 'db/forum.db'
 DEFAULT_SCHEMA = "db/forum_schema_dump.sql"
