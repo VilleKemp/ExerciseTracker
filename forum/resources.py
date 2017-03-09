@@ -1,8 +1,5 @@
 """
-Created on 26.01.2013
-Modified on 05.02.2017
-@author: ivan sanchez
-@author: mika oja
+Group17 
 """
 
 import json

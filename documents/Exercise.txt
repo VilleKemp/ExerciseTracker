@@ -1,0 +1,38 @@
+Title Exercise
+
+Client->API: get(exercise_id)
+
+
+alt Exercise exist
+    API->Client: OK 200 (exercise information)
+else Exercise does not exist
+    API->Client: Error 404
+
+end
+
+Client->API: put(exercise information)
+
+alt Exercise exist
+    API->Client: OK 200
+else Data addition failed
+    API->Client: Error 400
+else Wrong mediatype
+    API->Client: Error 415
+else Data incorrect format
+    API->Client: Error 416
+else Exercise does not exist
+    API->Client: Error 404
+end
+
+Client->API: delete(exercise_id)
+
+
+alt Exercise exist
+    API->Client: OK 200 
+else Exercise does not exist
+    API->Client: Error 404
+
+end
+
+
+

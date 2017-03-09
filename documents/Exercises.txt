@@ -1,0 +1,28 @@
+Title Exercises
+
+Client->API: get()
+
+
+alt Exercise exist
+    API->Client: OK 200 (exercises) 
+else Exercise does not exist
+    API->Client: Error 404
+
+end
+
+Client->API: post(exercise information)
+
+alt Exercise does not exist
+    API->Client: Error 404
+else Data addition failed
+    API->Client: Error 400
+else Wrong mediatype
+    API->Client: Error 415
+else Data incorrect format
+    API->Client: Error 416
+end
+
+
+end
+
+
