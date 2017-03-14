@@ -22,7 +22,9 @@ else Data incorrect format
     API->Client: Error 416
 end
 
+Client->API: delete()
 
-end
-
-
+alt exercise does not exist
+    API->Client: Error 404
+else exercise deleted succesful
+    API->Client: OK 200 ()

@@ -1,6 +1,6 @@
 title User
 
-Client->API: Get(User by user_id)
+Client->API: Get()
 
 alt user does not exist
     API->Client: Error 404
@@ -10,9 +10,8 @@ end
 
 Client->API: Put(User information by user_id)
 
-alt user does not exist
-    API->Client: Error 404
-else data addition failed
+
+alt data addition failed
     API->Client: Error 400
 else data restriction failed
     API->Client: Error 415
@@ -21,11 +20,3 @@ else data incorrect format
 else data addition succesful
     API->Client: OK 200 (User Information)
 end
-
-Client->API: Delete(User by user_id)
-
-alt user does not exist
-    API->Client: Error 404
-else user deletion succesful
-    API->Client: OK 200 ()
-

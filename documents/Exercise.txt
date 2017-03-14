@@ -1,6 +1,6 @@
 Title Exercise
 
-Client->API: get(exercise_id)
+Client->API: get()
 
 
 alt Exercise exist
@@ -12,7 +12,7 @@ end
 
 Client->API: put(exercise information)
 
-alt Exercise exist
+alt Exercise added/modified succesfully
     API->Client: OK 200
 else Data addition failed
     API->Client: Error 400
@@ -23,16 +23,4 @@ else Data incorrect format
 else Exercise does not exist
     API->Client: Error 404
 end
-
-Client->API: delete(exercise_id)
-
-
-alt Exercise exist
-    API->Client: OK 200 
-else Exercise does not exist
-    API->Client: Error 404
-
-end
-
-
 
