@@ -5,7 +5,7 @@ Group17
 import json
 
 from flask import Flask, request, Response, g, _request_ctx_stack, redirect, send_from_directory
-from flask.ext.restful import Resource, Api, abort
+from flask_restful import Resource, Api, abort
 from werkzeug.exceptions import HTTPException, NotFound
 
 
@@ -839,6 +839,7 @@ class Users(Resource):
         for user in users_db:
             item = ForumObject(
                 username=user["username"],
+                description = user["description"],
                 avatar=user["avatar"],
                 visivility=user["visibility"]
             )
@@ -933,18 +934,26 @@ class Users(Resource):
 
         user = {"nickname": nickname, "password": password,
                 "avatar": avatar, "description": description, "visibility": visibility}
-}
-        }
+
+        
 
         
         response = g.con.append_user(username, user)
-        if (response = None)
+        if (response == None):
             return create_error_response(415, "Data restriction failed, user already exists"
                                         )
         #Get user info
         userinfo=g.con.get_user(username)
+        envelope = ForumObject(
+                username=userinfo["username"],
+                description = userinfo["description"],
+                avatar=userinfo["avatar"],
+                visibility=userinfo["visibility"]
+            )
+
+        
         #CREATE RESPONSE AND RENDER
-        return Response(status=200, userinfo)
+        return Response(json.dumps(envelope),status=200)
 
 class User(Resource):
     """
