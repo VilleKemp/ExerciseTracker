@@ -1,7 +1,7 @@
 import unittest, copy
 import json
 
-from flask import Flask
+import flask
 
 import forum.resources as resources
 import forum.database as database
@@ -26,7 +26,7 @@ resources.app.config.update({"Engine": ENGINE})
 
 #Other database parameters.
 initial_messages = 20
-initial_users = 5
+initial_users = 4
 
 
 class ResourcesAPITestCase(unittest.TestCase):
@@ -110,11 +110,13 @@ class UsersTestCase (ResourcesAPITestCase):
             self.assertIn("username", item)
             self.assertIn("avatar", item)
             self.assertIn("description", item)
-            self.asserIn("visibility", item)
+            self.assertIn("visibility", item)
             self.assertIn("@controls", item)
             self.assertIn("self", item["@controls"])
             self.assertIn("href", item["@controls"]["self"])
-            self.assertEquals(item["@controls"]["self"]["href"], resources.api.url_for(resources.User, nickname=item["nickname"], _external=False))
+            self.assertEquals(item["@controls"]["self"]["href"], resources.api.url_for(resources.Users, username=item["username"], _external=False))
             
-                       
+if __name__ == "__main__":
+    print "Start running tests"
+    unittest.main()                       
                               

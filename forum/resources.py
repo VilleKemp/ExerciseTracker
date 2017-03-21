@@ -809,29 +809,18 @@ class Users(Resource):
 
         Returns 404 if users don't exist. Otherwise returns 200
 
-        RESPONSE ENTITITY BODY:
-
-         OUTPUT:
-            * Media type: Collection+JSON:
-             http://amundsen.com/media-types/collection/
-             - Extensions: template validation and value-types
-               https://github.com/collection-json/extensions
 
         """
         #PERFORM OPERATIONS
         #Create the users list
         users_db = g.con.get_users()
-        if not user_db:
+        if not users_db:
             return create_error_response(404, "No users")
 
         #FILTER AND GENERATE THE RESPONSE
        #Create the envelope
         envelope = ForumObject()
 
-        #envelope.add_namespace("forum", LINK_RELATIONS_URL)
-
-        #envelope.add_control_add_user()
-        #envelope.add_control_messages_all()
         envelope.add_control("self", href=api.url_for(Users))
 
         items = envelope["items"] = []
@@ -841,59 +830,23 @@ class Users(Resource):
                 username=user["username"],
                 description = user["description"],
                 avatar=user["avatar"],
-                visivility=user["visibility"]
+                visibility=user["visibility"]
             )
-            #item.add_control_messages_history(user["nickname"])
-            item.add_control("self", href=api.url_for(User, nickname=user["nickname"]))
-            #item.add_control("profile", href=FORUM_USER_PROFILE)
+
+            item.add_control("self", href=api.url_for(Users, username=user["username"]))
+  
             items.append(item)
 
-        #RENDER
+
         return Response(json.dumps(envelope), 200, mimetype=MASON+";")
 
     def post(self):
         """
         Adds a new user in the database.
 
-        REQUEST ENTITY BODY:
-         * Media type: JSON:
-         * Profile: Forum_User
-           http://atlassian.virtues.fi: 8090/display/PWP
-           /Exercise+4#Exercise4-Forum_User
-
-        Semantic descriptors used in template: address(optional),
-        avatar(mandatory), birthday(mandatory),email(mandatory),
-        familyName(mandatory), gender(mandatory), givenName(mandatory),
-        image(optional), signature(mandatory), skype(optional),
-        telephone(optional), website(optional).
-
-        RESPONSE STATUS CODE:
-         * Returns 201 + the url of the new resource in the Location header
-         * Return 409 Conflict if there is another user with the same nickname
-         * Return 400 if the body is not well formed
-         * Return 415 if it receives a media type != application/json
-
-        NOTE:
-         * The attribute signature is obtained from the column users_profile.signature
-         * The attribute givenName is obtained from the column users_profile.firstname
-         * The attribute familyName is obtained from the column users_profile.lastname
-         * The attribute address is obtained from the column users_profile.residence
-            The address from users_profile.residence has the format:
-                addressLocality, addressCountry
-         * The attribute image is obtained from the column users_profile.picture
-         * The rest of attributes match one-to-one with column names in the
-           database.
-
-        NOTE:
-        The: py: method:`Connection.append_user()` receives as a parameter a
-        dictionary with the following format.
-        {"public_profile":{"nickname":""
-                           "signature":"","avatar":""},
-         "restricted_profile":{"firstname":"","lastname":"","email":"",
-                                  "website":"","mobile":"","skype":"",
-                                  "birthday":"","residence":"","gender":"",
-                                  "picture":""}
-            }
+        Returns 415 if request isn't JSON
+        Returns 400 if data is missing
+        Returns 200 and user information if succesful 
 
         """
 
@@ -932,7 +885,7 @@ class Users(Resource):
             return create_error_response(400, "Wrong request format", "Be sure to include all mandatory properties")
 
 
-        user = {"nickname": nickname, "password": password,
+        user = {"username": username, "password": password,
                 "avatar": avatar, "description": description, "visibility": visibility}
 
         
