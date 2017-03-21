@@ -15,6 +15,7 @@ import database
 #Constants for hypermedia formats and profiles
 MASON = "application/vnd.mason+json"
 JSON = "application/json"
+
 FORUM_USER_PROFILE = "/profiles/user-profile/"
 FORUM_MESSAGE_PROFILE = "/profiles/message-profile/"
 ERROR_PROFILE = "/profiles/error-profile"
@@ -798,12 +799,15 @@ class Message(Resource):
         return Response(status=201, headers={"Location": url})
 
 class Users(Resource):
+    """
+    Users resource
+    """
 
     def get(self):
         """
         Gets a list of all the users in the database.
 
-        It returns always status code 200.
+        Returns 404 if users don't exist. Otherwise returns 200
 
         RESPONSE ENTITITY BODY:
 
@@ -812,58 +816,39 @@ class Users(Resource):
              http://amundsen.com/media-types/collection/
              - Extensions: template validation and value-types
                https://github.com/collection-json/extensions
-            * Profile: Forum_User
-                /profiles/user-profile
 
-        Link relations used in items: messages
-
-        Semantic descriptions used in items: nickname, registrationdate
-
-        Link relations used in links: messages-all
-
-        Semantic descriptors used in template: address, avatar, birthday,
-        email,familyname,gender,givenName,image, nickname, signature, skype, telephone,
-        website
-
-        NOTE:
-         * The attribute signature is obtained from the column users_profile.signature
-         * The attribute givenName is obtained from the column users_profile.firstname
-         * The attribute familyName is obtained from the column users_profile.lastname
-         * The attribute address is obtained from the column users_profile.residence
-            The address from users_profile.residence has the format:
-                addressLocality, addressCountry
-         * The attribute image is obtained from the column users_profile.picture
-         * The rest of attributes match one-to-one with column names in the
-           database.
         """
         #PERFORM OPERATIONS
-        #Create the messages list
+        #Create the users list
         users_db = g.con.get_users()
+        if not user_db:
+            return create_error_response(404, "No users")
 
         #FILTER AND GENERATE THE RESPONSE
        #Create the envelope
         envelope = ForumObject()
 
-        envelope.add_namespace("forum", LINK_RELATIONS_URL)
+        #envelope.add_namespace("forum", LINK_RELATIONS_URL)
 
-        envelope.add_control_add_user()
-        envelope.add_control_messages_all()
+        #envelope.add_control_add_user()
+        #envelope.add_control_messages_all()
         envelope.add_control("self", href=api.url_for(Users))
 
         items = envelope["items"] = []
 
         for user in users_db:
             item = ForumObject(
-                nickname=user["nickname"],
-                registrationdate=user["registrationdate"]
+                username=user["username"],
+                avatar=user["avatar"],
+                visivility=user["visibility"]
             )
-            item.add_control_messages_history(user["nickname"])
+            #item.add_control_messages_history(user["nickname"])
             item.add_control("self", href=api.url_for(User, nickname=user["nickname"]))
-            item.add_control("profile", href=FORUM_USER_PROFILE)
+            #item.add_control("profile", href=FORUM_USER_PROFILE)
             items.append(item)
 
         #RENDER
-        return Response(json.dumps(envelope), 200, mimetype=MASON+";" + FORUM_USER_PROFILE)
+        return Response(json.dumps(envelope), 200, mimetype=MASON+";")
 
     def post(self):
         """
@@ -925,75 +910,45 @@ class Users(Resource):
 
         # pick up nickname so we can check for conflicts
         try:
-            nickname = request_body["nickname"]
+            username = request_body["username"]
+
         except KeyError:
-            return create_error_response(400, "Wrong request format", "User nickname was missing from the request")
-
+            return create_error_response(400, "Wrong request format", "Username was missing from the request")
+        """
         #Conflict if user already exist
-        if g.con.contains_user(nickname):
-            return create_error_response(409, "Wrong nickname",
+        if g.con.contains_user(username):
+            return create_error_response(409, "Wrong username",
                                          "There is already a user with same"
-                                         "nickname:%s." % nickname)
-
+                                         "username:%s." % username)
+        """
         # pick up rest of the mandatory fields
         try:
+            password = request_body["password"]
             avatar = request_body["avatar"]
-            birthdate = request_body["birthDate"]
-            email = request_body["email"]
-            familyname = request_body["familyName"]
-            gender = request_body["gender"]
-            givenname = request_body["givenName"]
-            signature = request_body["signature"]
+            description = request_body["description"]
+            visibility = request_body["visibility"]
         except KeyError:
             return create_error_response(400, "Wrong request format", "Be sure to include all mandatory properties")
 
-        # check address if given
 
-        address = request_body.get("address", None)
-        if address:
-            try:                
-                residence = "{addressLocality}, {addressCountry}".format(**address)
-            except (KeyError, TypeError):
-                return create_error_response(400, "Wrong request format", "Incorrect format of address field")
-        else:
-            residence = None
-
-        # pick up rest of the optional fields
-
-        image = request_body.get("image", "")
-        mobile = request_body.get("telephone", "")
-        skype = request_body.get("skype", "")
-        website = request_body.get("website", "")
-
-        user = {"public_profile": {"nickname": nickname,
-                                   "signature": signature, "avatar": avatar},
-                "restricted_profile": {"firstname": givenname,
-                                       "lastname": familyname,
-                                       "email": email,
-                                       "website": website,
-                                       "mobile": mobile,
-                                       "skype": skype,
-                                       "birthday": birthdate,
-                                       "residence": residence,
-                                       "gender": gender,
-                                       "picture": image}
+        user = {"nickname": nickname, "password": password,
+                "avatar": avatar, "description": description, "visibility": visibility}
+}
         }
 
-        try:
-            nickname = g.con.append_user(nickname, user)
-        except ValueError:
-            return create_error_response(400, "Wrong request format",
-                                         "Be sure you include all"
-                                         " mandatory properties"
+        
+        response = g.con.append_user(username, user)
+        if (response = None)
+            return create_error_response(415, "Data restriction failed, user already exists"
                                         )
-
+        #Get user info
+        userinfo=g.con.get_user(username)
         #CREATE RESPONSE AND RENDER
-        return Response(status=201,
-            headers={"Location": api.url_for(User, nickname=nickname)})
+        return Response(status=200, userinfo)
 
 class User(Resource):
     """
-    User Resource. Public and private profile are separate resources.
+    User Resource.
     """
 
     def get(self, nickname):
@@ -1337,10 +1292,12 @@ api.add_resource(User_public, "/forum/api/users/<nickname>/public_profile/",
                  endpoint="public_profile")
 api.add_resource(User_restricted, "/forum/api/users/<nickname>/restricted_profile/",
                  endpoint="restricted_profile")
-api.add_resource(Users, "/forum/api/users/",
+
+api.add_resource(Users, "/exercisetracker/api/users/",
                  endpoint="users")
-api.add_resource(User, "/forum/api/users/<nickname>/",
+api.add_resource(User, "/exercisetracker/api/users/<nickname>/",
                  endpoint="user")
+
 api.add_resource(History, "/forum/api/users/<nickname>/history/",
                  endpoint="history")
 

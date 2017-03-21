@@ -5,7 +5,7 @@ Modified on 09.03.2017
 
 Provides the database API to access the forum persistent data.
 
-@authors: Toni Närhi & Ville Kemppainen 
+@authors: Toni Narhi & Ville Kemppainen 
 '''
 
 #from datetime import datetime
@@ -697,13 +697,11 @@ class Connection(object):
 
                 .. code-block:: javascript
 
-                    {'exercise_id:'','user_id':'','username':'', 'type:'','value:'','valueunit:''
+                    {'username':'', 'type:'','value:'','valueunit:''
                     ,'time:'','timeunit:''}
 
                 where:
 
-            * ``exercise_id``: Id of the exercise (int)
-            * ``user_id``: Id of the user who submitted the exercise(int)
             * ``username``: Name of the user who submitted the exercise (string)
             * ``type``: Type of the exercise. For example "running" (string)
             * ``value``: Value of the exercise.(int)
