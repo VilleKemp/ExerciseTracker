@@ -1,3 +1,4 @@
+# -*- coding: cp1252 -*-
 """
 Group17 
 """
@@ -129,6 +130,136 @@ class ForumObject(MasonObject):
         super(ForumObject, self).__init__(**kwargs)
         self["@controls"] = {}
 
+
+
+    ###OWN STUFF
+##user controls
+    def add_control_get_user_information(self,username):
+        """
+        Adds "get user information" control to an object
+        """
+
+        self["@controls"]["get user information"] = {
+            "title": "get user information",
+            "href": api.url_for(User, username=username),
+            "encoding": "json",
+            "method": "GET",           
+        }
+        
+    def add_control_delete_user(self,username):
+        """
+        Adds "delete user information" control to an object
+        """
+
+        self["@controls"]["delete user information"] = {
+            "title": "delete user",
+            "href": api.url_for(User,username=username),
+            "encoding": "json",
+            "method": "DELETE",
+        }          
+        
+
+
+    def add_control_modify_user(self,username):
+        """
+        Adds "modify" control to an object
+        """
+
+        self["@controls"]["modify user"] = {
+            "title": "modify user",
+            "href": api.url_for(User, username=username),
+            "encoding": "json",
+            "method": "PUT",
+            "schemaUrl":"exercisetracker/schema/user/"
+            
+        }
+
+#TODO TONI
+        #N‰ill‰ luodaan controlsseja vastaukseen. Kato users get malliksi miten k‰ytet‰‰n. add_control_list_exercises luulisi toimivan suoraa
+        #muista exercisen add_controlseista en tied‰. users ja user liittyviin add_controlseihin ei tarvii koskea vaikka ne ei toimis. korjaan ne asap
+#exercises controls  #cant use until exercise endpoints are done
+    def add_control_list_exercises(self):
+        """
+        Adds "list exercises" control to an object
+        """
+
+        self["@controls"]["list exercises"] = {
+            "title": "list exercises",
+            "href": api.url_for(Exercises),
+            "encoding": "json",
+            "method": "GET"
+            
+        }
+#exercise controls #cant use until exercise endpoints are done
+    def add_control_get_exercise(self):
+        """
+        Adds "get exercise" control to an object
+        """
+
+        self["@controls"]["get exercise"] = {
+            "title": "get exercise",
+            "href": api.url_for(Exercise),
+            "encoding": "json",
+            "method": "GET"
+            
+        }
+    def add_control_remove_exercise(self):
+        """
+        Adds "remove exercise" control to an object
+        """
+
+        self["@controls"]["remove exercise"] = {
+            "title": "remove exercise",
+            "href": api.url_for(Exercise),
+            "encoding": "json",
+            "method": "DELETE"
+            
+        }
+    def add_control_modify_exercise(self):
+        """
+        Adds "modify exercise" control to an object
+        """
+
+        self["@controls"]["modify exercise"] = {
+            "title": "modify exercise information",
+            "href": "/exercisetracker/api/exercises/<exerciseid>",
+            "encoding": "json",
+            "method": "PUT",
+            "schemaUrl": "/exercisetracker/schema/exercise/" 
+        }
+
+
+#users controls
+    def add_control_list_users(self):
+        """
+        Adds "list users" control to an object
+        """
+
+        self["@controls"]["list users"] = {
+            "title": "list users",
+            "href": api.url_for(Users),
+            "encoding": "json",
+            "method": "GET"
+            
+        }
+
+    def add_control_add_user(self):
+        """
+        Adds "add user" control to an object
+        """
+
+        self["@controls"]["add user"] = {
+            "title": "add user",
+            "href": api.url_for(Users),
+            "encoding": "json",
+            "method": "POST",
+            "schemaUrl":USER_SCHEMA_URL
+            
+        }
+        
+        
+
+    ###END OF OWN STUFF
     def add_control_messages_all(self):
         """
         Adds the message-all link to an object. Intended for the document object.
@@ -165,21 +296,7 @@ class ForumObject(MasonObject):
             "schema": self._msg_schema()
         }
 
-    def add_control_add_user(self):
-        """
-        This adds the add-user control to an object. Intended ffor the 
-        document object. Instead of adding a schema dictionary we are pointing
-        to a schema url instead for two reasons: 1) to demonstrate both options;
-        2) the user schema is relatively large.
-        """
 
-        self["@controls"]["forum:add-user"] = {
-            "href": api.url_for(Users),
-            "title": "Create user",
-            "encoding": "json",
-            "method": "POST",
-            "schemaUrl": USER_SCHEMA_URL
-        }
 
     def add_control_delete_message(self, msgid):
         """
@@ -454,6 +571,9 @@ def close_connection(exc):
         g.con.close()
 
 #Define the resources
+
+#TODO TONI t‰nne classi exercise ja exercises. Katso apiarysta minka mallisia palautusten pit‰‰ olla. Jos apiaryssa on jotain vikaa niin sano. Sita voi muuttaa. Tama on suoraan ex4 filu. ainoat asiat mita olen muuttanu on #OWN STUFF merkilla
+        #merkitty osa add_controlseissa ja users get.
 class Messages(Resource):
     """
     Resource Messages implementation
@@ -820,9 +940,17 @@ class Users(Resource):
         #FILTER AND GENERATE THE RESPONSE
        #Create the envelope
         envelope = ForumObject()
-
+        #add controls to response
         envelope.add_control("self", href=api.url_for(Users))
+ 
+        envelope.add_control_add_user()
+        #not yet implemented
+        #envelope.add_control_list_exercises()
+        #SHOULD NOT BE IN HERE
+        #envelope.add_control_get_user_information()
+        
 
+        
         items = envelope["items"] = []
 
         for user in users_db:
@@ -832,8 +960,10 @@ class Users(Resource):
                 avatar=user["avatar"],
                 visibility=user["visibility"]
             )
-
+            #add controls to each object in the list
             item.add_control("self", href=api.url_for(Users, username=user["username"]))
+
+            
   
             items.append(item)
 
@@ -1259,6 +1389,9 @@ api.add_resource(Users, "/exercisetracker/api/users/",
                  endpoint="users")
 api.add_resource(User, "/exercisetracker/api/users/<nickname>/",
                  endpoint="user")
+
+#TODO TONI
+# sama ku ylemp‰n‰ on tehty userille. Exercise add_controls funktiot ei toimi ennen t‰t‰
 
 api.add_resource(History, "/forum/api/users/<nickname>/history/",
                  endpoint="history")

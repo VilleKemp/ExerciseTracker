@@ -93,6 +93,7 @@ class UsersTestCase (ResourcesAPITestCase):
         print "("+self.test_get_users.__name__+")", self.test_get_users.__doc__
         #Check that I receive status code 200
         resp = self.client.get(flask.url_for("users"))
+        print flask.url_for("users")
         self.assertEquals(resp.status_code, 200)
 
         # Check that I receive a collection and adequate href
@@ -106,6 +107,7 @@ class UsersTestCase (ResourcesAPITestCase):
         
         items = data["items"]
         self.assertEquals(len(items), initial_users)
+        
         for item in items:
             self.assertIn("username", item)
             self.assertIn("avatar", item)
