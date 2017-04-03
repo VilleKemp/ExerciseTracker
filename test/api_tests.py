@@ -67,7 +67,14 @@ class ResourcesAPITestCase(unittest.TestCase):
 
 
 class UsersTestCase (ResourcesAPITestCase):
-
+    user_1_request = {
+        "username": "kalle",
+        "password": "hunter2",
+        "avatar": 123,
+        "description": "minu juuri",
+        "visibility": 1
+        
+    }    
  
     def setUp(self):
         super(UsersTestCase, self).setUp()
@@ -93,7 +100,7 @@ class UsersTestCase (ResourcesAPITestCase):
         print "("+self.test_get_users.__name__+")", self.test_get_users.__doc__
         #Check that I receive status code 200
         resp = self.client.get(flask.url_for("users"))
-        print flask.url_for("users")
+       
         self.assertEquals(resp.status_code, 200)
 
         # Check that I receive a collection and adequate href
@@ -117,7 +124,117 @@ class UsersTestCase (ResourcesAPITestCase):
             self.assertIn("self", item["@controls"])
             self.assertIn("href", item["@controls"]["self"])
             self.assertEquals(item["@controls"]["self"]["href"], resources.api.url_for(resources.Users, username=item["username"], _external=False))
-            
+
+    def test_add_user(self):
+        """
+        Checks that the user is added correctly
+
+        """
+        print "("+self.test_add_user.__name__+")", self.test_add_user.__doc__
+
+        # With a complete request
+        resp = self.client.post(resources.api.url_for(resources.Users),
+                                headers={"Content-Type": JSON},
+                                data=json.dumps(self.user_1_request)
+                               )
+        
+        self.assertEquals(resp.status_code, 200)
+        data = json.loads(resp.data)
+        
+        controls = data["@controls"]
+        self.assertIn("self", controls)
+
+class UserTestCase (ResourcesAPITestCase):
+    user_1_request = {
+        "username": "Mystery",
+        "password": "hunter2",
+        "avatar": 123,
+        "description": "minu juuri",
+        "visibility": 1
+        
+    }    
+
+    def setUp(self):
+        super(UserTestCase, self).setUp()
+        user1_nickname = "Mystery"
+        user2_nickname = "M"
+        self.url1 = resources.api.url_for(resources.User,
+                                          username=user1_nickname,
+                                          _external=False)
+        self.url_wrong = resources.api.url_for(resources.User,
+                                               username=user2_nickname,
+                                            _external=False)
+        """
+    def test_url(self):
+        """
+       # Checks that the URL points to the right resource
+        """
+        #NOTE: self.shortDescription() shuould work.
+        print "("+self.test_url.__name__+")", self.test_url.__doc__
+        url = "/forum/api/users/AxelW/"
+        with resources.app.test_request_context(url):
+            rule = flask.request.url_rule
+            view_point = resources.app.view_functions[rule.endpoint].view_class
+            self.assertEquals(view_point, resources.User)
+        """
+    def test_get_user(self):
+        
+        """
+        Test get user method
+        """
+        print "("+self.test_get_user.__name__+")", self.test_get_user.__doc__
+        #Check that I receive status code 200
+  
+        resp = self.client.get(flask.url_for("user",username="Mystery"))
+
+        
+        self.assertEquals(resp.status_code, 200)
+
+        # Check that I receive a collection and adequate href
+        data = json.loads(resp.data)
+
+        controls = data["@controls"]
+        self.assertIn("self", controls)
+        
+        self.assertIn("href", controls["self"])
+
+    def test_modify_user(self):
+        """
+        incomplete
+
+        """
+        print "("+self.test_modify_user.__name__+")", self.test_modify_user.__doc__
+
+        # With a complete request
+        resp = self.client.put(flask.url_for("user",username="Mystery"),
+                                headers={"Content-Type": JSON},
+                                data=json.dumps(self.user_1_request)
+                               )
+        
+        self.assertEquals(resp.status_code, 200)
+        data = json.loads(resp.data)
+        
+        controls = data["@controls"]
+        self.assertIn("self", controls)
+
+    def test_delete_user(self):
+        """
+
+        """
+        print "("+self.test_delete_user.__name__+")", self.test_delete_user.__doc__
+
+        resp = self.client.delete(flask.url_for("user",username="Mystery"),
+                                headers={"Content-Type": JSON})
+        
+        self.assertEquals(resp.status_code, 204)
+        #Run the same request twice. second should fail because the user is already deleted
+        resp = self.client.delete(flask.url_for("user",username="Mystery"),
+                                headers={"Content-Type": JSON})       
+        self.assertEquals(resp.status_code, 404)
+
+        
+#TODO TONI
+#tee exercise testit. user testit on kesken. lisään ne myöhemmin 
 if __name__ == "__main__":
     print "Start running tests"
     unittest.main()                       
