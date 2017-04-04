@@ -233,10 +233,13 @@ class UserTestCase (ResourcesAPITestCase):
         self.assertEquals(resp.status_code, 404)
 
 class FriendsTestCase (ResourcesAPITestCase):
-    request = {
-    "username": "Mystery",
+    aa = {
+    "username": "Dakka",
     "friendname": "Sekoitus"
     }
+
+    remove = {"username": "Mystery",
+              "friendname" : "M"}
     
 
     def setUp(self):
@@ -254,19 +257,28 @@ class FriendsTestCase (ResourcesAPITestCase):
                                 data = json.dumps("Mystery"))
         self.assertEquals(resp.status_code, 200)
 
+    """
     def test_add_friend(self):
         print "("+self.test_add_friend.__name__+")", self.test_add_friend.__doc__
 
-        #resp = self.client.post(flask.url_for("friends",username="Mystery"),
-                                #headers={"Content-Type": JSON},
-                                #data = json.dumps(self.request))
-
-        resp = self.client.post(resources.api.url_for(resources.Friends,username="Mystery"),
+        resp = self.client.post(flask.url_for("friends",username="Dakka"),
                                 headers={"Content-Type": JSON},
-                                data=json.dumps(self.request)
-                               )
-        self.assertEquals(resp.status_code, 200)
+                                data = json.dumps(self.aa))
 
+
+        self.assertEquals(resp.status_code, 204)
+    
+    """
+    def test_delete_friend(self):
+        print "("+self.test_delete_friend.__name__+")", self.test_delete_friend.__doc__
+
+        resp = self.client.post(flask.url_for("friends",username="Mystery"),
+                                headers={"Content-Type": JSON},
+                                data = json.dumps(self.remove))
+
+
+        self.assertEquals(resp.status_code, 204)
+    
         
 #TODO TONI
 #tee exercise testit. user testit on kesken. lisään ne myöhemmin 

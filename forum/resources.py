@@ -1182,12 +1182,12 @@ class Friends(Resource):
             
   
             items.append(item)
-        print items
+        
 
         return Response(json.dumps(envelope), 200, mimetype=MASON+";")
 
 
-    def post(self):
+    def post(self,username):
         """
         """
         
@@ -1203,6 +1203,28 @@ class Friends(Resource):
         
         g.con.add_friend(username,friendname)
         if g.con.add_friend(username,friendname) is not True:
+            return create_error_response(404, "Unknown user",
+                                         "There is no a user with name %s"
+                                         % username)
+        
+
+        return '',204
+
+    def delete(self,username):
+        """
+        """
+        if JSON != request.headers.get("Content-Type",""):
+            return create_error_response(415, "UnsupportedMediaType",
+                                         "Use a JSON compatible format")
+        request_body = request.get_json(force=True)
+         #It throws a BadRequest exception, and hence a 400 code if the JSON is
+        #not wellformed
+        
+        username = request_body["username"]
+        friendname= request_body["friendname"]
+
+        g.con.delete_friend(username,friendname)
+        if g.con.delete_friend(username,friendname) is not True:
             return create_error_response(404, "Unknown user",
                                          "There is no a user with name %s"
                                          % username)
