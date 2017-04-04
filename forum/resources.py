@@ -1143,7 +1143,73 @@ class User(Resource):
 
         return Response(json.dumps(envelope), 200, mimetype=MASON+";")       
          
+
+
+class Friends(Resource):
+
+    def get(self,username):
+        """
+        Get all of the users friends
+        """
+        friends = g.con.get_friends(username)
         
+        if not friends:
+            return create_error_response(404, "Unknown user",
+                                         "There is no a user with name %s"
+                                         % username)
+        #FILTER AND GENERATE RESPONSE
+        #Create the envelope:
+#Create the envelope
+        envelope = ForumObject()
+        #add controls to response
+        envelope.add_control("self", href=api.url_for(Friends,username=username))
+        envelope.add_control_list_users() 
+        
+        items = envelope["items"] = []
+
+        for user in friends:
+            username=g.con.get_username(user["friend_id"])
+            item = ForumObject(
+                username=username
+                
+
+            )
+            item.add_control_get_user_information(username)
+            #add controls to each object in the list
+            item.add_control("self", href=api.url_for(Users, username=username))
+            #WIP
+            #envelope.add_control_get_user_information(username)
+            
+  
+            items.append(item)
+        print items
+
+        return Response(json.dumps(envelope), 200, mimetype=MASON+";")
+
+
+    def post(self):
+        """
+        """
+        
+        if JSON != request.headers.get("Content-Type",""):
+            return create_error_response(415, "UnsupportedMediaType",
+                                         "Use a JSON compatible format")
+        request_body = request.get_json(force=True)
+         #It throws a BadRequest exception, and hence a 400 code if the JSON is
+        #not wellformed
+        
+        username = request_body["username"]
+        friendname= request_body["friendname"]
+        
+        g.con.add_friend(username,friendname)
+        if g.con.add_friend(username,friendname) is not True:
+            return create_error_response(404, "Unknown user",
+                                         "There is no a user with name %s"
+                                         % username)
+        
+
+        return '',204
+    
 
 #######################################################################################
 class User_public(Resource):
@@ -1404,12 +1470,15 @@ api.add_resource(User_public, "/forum/api/users/<nickname>/public_profile/",
                  endpoint="public_profile")
 api.add_resource(User_restricted, "/forum/api/users/<nickname>/restricted_profile/",
                  endpoint="restricted_profile")
-
+####OWN
 api.add_resource(Users, "/exercisetracker/api/users/",
                  endpoint="users")
 api.add_resource(User, "/exercisetracker/api/users/<username>/",
                  endpoint="user")
 
+api.add_resource(Friends,"/exercisetracker/api/users/<username>/friends",
+                 endpoint="friends")
+###
 #TODO TONI
 # sama ku ylempänä on tehty userille. Exercise add_controls funktiot ei toimi ennen tätä
 

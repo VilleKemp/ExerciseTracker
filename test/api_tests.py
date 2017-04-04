@@ -232,6 +232,41 @@ class UserTestCase (ResourcesAPITestCase):
                                 headers={"Content-Type": JSON})       
         self.assertEquals(resp.status_code, 404)
 
+class FriendsTestCase (ResourcesAPITestCase):
+    request = {
+    "username": "Mystery",
+    "friendname": "Sekoitus"
+    }
+    
+
+    def setUp(self):
+        super(FriendsTestCase, self).setUp()
+        self.url = resources.api.url_for(resources.Friends,username="Mystery",
+                                         
+                                         _external=False)
+
+    def test_get_friends(self):
+        
+        print "("+self.test_get_friends.__name__+")", self.test_get_friends.__doc__
+
+        resp = self.client.get(flask.url_for("friends",username="Mystery"),
+                                headers={"Content-Type": JSON},
+                                data = json.dumps("Mystery"))
+        self.assertEquals(resp.status_code, 200)
+
+    def test_add_friend(self):
+        print "("+self.test_add_friend.__name__+")", self.test_add_friend.__doc__
+
+        #resp = self.client.post(flask.url_for("friends",username="Mystery"),
+                                #headers={"Content-Type": JSON},
+                                #data = json.dumps(self.request))
+
+        resp = self.client.post(resources.api.url_for(resources.Friends,username="Mystery"),
+                                headers={"Content-Type": JSON},
+                                data=json.dumps(self.request)
+                               )
+        self.assertEquals(resp.status_code, 200)
+
         
 #TODO TONI
 #tee exercise testit. user testit on kesken. lisään ne myöhemmin 

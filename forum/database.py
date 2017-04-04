@@ -519,6 +519,26 @@ class Connection(object):
         row = cur.fetchone()
         return self._create_user_object(row)
 
+    def get_username(self,user_id):
+        """
+        """
+        query1 = 'SELECT username from users WHERE user_id = ?'
+        #Activate foreign key support
+        self.set_foreign_keys_support()
+        #Cursor and row initialization
+        self.con.row_factory = sqlite3.Row
+        cur = self.con.cursor()
+        #Execute SQL Statement to retrieve the id given a nickname
+        pvalue = (user_id,)
+        cur.execute(query1, pvalue)
+        #Extract the user id
+        row = cur.fetchone()
+        if row is None:
+            return None
+        username = row["username"]
+ 
+        return username
+
     def delete_user(self, username):
         '''
         Remove all user information of the user with the nickname passed in as
