@@ -257,7 +257,7 @@ class FriendsTestCase (ResourcesAPITestCase):
                                 data = json.dumps("Mystery"))
         self.assertEquals(resp.status_code, 200)
 
-    """
+    
     def test_add_friend(self):
         print "("+self.test_add_friend.__name__+")", self.test_add_friend.__doc__
 
@@ -268,11 +268,11 @@ class FriendsTestCase (ResourcesAPITestCase):
 
         self.assertEquals(resp.status_code, 204)
     
-    """
+    
     def test_delete_friend(self):
         print "("+self.test_delete_friend.__name__+")", self.test_delete_friend.__doc__
 
-        resp = self.client.post(flask.url_for("friends",username="Mystery"),
+        resp = self.client.delete(flask.url_for("friends",username="Mystery"),
                                 headers={"Content-Type": JSON},
                                 data = json.dumps(self.remove))
 

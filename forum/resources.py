@@ -1201,7 +1201,7 @@ class Friends(Resource):
         username = request_body["username"]
         friendname= request_body["friendname"]
         
-        g.con.add_friend(username,friendname)
+      
         if g.con.add_friend(username,friendname) is not True:
             return create_error_response(404, "Unknown user",
                                          "There is no a user with name %s"
@@ -1223,7 +1223,7 @@ class Friends(Resource):
         username = request_body["username"]
         friendname= request_body["friendname"]
 
-        g.con.delete_friend(username,friendname)
+       
         if g.con.delete_friend(username,friendname) is not True:
             return create_error_response(404, "Unknown user",
                                          "There is no a user with name %s"
