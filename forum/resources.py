@@ -175,10 +175,7 @@ class ForumObject(MasonObject):
             
         }
 
-#TODO TONI
-        #N‰ill‰ luodaan controlsseja vastaukseen. Kato users get malliksi miten k‰ytet‰‰n. add_control_list_exercises luulisi toimivan suoraa
-        #muista exercisen add_controlseista en tied‰. users ja user liittyviin add_controlseihin ei tarvii koskea vaikka ne ei toimis. korjaan ne asap
-#exercises controls  #cant use until exercise endpoints are done
+
     def add_control_list_exercises(self):
         """
         Adds "list exercises" control to an object
@@ -191,7 +188,7 @@ class ForumObject(MasonObject):
             "method": "GET"
             
         }
-#exercise controls #cant use until exercise endpoints are done
+
     def add_control_get_exercise(self, exercise_id):
         """
         Adds "get exercise" control to an object
@@ -698,7 +695,7 @@ class Exercise(Resource):
           /profiles/exercise-profile
 
         RESPONSE HEADERS:
-         * Location: Contains the URL of the new message
+         * Location: Contains the URL of the new exercise
 
         RESPONSE STATUS CODE:
          * Returns 201 if the exercise has been added correctly.
@@ -766,8 +763,13 @@ class Users(Resource):
         """
         Gets a list of all the users in the database.
 
-        Returns 404 if users don't exist. Otherwise returns 200
-
+        INPUT PARAMETERS:
+            None
+            
+        RESPONSE
+            *404 if user does not exist
+            *200 and user information if everything went right
+        
 
         """
         
@@ -814,9 +816,18 @@ class Users(Resource):
         """
         Adds a new user in the database.
 
-        Returns 415 if request isn't JSON
-        Returns 400 if data is missing
-        Returns 200 and user information if succesful 
+
+        REQUEST ENTITY BODY:
+        * Media type: JSON:
+         * Profile: user
+          /profiles/user-profile
+
+        RESPONSE
+        
+            *Returns 415 if request isn't JSON
+            *Returns 400 if data is missing
+            *Returns 200 and user information if succesful
+            *Returns 402 if fields are missing
 
         """
         
@@ -891,7 +902,14 @@ class User(Resource):
 
     def get(self, username):
         """
-        Possible bug. controls menee toiseksi argumentiksi vastaus viestis?
+        Get user information
+
+        REQUEST
+            None
+            
+        RESPONSE
+            *Returns 404 if user does not exist
+            *Returns 200 and user information if everything went right
         """
         
         #PERFORM OPERATIONS
@@ -924,7 +942,16 @@ class User(Resource):
 
     def delete(self, username):
         """
-        en toteuttanut linkkeja palatuksiin. Ne ovat KAI turhia eli ne on poistettava apiarysta
+        Delete user
+
+        REQUEST
+            * Media type: JSON: 
+                * str username
+
+        RESPONSE
+            * 415 if request is not in json format
+            * 404 if user does not exist
+            * 204 and list users and list exercises controls of deletion was succedfull
         """
         if JSON != request.headers.get("Content-Type",""):
             return create_error_response(415, "UnsupportedMediaType",
@@ -947,14 +974,27 @@ class User(Resource):
                                          "There is no a user with username %s"
                                          % username)
     def put(self,username):
-        #check if exists?
+        """
+        Modify user
+
+        REQUEST
+            * Media type: JSON:
+                * Profile: user
+          /profiles/user-profile
+
+          RESPONSE
+              * 415 if request isn't json
+              * 400 if fields are missing
+              * 404 if user does not exist
+              * 200 and user information if everything went fine
+        """
+       
 
         if JSON != request.headers.get("Content-Type",""):
             return create_error_response(415, "UnsupportedMediaType",
                                          "Use a JSON compatible format")
         request_body = request.get_json(force=True)
-         #It throws a BadRequest exception, and hence a 400 code if the JSON is
-        #not wellformed
+
         try:
             username = request_body["username"]
             password = request_body["password"]
@@ -963,9 +1003,8 @@ class User(Resource):
             visibility = request_body["visibility"]
 
         except KeyError:
-            #This is launched if either title or body does not exist or if
-            # the template.data array does not exist.
-            return create_error_response(400, "Wrong request format")                                          
+
+            return create_error_response(400, "Missing fields")                                          
         else:
   
             if not g.con.modify_user(username,request_body ):
@@ -1003,6 +1042,14 @@ class Friends(Resource):
     def get(self,username):
         """
         Get all of the users friends
+
+        REQUEST
+            *None
+
+        RESPONSE
+            * 404 if user does not exist
+            * 200 and list of friends if succesfull
+        
         """
         if JSON != request.headers.get("Content-Type",""):
             return create_error_response(415, "UnsupportedMediaType",
@@ -1044,6 +1091,18 @@ class Friends(Resource):
 
     def post(self,username):
         """
+        Add friend
+
+        REQUEST
+            * Media type: JSON:
+                * Profile: friendlist
+          /profiles/friendlist
+
+        RESPONSE
+            * 415 if request isn't json
+            * 404 if user or friend does not exist
+            * 204 if succesful
+            
         """
         
         if JSON != request.headers.get("Content-Type",""):
@@ -1071,6 +1130,18 @@ class Friends(Resource):
 
     def delete(self,username):
         """
+        Delete friend
+
+        REQUEST
+            * Media type: JSON:
+                *Body
+                    {"username": "Mystery",
+                      "friendname" : "M"}
+
+        RESPONSE
+            * 415 if request isn't json
+            * 404 if user or friend does not exist
+            * 204 if succesfull
         """
         if JSON != request.headers.get("Content-Type",""):
             return create_error_response(415, "UnsupportedMediaType",

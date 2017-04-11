@@ -257,8 +257,7 @@ class FriendsTestCase (ResourcesAPITestCase):
         print "("+self.test_get_friends.__name__+")", self.test_get_friends.__doc__
 
         resp = self.client.get(flask.url_for("friends",username="Mystery"),
-                                headers={"Content-Type": JSON},
-                                data = json.dumps("Mystery"))
+                                headers={"Content-Type": JSON})
         self.assertEquals(resp.status_code, 200)
 
     
