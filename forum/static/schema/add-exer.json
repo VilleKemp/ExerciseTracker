@@ -1,0 +1,34 @@
+{
+    "type": "object",
+    "properties": {
+        "username": {
+            "description": "Username of the exercisee",
+            "type": "string"
+        },
+        "type": {
+            "description": "Used to specify the exercise done",
+            "type": "string"
+        },
+        "value": {
+            "description": "Used to specify ammount of exercise done",
+            "type": "int"
+        },
+		"valueunit": {
+            "description": "Used to specify what unit of measurement value was",
+            "type": "string"
+        },
+		"date": {
+            "description": "Date used to specify when the exercise was done",
+            "type": "string"
+        },
+		"time": {
+            "description": "Time the exercise toke",
+            "type": "int"
+        },
+		"timeunit": {
+            "description": "Used to specify the unit the given value was for instance (minutes)",
+            "type": "string"
+        }
+    },
+    "required": ["username"]
+}

@@ -26,7 +26,7 @@ resources.app.config["SERVER_NAME"] = "localhost:5000"
 resources.app.config.update({"Engine": ENGINE})
 
 #Other database parameters.
-initial_messages = 20
+initial_exercises = 4
 initial_users = 4
 
 
@@ -104,7 +104,7 @@ class UsersTestCase (ResourcesAPITestCase):
        
         self.assertEquals(resp.status_code, 200)
 
-       
+        # Check that I receive a collection and adequate href
         data = json.loads(resp.data)
 
         controls = data["@controls"]
@@ -115,9 +115,8 @@ class UsersTestCase (ResourcesAPITestCase):
         
         items = data["items"]
         self.assertEquals(len(items), initial_users)
-    
+        
         for item in items:
-            
             self.assertIn("username", item)
             self.assertIn("avatar", item)
             self.assertIn("description", item)
@@ -126,8 +125,6 @@ class UsersTestCase (ResourcesAPITestCase):
             self.assertIn("self", item["@controls"])
             self.assertIn("href", item["@controls"]["self"])
             self.assertEquals(item["@controls"]["self"]["href"], resources.api.url_for(resources.Users, username=item["username"], _external=False))
-        
-
 
     def test_add_user(self):
         """
@@ -393,7 +390,7 @@ class ExerciseTestCase (ResourcesAPITestCase):
     def setUp(self):
         super(ExerciseTestCase, self).setUp()
         self.url = resources.api.url_for(resources.Exercise,
-                                         exercise_id="0",
+                                         exercise_id="1",
                                          _external=False)
         self.url_wrong = resources.api.url_for(resources.Exercise,
                                         exercise_id="200",
@@ -459,52 +456,55 @@ class ExerciseTestCase (ResourcesAPITestCase):
         #Check controls
         controls = data["@controls"]
         self.assertIn("self", controls)
-        self.assertIn("forum:add-exercise", controls)
-        self.assertIn("forum:users-all", controls)
+        self.assertIn("add-exercise", controls)
+        self.assertIn("list users", controls)
 
         self.assertIn("href", controls["self"])
         self.assertEquals(controls["self"]["href"], self.url)
 
         # Check that users-all control is correct
-        users_ctrl = controls["forum:users-all"]
+        users_ctrl = controls["list users"]
         self.assertIn("title", users_ctrl)
         self.assertIn("href", users_ctrl)
-        self.assertEquals(users_ctrl["href"], "/forum/api/users/")
+        self.assertEquals(users_ctrl["href"], "/exercisetracker/api/users/")
 
-        #Check that add-message control is correct
-        msg_ctrl = controls["forum:add-message"]
-        self.assertIn("title", msg_ctrl)
-        self.assertIn("href", msg_ctrl)
-        self.assertEquals(msg_ctrl["href"], "/forum/api/exercises/")
-        self.assertIn("encoding", msg_ctrl)
-        self.assertEquals(msg_ctrl["encoding"], "json")        
-        self.assertIn("method", msg_ctrl)
-        self.assertEquals(msg_ctrl["method"], "POST")
-        self.assertIn("schema", msg_ctrl)
+        #Check that add-exercise control is correct
+        exer_ctrl = controls["add-exercise"]
+        self.assertIn("title", exer_ctrl)
+        self.assertIn("href", exer_ctrl)
+        self.assertEquals(exer_ctrl["href"], "/exercisetracker/api/exercises/")
+        self.assertIn("encoding", exer_ctrl)
+        self.assertEquals(exer_ctrl["encoding"], "json")        
+        self.assertIn("method", exer_ctrl)
+        self.assertEquals(exer_ctrl["method"], "POST")
+        self.assertIn("schema", exer_ctrl)
         
-        schema_data = msg_ctrl["schema"]
+        schema_data = exer_ctrl["schema"]
         self.assertIn("type", schema_data)
         self.assertIn("properties", schema_data)
         self.assertIn("required", schema_data)
         
         props = schema_data["properties"]
-        self.assertIn("headline", props)
-        self.assertIn("articleBody", props)
-        self.assertIn("author", props)
-        
+        self.assertIn("username", props)
+        self.assertIn("type", props)
+        self.assertIn("value", props)
+        self.assertIn("valueunit", props)
+        self.assertIn("date", props)
+        self.assertIn("time", props)
+        self.assertIn("timeunit", props)
+            
         req = schema_data["required"]
-        self.assertIn("headline", req)
-        self.assertIn("articleBody", req)
+        self.assertIn("username", req)
         
         for key, value in props.items():
             self.assertIn("description", value)
             self.assertIn("title", value)
             self.assertIn("type", value)
-            self.assertEquals("string", value["type"])
+#            self.assertEquals("string", value["type"])
 
         #Check that items are correct.
         items = data["items"]
-        self.assertEquals(len(items), initial_messages)
+        self.assertEquals(len(items), 1)
         for item in items:
             self.assertIn("id", item)
             self.assertIn("headline", item)
