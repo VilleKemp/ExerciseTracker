@@ -331,7 +331,7 @@ class FriendsTestCase (ResourcesAPITestCase):
         resp = self.client.get(flask.url_for("friends",username="Mystery"),
                                 headers={"Content-Type": JSON})
         self.assertEquals(resp.status_code, 200)
-        #
+        #wrong address
         resp = self.client.get(flask.url_for("friends",username="Mysterya"),
                                 headers={"Content-Type": JSON})
         self.assertEquals(resp.status_code, 404)
