@@ -14,6 +14,7 @@ JSON = "application/json"
 HAL = "application/hal+json"
 FORUM_USER_PROFILE ="/profiles/user-profile/"
 FORUM_MESSAGE_PROFILE = "/profiles/message-profile/"
+FORUM_EXERCISE_PROFILE = "/profiles/exercise-profile/"
 ATOM_THREAD_PROFILE = "https://tools.ietf.org/html/rfc4685"
 
 #Tell Flask that I am running it in testing mode.
@@ -281,7 +282,255 @@ class FriendsTestCase (ResourcesAPITestCase):
     
         
 #TODO TONI
-#tee exercise testit. user testit on kesken. lisään ne myöhemmin 
+#tee exercise testit. user testit on kesken. lisään ne myöhemmin
+class ExercisesTestCase (ResourcesAPITestCase):
+
+    #USER1_NICKNAME = 'Mystery'
+    #USER1_ID = 1
+    #EXERCISE1_ID=4
+    exercise1_request = { 'exercise_id': 4,
+                            'user_id': 1,
+                            'username': 'Mystery',
+                            'type' : 'jump',
+                            'value': 1,
+                            'valueunit': 'm',
+                            'date': '12.12.2012',
+                            'time': 0,
+                            'timeunit': 'h'
+    }
+
+    exercise_mod_req_1 = { 'exercise_id': 4,
+                            'user_id': 1,
+                            'username': 'Mystery',
+                            'type' : 'jump',
+                            'value': 1,
+                            'valueunit': 'm',
+                            'date': '12.12.2012',
+                            'time': 0,
+                            'timeunit': 'h'
+    }
+    def setUp(self):
+        super(ExercisesTestCase, self).setUp()
+        self.url = resources.api.url_for(resources.Exercises,
+                                         _external=False)
+
+    def test_url(self):
+        """
+        Checks that the URL points to the right resource
+        """
+        #NOTE: self.shortDescription() shuould work.
+        _url = "/exercisetracker/api/exercises/"
+        print "("+self.test_url.__name__+")", self.test_url.__doc__,
+        with resources.app.test_request_context(_url):
+            rule = flask.request.url_rule
+            view_point = resources.app.view_functions[rule.endpoint].view_class
+            self.assertEquals(view_point, resources.Exercises)
+
+    def test_get_exercises(self):
+        """
+        Checks that GET exercises return correct status code and data format
+        """
+        print "("+self.test_get_exercises.__name__+")", self.test_get_exercises.__doc__
+        #Check that I receive status code 200
+        resp = self.client.get(flask.url_for("exercises"))
+        print flask.url_for("exercises")
+        self.assertEquals(resp.status_code, 200)
+
+        # Check that I receive a collection and adequate href
+        data = json.loads(resp.data)
+
+        controls = data["@controls"]
+        self.assertIn("self", controls)
+        
+        self.assertIn("href", controls["self"])
+        self.assertEquals(controls["self"]["href"], self.url)
+        
+        items = data["items"]
+        self.assertEquals(len(items), initial_users)
+        
+        for item in items:
+            self.assertIn("username", item)
+            self.assertIn("type", item)
+            self.assertIn("value", item)
+            self.assertIn("valueunit", item)
+            self.assertIn("date", item)
+            self.assertIn("time", item)
+            self.assertIn("timeunit", item)
+            self.assertIn("@controls", item)
+            self.assertIn("self", item["@controls"])
+            self.assertIn("href", item["@controls"]["self"])
+            self.assertEquals(item["@controls"]["self"]["href"], resources.api.url_for(resources.Exercises, exercise_id=item["exercise_id"], _external=False))
+
+    def test_add_exercise(self):
+        """
+        Checks that the exercise is added correctly
+
+        """
+        print "("+self.test_add_exercise.__name__+")", self.test_add_exercise.__doc__
+
+        # With a complete request
+        resp = self.client.post(resources.api.url_for(resources.Exercises),
+                                headers={"Content-Type": JSON},
+                                data=json.dumps(self.exercise1_request)
+                               )
+        
+        self.assertEquals(resp.status_code, 201)
+        data = json.loads(resp.data)
+        
+        controls = data["@controls"]
+        #self.assertIn("self", controls)
+
+class ExerciseTestCase (ResourcesAPITestCase):
+
+    
+    #USER1_NICKNAME = 'Mystery'
+    #USER1_ID = 1
+    #EXERCISE1_ID=4
+
+    def setUp(self):
+        super(ExerciseTestCase, self).setUp()
+        self.url = resources.api.url_for(resources.Exercise,
+                                         exercise_id="0",
+                                         _external=False)
+        self.url_wrong = resources.api.url_for(resources.Exercise,
+                                        exercise_id="200",
+                                        _external=False)
+
+    def test_url(self):
+        """
+        Checks that the URL points to the right resource
+        """
+        #NOTE: self.shortDescription() should work.
+        _url = "/exercisetracker/api/exercises/<exercise_id>/"
+        print "("+self.test_url.__name__+")", self.test_url.__doc__,
+        with resources.app.test_request_context(_url):
+            rule = flask.request.url_rule
+            view_point = resources.app.view_functions[rule.endpoint].view_class
+            self.assertEquals(view_point, resources.Exercise)
+
+    def test_wrong_url(self):
+        """
+        Checks that GET Message return correct status code if given a
+        wrong message
+        """
+        resp = self.client.get(self.url_wrong, "0")
+        self.assertEquals(resp.status_code, 404)
+
+    exercise1_request = { 'exercise_id': 4,
+                            'user_id': 1,
+                            'username': 'Mystery',
+                            'type' : 'jump',
+                            'value': 1,
+                            'valueunit': 'm',
+                            'date': '12.12.2012',
+                            'time': 0,
+                            'timeunit': 'h'
+    }
+
+    exercise_mod_req_1 = { 'exercise_id': 4,
+                            'user_id': 1,
+                            'username': 'Mystery',
+                            'type' : 'jump',
+                            'value': 1,
+                            'valueunit': 'm',
+                            'date': '12.12.2012',
+                            'time': 0,
+                            'timeunit': 'h'
+    }
+
+    exercise_wrong_req_1 = { 'exercise_id': -9
+    }
+    exercise_wrong_req_2 = { 'time': -9
+    }
+    def test_get_exercise(self):
+        """
+        Checks that GET Exercise return correct status code and data format
+        """
+        print "("+self.test_get_exercise.__name__+")", self.test_get_exercise.__doc__
+        #with resources.app.test_client() as client:
+        resp = self.client.get(flask.url_for("exercise",exercise_id=1),
+                                headers={"Content-Type": JSON})
+        self.assertEquals(resp.status_code, 200)
+        data = json.loads(resp.data)
+
+    def test_get_exercise_mimetype(self):
+        """
+        Checks that GET Exerrcises return correct status code and data format
+        """
+        print "("+self.test_get_exercise_mimetype.__name__+")", self.test_get_exercise_mimetype.__doc__
+
+        #Check that I receive status code 200
+        resp = self.client.get(flask.url_for("exercise",exercise_id=1),
+                                headers={"Content-Type": JSON})
+        self.assertEquals(resp.status_code, 200)
+        self.assertEquals(resp.headers.get("Content-Type",None),
+                          "{};{}".format(MASONJSON, FORUM_EXERCISE_PROFILE))
+
+    def test_modify_exercise (self):
+        """
+        Modify an exsiting exercise and check that the exercise has been modified correctly in the server
+        """
+        print "("+self.test_modify_exercise.__name__+")", self.test_modify_exercise.__doc__
+        resp = self.client.put(flask.url_for("exercise",exercise_id=1),
+                               data=json.dumps(self.exercise_mod_req_1),
+                               headers={"Content-Type": JSON})
+        self.assertEquals(resp.status_code, 204)
+        #Check that the message has been modified
+        resp2 = self.client.get(flask.url_for("exercise",exercise_id=1),
+                                headers={"Content-Type": JSON})
+        self.assertEquals(resp2.status_code, 200)
+        data = json.loads(resp2.data)
+        #Check that the title and the body of the message has been modified with the new data
+        self.assertEquals(data["type"], self.exercise_mod_req_1["type"])
+        self.assertEquals(data["date"], self.exercise_mod_req_1["date"])
+
+    def test_modify_unexisting_exercise(self):
+        """
+        Try to modify a exercise that does not exist
+        """
+        print "("+self.test_modify_unexisting_exercise.__name__+")", self.test_modify_unexisting_exercise.__doc__
+        resp = self.client.put(flask.url_for("exercise",exercise_id=200),
+                                data=json.dumps(self.exercise_mod_req_1),
+                                headers={"Content-Type": JSON})
+        self.assertEquals(resp.status_code, 404)
+
+
+    def test_modify_wrong_exercise(self):
+        """
+        Try to modify a exercise sending wrong data
+        """
+        print "("+self.test_modify_wrong_exercise.__name__+")", self.test_modify_wrong_exercise.__doc__
+        resp = self.client.put(flask.url_for("exercise",exercise_id=1),
+                               data=json.dumps(self.exercise_wrong_req_1),
+                               headers={"Content-Type": JSON})
+        self.assertEquals(resp.status_code, 400)        
+        resp = self.client.put(flask.url_for("exercise",exercise_id=1),
+                               data=json.dumps(self.exercise_wrong_req_2),
+                               headers={"Content-Type": JSON})
+        self.assertEquals(resp.status_code, 400)
+
+
+    def test_delete_exercise(self):
+        """
+        Checks that Delete Exercise return correct status code if corrected delete
+        """
+        print "("+self.test_delete_exercise.__name__+")", self.test_delete_exercise.__doc__
+        resp = self.client.delete(flask.url_for("exercise",exercise_id=1),
+                                headers={"Content-Type": JSON})
+        self.assertEquals(resp.status_code, 204)
+        resp2 = self.client.get(flask.url_for("exercise",exercise_id=1),
+                                headers={"Content-Type": JSON})
+        self.assertEquals(resp2.status_code, 404)
+
+    def test_delete_unexisting_exercise(self):
+        """
+        Checks that Delete Exercise return correct status code if given a wrong address
+        """
+        print "("+self.test_delete_unexisting_exercise.__name__+")", self.test_delete_unexisting_exercise.__doc__
+        resp = self.client.delete(flask.url_for("exercise",exercise_id=200),
+                                headers={"Content-Type": JSON})
+        self.assertEquals(resp.status_code, 404)
+        
 if __name__ == "__main__":
     print "Start running tests"
     unittest.main()                       

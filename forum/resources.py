@@ -18,7 +18,7 @@ MASON = "application/vnd.mason+json"
 JSON = "application/json"
 
 FORUM_USER_PROFILE = "/profiles/user-profile/"
-FORUM_MESSAGE_PROFILE = "/profiles/message-profile/"
+FORUM_EXERCISE_PROFILE = "/profiles/exercise-profile/"
 ERROR_PROFILE = "/profiles/error-profile"
 
 ATOM_THREAD_PROFILE = "https://tools.ietf.org/html/rfc4685"
@@ -28,6 +28,7 @@ APIARY_PROFILES_URL = "STUDENT_APIARY_PROJECT/reference/profiles/"
 APIARY_RELS_URL = "STUDENT_APIARY_PROJECT/reference/link-relations/"
 
 USER_SCHEMA_URL = "/forum/schema/user/"
+EXERCISE_SCHEMA_URL = "/forum/schema/exercise/"
 PRIVATE_PROFILE_SCHEMA_URL = "/forum/schema/private-profile/"
 LINK_RELATIONS_URL = "/forum/link-relations/"
 
@@ -222,7 +223,7 @@ class ForumObject(MasonObject):
 
         self["@controls"]["modify exercise"] = {
             "title": "modify exercise information",
-            "href": "/exercisetracker/api/exercises/<exerciseid>",
+            "href": api.url_for(Exercise),
             "encoding": "json",
             "method": "PUT",
             "schemaUrl": "/exercisetracker/schema/exercise/" 
@@ -280,56 +281,51 @@ class ForumObject(MasonObject):
             "title": "List users"
         }
 
-    def add_control_add_message(self):
+    def add_control_add_exercise(self):
         """
-        This adds the add-message control to an object. Intended for the  
-        document object. Here you can see that adding the control is a bunch of 
-        lines where all we're basically doing is nested dictionaries to 
-        achieve the correctly formed JSON document representation. 
+        Adds "add exercise" control to an object
         """
 
-        self["@controls"]["forum:add-message"] = {
-            "href": api.url_for(Messages),
-            "title": "Create message",
+        self["@controls"]["add exercise"] = {
+            "title": "add exercise",
+            "href": api.url_for(Exercises),
             "encoding": "json",
             "method": "POST",
-            "schema": self._msg_schema()
+            "schemaUrl":EXERCISE_SCHEMA_URL
+            
         }
 
-
-
-    def add_control_delete_message(self, msgid):
+    def add_control_delete_exercise(self, exercise_id):
         """
+        Own method
         Adds the delete control to an object. This is intended for any 
-        object that represents a message.
+        object that represents a exercise.
 
-        : param str msgid: message id in the msg-N form
+        : param str msgid: exercise id in the msg-N form
         """
-
         self["@controls"]["forum:delete"] = {
-            "href": api.url_for(Message, messageid=msgid),  
-            "title": "Delete this message",
+            "href": api.url_for(Exercise, exercise_id=exercise_id),  
+            "title": "Delete this exercise",
             "method": "DELETE"
         }
 
-
-
-    def add_control_edit_message(self, msgid):
+    def add_control_edit_exercise(self, exerid):
         """
-        Adds the edit control to a message object. For the schema we need
+        Own method
+        Adds the edit control to a exercise object. For the schema we need
         the one that's intended for editing (it has editor instead of author).
 
         : param str msgid: message id in the msg-N form
         """
-
         self["@controls"]["edit"] = {
-            "href": api.url_for(Message, messageid=msgid),
-            "title": "Edit this message",
+            "href": api.url_for(Exercise, exercise_id=exerid),
+            "title": "Edit this exercise",
             "encoding": "json",
             "method": "PUT",
-            "schema": self._msg_schema(edit=True)
+            "schemaUrl":EXERCISE_SCHEMA_URL
+            #"schema": self._exer_schema(edit=True)
         }
-
+    
     def add_control_edit_public_profile(self, nickname):
         """
         Adds the edit control to a public profile object. Editing a public
@@ -346,39 +342,6 @@ class ForumObject(MasonObject):
             "schema": self._public_profile_schema()
         }
         
-    def add_control_edit_private_profile(self, nickname):
-        """
-        Adds the edit control to a private profile object. Editing a private
-        profile uses large subset of the user schema, so we're just going to
-        use a URL this time. 
-        
-        : param str nickname: nickname of the user whose profile is edited        
-        """
-        
-        self["@controls"]["edit"] = {
-            "href": api.url_for(User_restricted, nickname=nickname),
-            "title": "Edit this private profile",
-            "encoding": "json",
-            "method": "PUT",
-            "schemaUrl": PRIVATE_PROFILE_SCHEMA_URL
-        }    
-
-    def add_control_messages_history(self, user):
-        """
-        This adds the messages history control to a user which defines a href 
-        template for making queries. In Mason query parameters are defined with 
-        a schema just like forms.
-
-        : param str user: nickname of the user
-        """
-
-        self["@controls"]["forum:messages-history"] = {
-            "href": api.url_for(History, nickname=user).rstrip("/") + u"{?length,before,after}",
-            "title": "Message history",
-            "isHrefTemplate": True,
-            "schema": self._history_schema()
-        }
-
     def add_control_reply_to(self, msgid):
         """
         Adds a reply-to control to a message.
@@ -562,12 +525,12 @@ def close_connection(exc):
 
 #TODO TONI t‰nne classi exercise ja exercises. Katso apiarysta minka mallisia palautusten pit‰‰ olla. Jos apiaryssa on jotain vikaa niin sano. Sita voi muuttaa. Tama on suoraan ex4 filu. ainoat asiat mita olen muuttanu on #OWN STUFF merkilla
         #merkitty osa add_controlseissa ja users get.
-class Messages(Resource):
+class Exercises(Resource):
     """
     Resource Messages implementation
     """
 
-    def get(self):
+    def get(self):#, exerciseid):
         """
         Get all messages.
 
@@ -586,31 +549,55 @@ class Messages(Resource):
          * The attribute headline is obtained from the column messages.title
          * The attribute author is obtained from the column messages.sender
         """
+        #PERFORM OPERATIONS
+        #Create the users list
+        exercises_db = g.con.get_exercises()
+        if not exercises_db:
+            return create_error_response(404, "No exercises")
 
-        #Extract messages from database
-        messages_db = g.con.get_messages()
-
+        #FILTER AND GENERATE THE RESPONSE
+        #Create the envelope
         envelope = ForumObject()
-        envelope.add_namespace("forum", LINK_RELATIONS_URL)
-
-        envelope.add_control("self", href=api.url_for(Messages))
-        envelope.add_control_users_all()
-        envelope.add_control_add_message()
-
+        #add controls to response
+        envelope.add_control("self", href=api.url_for(Exercises))
+ 
+        envelope.add_control_add_user()
+        envelope.add_control_list_exercises()
+        #not yet implemented
+        #envelope.add_control_list_exercises()
+        #SHOULD NOT BE IN HERE
+        #envelope.add_control_get_user_information()
+                
         items = envelope["items"] = []
 
-        for msg in messages_db:             
-            item = ForumObject(id=msg["messageid"], headline=msg["title"])
-            item.add_control("self", href=api.url_for(Message, messageid=msg["messageid"]))
-            item.add_control("profile", href=FORUM_MESSAGE_PROFILE)
+        for exercise in exercises_db:
+            item = ForumObject(
+                exercise_id=exercise["exercise_id"],
+                username=exercise["username"],
+                type=exercise["type"],
+                value=exercise["value"],
+                valueunit=exercise["valueunit"],
+                date=exercise["date"],   
+                time=exercise["time"],   
+                timeunit=exercise["timeunit"]   
+            )
+            #add controls to each object in the list
+            item.add_control("self", href=api.url_for(Exercises, exercise_id=exercise["exercise_id"]))
+
+            
             items.append(item)
 
-        #RENDER
-        return Response(json.dumps(envelope), 200, mimetype=MASON+";" + FORUM_MESSAGE_PROFILE)
+
+        return Response(json.dumps(envelope), 200, mimetype=MASON+";")
+
+
+
+        #Extract messages from database
+      
 
     def post(self):
         """
-        Adds a a new message.
+        Adds a a new exercise.
 
         REQUEST ENTITY BODY:
          * Media type: JSON:
@@ -649,11 +636,15 @@ class Messages(Resource):
         request_body = request.get_json(force=True)
          #It throws a BadRequest exception, and hence a 400 code if the JSON is
         #not wellformed
-        try:            
-            title = request_body["headline"]            
-            body = request_body["articleBody"]
-            sender = request_body.get("author", "Anonymous")
-            ipaddress = request.remote_addr
+        try:
+            user_id=request_body["user_id"]
+            username=request_body["username"]
+            type=request_body["type"]
+            value=request_body["value"]
+            valueunit=request_body["valueunit"]
+            date=request_body["date"]   
+            time=request_body["time"]   
+            timeunit=request_body["timeunit"]               
 
         except KeyError:
             #This is launched if either title or body does not exist or if
@@ -661,24 +652,45 @@ class Messages(Resource):
             return create_error_response(400, "Wrong request format",
                                          "Be sure you include message title and body")
         #Create the new message and build the response code"
-        newmessageid = g.con.create_message(title, body, sender, ipaddress)
-        if not newmessageid:
+        exercise = {"username": username, "type": type,
+                "value": value, "valueunit": valueunit, "date": date, "time": time, "timeunit": timeunit}
+
+        #Create the new message and build the response code"
+        newexercise_id = g.con.create_exercise(exercise)
+        #newexerciseid = g.con.create_exercise(username, type, value, valueunit, date, time, timeunit)
+        if not newexercise_id:
             return create_error_response(500, "Problem with the database",
                                          "Cannot access the database")
 
         #Create the Location header with the id of the message created
-        url = api.url_for(Message, messageid=newmessageid)
+        url = api.url_for(Exercise, exercise_id=newexercise_id)
 
         #RENDER
         #Return the response
-        return Response(status=201, headers={"Location": url})
+        #return Response((json.dumps(envelope),status=201)
+        #return Response(status=201, headers={"Location": url})
 
-class Message(Resource):
+        exerciseinfo=g.con.get_exercise(newexercise_id)
+        envelope = ForumObject(
+            username=exerciseinfo["username"],
+            type=exerciseinfo["type"],
+            value=exerciseinfo["value"],
+            valueunit=exerciseinfo["valueunit"],
+            date=exerciseinfo["date"],   
+            time=exerciseinfo["time"],   
+            timeunit=exerciseinfo["timeunit"]   
+            )
+
+        return Response(json.dumps(envelope),status=201)
+        #CREATE RESPONSE AND RENDER
+        #return Response(json.dumps(envelope),status=200)
+
+class Exercise(Resource):
     """
     Resource that represents a single message in the API.
     """
 
-    def get(self, messageid):
+    def get(self, exercise_id):
         """
         Get the body, the title and the id of a specific message.
 
@@ -711,48 +723,44 @@ class Message(Resource):
          * The attribute headline is obtained from the column messages.title
          * The attribute author is obtained from the column messages.sender
         """
+        exercise_db = g.con.get_exercise(exercise_id)
+        if not exercise_db:
+            return create_error_response(404, "There is no a exercise with id %s" % exercise_id)#,
 
-        #PEFORM OPERATIONS INITIAL CHECKS
-        #Get the message from db
-        message_db = g.con.get_message(messageid)
-        if not message_db:
-            abort(404, message="There is no a message with id %s" % messageid,
-                       resource_type="Message",
-                       resource_url=request.path,
-                       resource_id=messageid)
+                       #resource_type="Exercise",
+                      # resource_url=request.path,
+                       #resource_id=exercise_id)
 
-        sender = message_db.get("sender", "Anonymous")
-        parent = message_db.get("replyto", None)
+        #envelope = ForumObject()
+        #envelope.add_namespace("forum", LINK_RELATIONS_URL)
 
-        #FILTER AND GENERATE RESPONSE
-        #Create the envelope:
+        #envelope.add_control_users_exercise()
+        #envelope.add_control_add_exercise()
+
+        #items = envelope["items"] = []
+
+        #for  exercise in exercises_db:
         envelope = ForumObject(
-            headline=message_db["title"],
-            articleBody=message_db["body"],
-            author=sender,
-            editor=message_db["editor"]            
+                    username=exercise_db["username"],
+                    type=exercise_db["type"],
+                    value=exercise_db["value"],
+                    valueunit=exercise_db["valueunit"],
+                    date=exercise_db["date"],   
+                    time=exercise_db["time"],   
+                    timeunit=exercise_db["timeunit"]      
         )
 
-        envelope.add_namespace("forum", LINK_RELATIONS_URL)
-        envelope.add_namespace("atom-thread", ATOM_THREAD_PROFILE)
-
-        envelope.add_control_delete_message(messageid)
-        envelope.add_control_edit_message(messageid)
-        envelope.add_control_reply_to(messageid)
-        envelope.add_control("profile", href=FORUM_MESSAGE_PROFILE)        
-        envelope.add_control("collection", href=api.url_for(Messages))
-        envelope.add_control("self", href=api.url_for(Message, messageid=messageid))                
-        envelope.add_control("author", href=api.url_for(User, nickname=sender))
-
-        if parent:
-            envelope.add_control("atom-thread:in-reply-to", href=api.url_for(Message, messageid=parent))
-        else:
-            envelope.add_control("atom-thread:in-reply-to", href=None)
+        envelope.add_control("self", href=api.url_for(Exercises))
+        envelope.add_control_delete_exercise(exercise_id)
+        envelope.add_control_edit_exercise(exercise_id)
+        envelope.add_control("self", href=api.url_for(Exercises), exercise_id=exercise_db["exercise_id"])
 
         #RENDER
-        return Response(json.dumps(envelope), 200, mimetype=MASON+";" + FORUM_MESSAGE_PROFILE)
+        return Response(json.dumps(envelope), 200, mimetype=MASON+";" + FORUM_EXERCISE_PROFILE)
 
-    def delete(self, messageid):
+        
+
+    def delete(self, exercise_id):
         """
         Deletes a message from the Forum API.
 
@@ -765,15 +773,15 @@ class Message(Resource):
         """
 
         #PERFORM DELETE OPERATIONS
-        if g.con.delete_message(messageid):
+        if g.con.delete_exercise(exercise_id):
             return "", 204
         else:
             #Send error message
             return create_error_response(404, "Unknown message",
-                                         "There is no a message with id %s" % messageid
+                                         "There is no a message with id %s" % exercise_id
                                         )
 
-    def put(self, messageid):
+    def put(self, exercise_id):
         """
         Modifies the title, body and editor properties of this message.
 
@@ -805,9 +813,9 @@ class Message(Resource):
         """
 
         #CHECK THAT MESSAGE EXISTS
-        if not g.con.contains_message(messageid):
-            return create_error_response(404, "Message not found",
-                                         "There is no a message with id %s" % messageid
+        if not g.con.get_exercise(exercise_id):#g.con.contains_exercise(exercise_id):
+            return create_error_response(404, "Exercise not found",
+                                         "There is no a exercise with id %s" % exercise_id
                                         )
 
         if JSON != request.headers.get("Content-Type",""):
@@ -816,28 +824,34 @@ class Message(Resource):
         request_body = request.get_json(force=True)
          #It throws a BadRequest exception, and hence a 400 code if the JSON is
         #not wellformed
-        try:            
-            title = request_body["headline"]            
-            body = request_body["articleBody"]
-            editor = request_body.get("editor", "Anonymous")
-            ipaddress = request.remote_addr
-
+        try:         
+            _username=request_body["username"]
+            _type=request_body["type"]
+            _value=request_body["value"]
+            _valueunit=request_body["valueunit"]
+            _date=request_body["date"]
+            _time=request_body["time"] 
+            _timeunit=request_body["timeunit"]   
+            #ipaddress = request.remote_addr
         except KeyError:
             #This is launched if either title or body does not exist or if
             # the template.data array does not exist.
             return create_error_response(400, "Wrong request format",
-                                         "Be sure you include message title and body")                                          
+                                         "Be sure you include exercise title and body")                                          
         else:
+            exercise = {"username": _username, "type": _type,
+            "value": _value, "valueunit": _valueunit, "date": _date, "time": _time, "timeunit": _timeunit}
             #Modify the message in the database
-            if not g.con.modify_message(messageid, title, body, editor):
+            if not g.con.modify_exercise(exercise_id, exercise):
                 return create_error_response(500, "Internal error",
-                                         "Message information for %s cannot be updated" % messageid
+                                         "Message information for %s cannot be updated" % exercise_id
                                         )
             return "", 204
 
-    def post(self, messageid):
+
+    def post(self, exercise_id):
         """
-        Adds a response to a message with id <messageid>.
+        Adds a response to a message with id <exerciseid>.
 
         INPUT PARAMETERS:
        : param str messageid: The id of the message to be deleted
@@ -870,9 +884,9 @@ class Message(Resource):
 
         #CHECK THAT MESSAGE EXISTS
         #If the message with messageid does not exist return status code 404
-        if not g.con.contains_message(messageid):
-            return create_error_response(404, "Message not found",
-                                         "There is no a message with id %s" % messageid
+        if not g.con.contains_exercise(exercise_id):
+            return create_error_response(404, "Exercise not found",
+                                         "There is no a exercise with id %s" % exercise_id
                                         )
 
         if JSON != request.headers.get("Content-Type",""):
@@ -882,29 +896,37 @@ class Message(Resource):
          #It throws a BadRequest exception, and hence a 400 code if the JSON is
         #not wellformed
         try:            
-            title = request_body["headline"]            
-            body = request_body["articleBody"]
-            sender = request_body.get("author", "Anonymous")
-            ipaddress = request.remote_addr
+            #exerciseid=request_body["exerciseid"],           
+            username=request_body["username"],
+            type=request_body["type"],
+            value=request_body["value"],
+            valueunit=request_body["valueunit"],
+            date=request_body["date"],   
+            time=request_body["time"],   
+            timeunit=request_body["timeunit"]   
+            #ipaddress = request.remote_addr
 
         except KeyError:
             #This is launched if either title or body does not exist or if
             # the template.data array does not exist.
             return create_error_response(400, "Wrong request format",
-                                         "Be sure you include message title and body")
+                                         "Be sure you include exercise title and body")
+
+        exercise = {"username": username, "type": type,
+                "value": value, "valueunit": valueunit, "date": date, "time": time, "timeunit": timeunit}
 
         #Create the new message and build the response code"
-        newmessageid = g.con.append_answer(messageid, title, body,
-                                           sender, ipaddress)
-        if not newmessageid:
+        newexercise_id = g.con.append_exercise(username, exercise)
+        if not newexercise_id:
             abort(500)
 
         #Create the Location header with the id of the message created
-        url = api.url_for(Message, messageid=newmessageid)
+        url = api.url_for(Exercise, exercise_id=newexercise_id)
 
         #RENDER
         #Return the response
-        return Response(status=201, headers={"Location": url})
+        return Response(status=200, headers={"Location": url})
+
 ####################################################################
 class Users(Resource):
     """
@@ -1484,20 +1506,16 @@ class History(Resource):
 app.url_map.converters["regex"] = RegexConverter
 
 #Define the routes
-api.add_resource(Messages, "/forum/api/messages/",
-                 endpoint="messages")
-api.add_resource(Message, "/forum/api/messages/<regex('msg-\d+'):messageid>/",
-                 endpoint="message")
-api.add_resource(User_public, "/forum/api/users/<nickname>/public_profile/",
-                 endpoint="public_profile")
-api.add_resource(User_restricted, "/forum/api/users/<nickname>/restricted_profile/",
-                 endpoint="restricted_profile")
 ####OWN
+
 api.add_resource(Users, "/exercisetracker/api/users/",
                  endpoint="users")
 api.add_resource(User, "/exercisetracker/api/users/<username>/",
                  endpoint="user")
-
+api.add_resource(Exercises, "/exercisetracker/api/exercises/",
+                 endpoint="exercises")
+api.add_resource(Exercise, "/exercisetracker/api/exercises/<exercise_id>/",
+                 endpoint="exercise")
 api.add_resource(Friends,"/exercisetracker/api/users/<username>/friends",
                  endpoint="friends")
 ###
