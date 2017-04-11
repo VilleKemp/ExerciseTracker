@@ -258,28 +258,7 @@ class ForumObject(MasonObject):
             
         }
         
-        
-
-    ###END OF OWN STUFF#############################################################################
-    def add_control_messages_all(self):
-        """
-        Adds the message-all link to an object. Intended for the document object.
-        """
-
-        self["@controls"]["forum:messages-all"] = {
-            "href": api.url_for(Messages),
-            "title": "All messages"
-        }
-
-    def add_control_users_all(self):
-        """
-        This adds the users-all link to an object. Intended for the document object.  
-        """
-
-        self["@controls"]["forum:users-all"] = {
-            "href": api.url_for(Users),
-            "title": "List users"
-        }
+  
 
     def add_control_add_exercise(self):
         """
@@ -326,138 +305,9 @@ class ForumObject(MasonObject):
             #"schema": self._exer_schema(edit=True)
         }
     
-    def add_control_edit_public_profile(self, nickname):
-        """
-        Adds the edit control to a public profile object. Editing a public
-        profile uses a limited version of the full user schema.
-        
-        : param str nickname: nickname of the user whose profile is edited        
-        """
-        
-        self["@controls"]["edit"] = {
-            "href": api.url_for(User_public, nickname=nickname),
-            "title": "Edit this public profile",
-            "encoding": "json",
-            "method": "PUT",
-            "schema": self._public_profile_schema()
-        }
-        
-    def add_control_reply_to(self, msgid):
-        """
-        Adds a reply-to control to a message.
-
-        : param str msgid: message id in the msg-N form
-        """
-
-        self["@controls"]["forum:reply"] = {
-            "href": api.url_for(Message, messageid=msgid),
-            "title": "Reply to this message",
-            "encoding": "json",
-            "method": "POST",
-            "schema": self._msg_schema()
-        }
-    """#TODO 4 Implement necessary methods here to implement User and History"""
-
-    def _msg_schema(self, edit=False):
-        """
-        Creates a schema dictionary for messages. If we're editing a message
-        the editor field should be set. If the message is new, the author field
-        should be set instead. This is controlled by the edit flag.
-
-        This schema can also be accessed from the urls /forum/schema/edit-msg/ and 
-        /forum/schema/add-msg/.
-
-        : param bool edit: is this schema for an edit form
-        : rtype:: dict
-        """
-
-        if edit:
-            user_field = "editor"
-        else:
-            user_field = "author"
-
-        schema = {
-            "type": "object",
-            "properties": {},
-            "required": ["headline", "articleBody"]
-        }
-
-        props = schema["properties"]
-        props["headline"] = {
-            "title": "Headline",
-            "description": "Message headline",
-            "type": "string"
-        }
-        props["articleBody"] = {
-            "title": "Contents",
-            "description": "Message contents",
-            "type": "string"
-        }
-        props[user_field] = {
-            "title": user_field.capitalize(),
-            "description": "Nickname of the message {}".format(user_field),
-            "type": "string"
-        }
-        return schema
-
-    def _history_schema(self):
-        """
-        Creates a schema dicionary for the messages history query parameters.
-
-        This schema can also be accessed from /forum/schema/history-query/
-
-        :rtype:: dict
-        """
-
-        schema = {
-            "type": "object",
-            "properties": {},
-            "required": []
-        }
-
-        props = schema["properties"]
-        props["length"] = {
-            "description": "Maximum number of messages returned",
-            "type": "integer"
-        }        
-        props["before"] = {
-            "description": "Find messages before (timestamp as seconds)",
-            "type": "integer"
-        }
-        props["after"] = {
-            "description": "Find messages after (timestamp as seconds)",
-            "type": "integer"
-        }
-
-        return schema
-    
-    def _public_profile_schema(self):
-        """
-        Creates a schema dictionary for editing public profiles of users. 
-        
-        :rtype:: dict
-        """
-        
-        schema = {
-            "type": "object",
-            "properties": {},
-            "required": ["signature", "avatar"]
-        }
-        
-        props = schema["properties"]
-        props["signature"] = {
-            "description": "User's signature",
-            "title": "Signature",
-            "type": "string"
-        }
-        
-        props["avatar"] = {
-            "description": "Avatar image file location",
-            "title": "Avatar",
-            "type": "string"
-        }
-        
-        return schema
+   
+  
+  
         
 
 #ERROR HANDLERS
@@ -941,6 +791,10 @@ class Users(Resource):
 
 
         """
+        
+        if JSON != request.headers.get("Content-Type",""):
+            return create_error_response(415, "UnsupportedMediaType",
+                                         "Use a JSON compatible format")
         #PERFORM OPERATIONS
         #Create the users list
         users_db = g.con.get_users()
@@ -1070,6 +924,9 @@ class User(Resource):
         """
 
         #PERFORM OPERATIONS
+        if JSON != request.headers.get("Content-Type",""):
+            return create_error_response(415, "UnsupportedMediaType",
+                                         "Use a JSON compatible format")
 
         user_db = g.con.get_user(username)
         if not user_db:
