@@ -75,7 +75,15 @@ class UsersTestCase (ResourcesAPITestCase):
         "description": "minu juuri",
         "visibility": 1
         
-    }    
+    }
+    incomplete_request = {
+        "username": "kalle",
+        "password": "hunter2",
+        "description": "minu juuri",
+        "visibility": 1
+        
+    }
+    
  
     def setUp(self):
         super(UsersTestCase, self).setUp()
@@ -144,6 +152,23 @@ class UsersTestCase (ResourcesAPITestCase):
         
         controls = data["@controls"]
         self.assertIn("self", controls)
+        
+
+        #check header
+        resp = self.client.post(resources.api.url_for(resources.Users),
+                                data=json.dumps(self.user_1_request)
+                               )
+        self.assertEquals(resp.status_code, 415)
+
+        #incomplete request. missing avatar field
+        resp = self.client.post(resources.api.url_for(resources.Users),
+                                headers={"Content-Type": JSON},
+                                data=json.dumps(self.incomplete_request)
+                               )
+        self.assertEquals(resp.status_code, 400)
+
+        
+        
 
 class UserTestCase (ResourcesAPITestCase):
     user_1_request = {
@@ -153,7 +178,23 @@ class UserTestCase (ResourcesAPITestCase):
         "description": "minu juuri",
         "visibility": 1
         
-    }    
+    }
+    wrong_request = {
+        "username": "Nobody",
+        "password": "hunter2",
+        "avatar": 123,
+        "description": "minu juuri",
+        "visibility": 1
+        
+    }
+
+    incomplete_request = {
+        "username": "Mystery",
+        "password": "hunter2",
+        "avatar": 123,
+        "description": "minu juuri",
+        
+    }  
 
     def setUp(self):
         super(UserTestCase, self).setUp()
@@ -199,9 +240,13 @@ class UserTestCase (ResourcesAPITestCase):
         
         self.assertIn("href", controls["self"])
 
+        #with wrong name. expect 404
+        resp = self.client.get(flask.url_for("user",username="nobody"))
+        self.assertEquals(resp.status_code, 404)        
+
     def test_modify_user(self):
         """
-        incomplete
+        Test modify user
 
         """
         print "("+self.test_modify_user.__name__+")", self.test_modify_user.__doc__
@@ -218,9 +263,31 @@ class UserTestCase (ResourcesAPITestCase):
         controls = data["@controls"]
         self.assertIn("self", controls)
 
+        #header check
+        resp = self.client.put(flask.url_for("user",username="Mystery"),
+                                data=json.dumps(self.user_1_request)
+                               )
+    
+        self.assertEquals(resp.status_code, 415)
+
+        #with incomplete request
+        resp = self.client.put(flask.url_for("user",username="Mystery"),
+                                headers={"Content-Type": JSON},
+                                data=json.dumps(self.incomplete_request)
+                               )        
+        self.assertEquals(resp.status_code, 400)
+
+        #with wrong name
+        resp = self.client.put(flask.url_for("user",username="Mystery"),
+                                headers={"Content-Type": JSON},
+                                data=json.dumps(self.wrong_request)
+                               )        
+        self.assertEquals(resp.status_code, 500)
+    
+        
     def test_delete_user(self):
         """
-
+        Test delete user method
         """
         print "("+self.test_delete_user.__name__+")", self.test_delete_user.__doc__
 
@@ -232,6 +299,11 @@ class UserTestCase (ResourcesAPITestCase):
         resp = self.client.delete(flask.url_for("user",username="Mystery"),
                                 headers={"Content-Type": JSON})       
         self.assertEquals(resp.status_code, 404)
+        #header check
+        resp = self.client.delete(flask.url_for("user",username="Dakka"),
+                                headers={"Content-Type": "not right"})       
+        self.assertEquals(resp.status_code, 415)
+        
 
 class FriendsTestCase (ResourcesAPITestCase):
     aa = {
@@ -241,6 +313,9 @@ class FriendsTestCase (ResourcesAPITestCase):
 
     remove = {"username": "Mystery",
               "friendname" : "M"}
+    incomplete = {"username": "Mystery"}
+    
+
     
 
     def setUp(self):
@@ -256,28 +331,63 @@ class FriendsTestCase (ResourcesAPITestCase):
         resp = self.client.get(flask.url_for("friends",username="Mystery"),
                                 headers={"Content-Type": JSON})
         self.assertEquals(resp.status_code, 200)
+        #
+        resp = self.client.get(flask.url_for("friends",username="Mysterya"),
+                                headers={"Content-Type": JSON})
+        self.assertEquals(resp.status_code, 404)
+
+        
 
     
     def test_add_friend(self):
         print "("+self.test_add_friend.__name__+")", self.test_add_friend.__doc__
+        #Header check
+        resp = self.client.post(flask.url_for("friends",username="Dakka"),
+                                headers={"Content-Type": "not json"},
+                                data = json.dumps(self.aa))
+        self.assertEquals(resp.status_code, 415)
 
+        #proper format. should be success
         resp = self.client.post(flask.url_for("friends",username="Dakka"),
                                 headers={"Content-Type": JSON},
                                 data = json.dumps(self.aa))
-
-
         self.assertEquals(resp.status_code, 204)
+        #incomplete
+        resp = self.client.post(flask.url_for("friends",username="Dakka"),
+                                headers={"Content-Type": JSON},
+                                data = json.dumps(self.incomplete))
+        self.assertEquals(resp.status_code, 400)
+
+
+        
+          
     
     
     def test_delete_friend(self):
         print "("+self.test_delete_friend.__name__+")", self.test_delete_friend.__doc__
 
+        #Proper format
         resp = self.client.delete(flask.url_for("friends",username="Mystery"),
                                 headers={"Content-Type": JSON},
                                 data = json.dumps(self.remove))
-
-
         self.assertEquals(resp.status_code, 204)
+        #header
+        resp = self.client.delete(flask.url_for("friends",username="Mystery"),
+                                headers={"Content-Type": "SON"},
+                                data = json.dumps(self.remove))
+        self.assertEquals(resp.status_code, 415)
+
+        #resend proper request. should yield 404
+        resp = self.client.delete(flask.url_for("friends",username="Mystery"),
+                                headers={"Content-Type": JSON},
+                                data = json.dumps(self.remove))
+        self.assertEquals(resp.status_code, 404)
+    
+        #send wrong request
+        resp = self.client.delete(flask.url_for("friends",username="Mystery"),
+                                headers={"Content-Type": JSON},
+                                data = json.dumps(self.incomplete))
+        self.assertEquals(resp.status_code, 400)
     
         
 #TODO TONI

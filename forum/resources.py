@@ -900,11 +900,11 @@ class Users(Resource):
             *Returns 415 if request isn't JSON
             *Returns 400 if data is missing
             *Returns 200 and user information if succesful
-            *Returns 402 if fields are missing
+            
 
         """
         
-        if JSON != request.headers.get("Content-Type", ""):
+        if JSON != request.headers.get("Content-Type", "JSON"):
             abort(415)
         #PARSE THE REQUEST:
         request_body = request.get_json(force=True)
@@ -940,7 +940,7 @@ class Users(Resource):
             description = request_body["description"]
             visibility = request_body["visibility"]
         except KeyError:
-            return create_error_response(402, "Wrong request format", "Be sure to include all mandatory properties")
+            return create_error_response(400, "Wrong request format", "Be sure to include all mandatory properties")
 
 
         user = {"username": username, "password": password,
@@ -1062,7 +1062,7 @@ class User(Resource):
           RESPONSE
               * 415 if request isn't json
               * 400 if fields are missing
-              * 404 if user does not exist
+              * 500 if username is wrong or other parameters are not in right format
               * 200 and user information if everything went fine
         """
        
@@ -1086,13 +1086,10 @@ class User(Resource):
   
             if not g.con.modify_user(username,request_body ):
                 return create_error_response(500, "Internal error",
-                                         "User information for %s cannot be updated" % messageid
+                                         "User information for %s cannot be updated" % username
                                         )
         user_db = g.con.get_user(username)
-        if not user_db:
-            return create_error_response(404, "Unknown user",
-                                         "There is no a user with name %s"
-                                         % username)
+
         #FILTER AND GENERATE RESPONSE
         #Create the envelope:
 
@@ -1175,6 +1172,7 @@ class Friends(Resource):
             * 415 if request isn't json
             * 404 if user or friend does not exist
             * 204 if succesful
+            * 400 if fields are missing
             
         """
         
@@ -1182,12 +1180,13 @@ class Friends(Resource):
             return create_error_response(415, "UnsupportedMediaType",
                                          "Use a JSON compatible format")
         request_body = request.get_json(force=True)
-         #It throws a BadRequest exception, and hence a 400 code if the JSON is
-        #not wellformed
+ 
         
-        username = request_body["username"]
-        friendname= request_body["friendname"]
-        
+        try:
+            username = request_body["username"]
+            friendname= request_body["friendname"]
+        except KeyError:
+            return create_error_response(400, "Missing fields")        
       
         if g.con.add_friend(username,friendname) is not True:
             return create_error_response(404, "Unknown user",
@@ -1210,6 +1209,7 @@ class Friends(Resource):
         RESPONSE
             * 415 if request isn't json
             * 404 if user or friend does not exist
+            * 400 if data missing
             * 204 if succesfull
         """
         if JSON != request.headers.get("Content-Type",""):
@@ -1218,9 +1218,12 @@ class Friends(Resource):
         request_body = request.get_json(force=True)
          #It throws a BadRequest exception, and hence a 400 code if the JSON is
         #not wellformed
-        
-        username = request_body["username"]
-        friendname= request_body["friendname"]
+
+        try:
+            username = request_body["username"]
+            friendname= request_body["friendname"]
+        except KeyError:
+            return create_error_response(400, "Missing fields") 
 
        
         if g.con.delete_friend(username,friendname) is not True:

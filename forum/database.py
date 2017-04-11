@@ -1107,7 +1107,7 @@ class Connection(object):
         pvalue = (user_id, friend_id)
         cur.execute(query2, pvalue)
         self.con.commit()
-            #We do not do any comprobation and return the nickname
+        
         return True
 
 
