@@ -108,7 +108,8 @@ class UsersTestCase (ResourcesAPITestCase):
         """
         print "("+self.test_get_users.__name__+")", self.test_get_users.__doc__
         #Check that I receive status code 200
-        resp = self.client.get(flask.url_for("users"))
+        resp = self.client.get(flask.url_for("users"),
+                                headers={"Content-Type": JSON})
        
         self.assertEquals(resp.status_code, 200)
 
@@ -227,7 +228,8 @@ class UserTestCase (ResourcesAPITestCase):
         print "("+self.test_get_user.__name__+")", self.test_get_user.__doc__
         #Check that I receive status code 200
   
-        resp = self.client.get(flask.url_for("user",username="Mystery"))
+        resp = self.client.get(flask.url_for("user",username="Mystery"),
+                                headers={"Content-Type": JSON},)
 
         
         self.assertEquals(resp.status_code, 200)
@@ -241,7 +243,8 @@ class UserTestCase (ResourcesAPITestCase):
         self.assertIn("href", controls["self"])
 
         #with wrong name. expect 404
-        resp = self.client.get(flask.url_for("user",username="nobody"))
+        resp = self.client.get(flask.url_for("user",username="nobody"),
+                                headers={"Content-Type": JSON},)
         self.assertEquals(resp.status_code, 404)        
 
     def test_modify_user(self):

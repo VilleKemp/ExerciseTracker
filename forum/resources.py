@@ -1037,7 +1037,10 @@ class User(Resource):
             * 404 if user does not exist
             * 204 and list users and list exercises controls of deletion was succedfull
         """
-
+                #PERFORM OPERATIONS
+        if JSON != request.headers.get("Content-Type",""):
+            return create_error_response(415, "UnsupportedMediaType",
+                                         "Use a JSON compatible format")
         #PEROFRM OPERATIONS
         #Try to delete the user. If it could not be deleted, the database
         #returns None.
