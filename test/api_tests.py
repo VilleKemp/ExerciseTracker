@@ -104,7 +104,7 @@ class UsersTestCase (ResourcesAPITestCase):
        
         self.assertEquals(resp.status_code, 200)
 
-        # Check that I receive a collection and adequate href
+       
         data = json.loads(resp.data)
 
         controls = data["@controls"]
@@ -115,8 +115,9 @@ class UsersTestCase (ResourcesAPITestCase):
         
         items = data["items"]
         self.assertEquals(len(items), initial_users)
-        
+    
         for item in items:
+            
             self.assertIn("username", item)
             self.assertIn("avatar", item)
             self.assertIn("description", item)
@@ -125,6 +126,8 @@ class UsersTestCase (ResourcesAPITestCase):
             self.assertIn("self", item["@controls"])
             self.assertIn("href", item["@controls"]["self"])
             self.assertEquals(item["@controls"]["self"]["href"], resources.api.url_for(resources.Users, username=item["username"], _external=False))
+        
+
 
     def test_add_user(self):
         """
