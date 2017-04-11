@@ -771,9 +771,7 @@ class Users(Resource):
 
         """
         
-        if JSON != request.headers.get("Content-Type",""):
-            return create_error_response(415, "UnsupportedMediaType",
-                                         "Use a JSON compatible format")
+
         #PERFORM OPERATIONS
         #Create the users list
         users_db = g.con.get_users()
@@ -784,11 +782,9 @@ class Users(Resource):
        #Create the envelope
         envelope = ForumObject()
         #add controls to response
-        envelope.add_control("self", href=api.url_for(Users))
- 
+        envelope.add_control("self", href=api.url_for(Users)) 
         envelope.add_control_add_user()
-        #not yet implemented
-        #envelope.add_control_list_exercises()
+        envelope.add_control_list_exercises()
 
         
 
@@ -805,8 +801,9 @@ class Users(Resource):
             #add controls to each object in the list
             item.add_control("self", href=api.url_for(Users, username=user["username"]))
             #WIP
-            #envelope.add_control_get_user_information(username)
-            
+            item.add_control_get_user_information(user["username"])
+            item.add_control_delete_user(user["username"])
+            item.add_control_modify_user(user["username"])
   
             items.append(item)
 
@@ -845,13 +842,7 @@ class Users(Resource):
 
         except KeyError:
             return create_error_response(400, "Wrong request format", "Username was missing from the request")
-        """
-        #Conflict if user already exist
-        if g.con.contains_user(username):
-            return create_error_response(409, "Wrong username",
-                                         "There is already a user with same"
-                                         "username:%s." % username)
-        """
+ 
         # pick up rest of the mandatory fields
         try:
             password = request_body["password"]
@@ -883,10 +874,11 @@ class Users(Resource):
         #Controls
         envelope.add_control("self", href=api.url_for(User,username=username))       
         envelope.add_control_get_user_information(username)
-                #not yet implemented
-        #envelope.add_control_list_exercises()
-                    #WIP
-        #envelope.add_control_get_user_information(username)
+        envelope.add_control_list_users()
+        envelope.add_control_list_exercises()
+        envelope.add_control_delete_user(username)
+        envelope.add_control_modify_user(username)
+
 
         
         #CREATE RESPONSE AND RENDER
@@ -901,11 +893,9 @@ class User(Resource):
         """
         Possible bug. controls menee toiseksi argumentiksi vastaus viestis?
         """
-
+        
         #PERFORM OPERATIONS
-        if JSON != request.headers.get("Content-Type",""):
-            return create_error_response(415, "UnsupportedMediaType",
-                                         "Use a JSON compatible format")
+ 
 
         user_db = g.con.get_user(username)
         if not user_db:
@@ -927,11 +917,7 @@ class User(Resource):
         envelope.add_control_modify_user(username)
         envelope.add_control_list_users()
         envelope.add_control_delete_user(username)
-     
-        #mahdollisesti turhia?
-        #envelope.add_control_modify_exercise
-        #envelope.add_control_remove_exercise
-        #envelope.add_control_get_exercise
+        envelope.add_control_list_exercises()
 
         return Response(json.dumps(envelope), 200, mimetype=MASON+";")
   
@@ -940,14 +926,21 @@ class User(Resource):
         """
         en toteuttanut linkkeja palatuksiin. Ne ovat KAI turhia eli ne on poistettava apiarysta
         """
-
+        if JSON != request.headers.get("Content-Type",""):
+            return create_error_response(415, "UnsupportedMediaType",
+                                         "Use a JSON compatible format")
         #PEROFRM OPERATIONS
         #Try to delete the user. If it could not be deleted, the database
         #returns None.
         if g.con.delete_user(username):
             #RENDER RESPONSE
+            envelope = ForumObject(
+
+            )
+            envelope.add_control_list_users()
+            envelope.add_control_list_exercises()
             
-            return '', 204
+            return Response(json.dumps(envelope), 204, mimetype=MASON+";")
         else:
             #GENERATE ERROR RESPONSE
             return create_error_response(404, "Unknown user",
@@ -993,11 +986,13 @@ class User(Resource):
                 avatar=user_db["avatar"],
                 visibility=user_db["visibility"]
             )
+        #controls
         envelope.add_control("self", href=api.url_for(User,username=username)) 
         envelope.add_control_modify_user(username)
         envelope.add_control_list_users()
         envelope.add_control_delete_user(username)
-        #exercise jutut
+        envelope.add_control_list_exercises()
+   
 
         return Response(json.dumps(envelope), 200, mimetype=MASON+";")       
          
@@ -1009,6 +1004,9 @@ class Friends(Resource):
         """
         Get all of the users friends
         """
+        if JSON != request.headers.get("Content-Type",""):
+            return create_error_response(415, "UnsupportedMediaType",
+                                         "Use a JSON compatible format")
         friends = g.con.get_friends(username)
         
         if not friends:
@@ -1035,13 +1033,12 @@ class Friends(Resource):
             item.add_control_get_user_information(username)
             #add controls to each object in the list
             item.add_control("self", href=api.url_for(Users, username=username))
-            #WIP
-            #envelope.add_control_get_user_information(username)
+
             
   
             items.append(item)
         
-
+        envelope.add_control_list_users()
         return Response(json.dumps(envelope), 200, mimetype=MASON+";")
 
 
@@ -1064,8 +1061,12 @@ class Friends(Resource):
             return create_error_response(404, "Unknown user",
                                          "There is no a user with name %s"
                                          % username)
-        
+        envelope = ForumObject(
+                username=request_body["friendname"]
 
+            )
+        envelope.add_control("self", href=api.url_for(Friends, username=friendname))       
+        envelope.add_control_get_user_information(friendname)
         return '',204
 
     def delete(self,username):
@@ -1092,250 +1093,7 @@ class Friends(Resource):
     
 
 #######################################################################################
-class User_public(Resource):
 
-    def get(self, nickname):
-        """
-        
-        Get the public profile (avatar and signature) of a single user.
-        
-        RESPONSE ENTITY BODY:
-        * Media type: Mason
-          https://github.com/JornWildt/Mason
-         * Profile: Forum_User_Profile
-           http://atlassian.virtues.fi: 8090/display/PWP
-           /Exercise+4#Exercise4-Forum_User_Profile
-        """
-        
-        user_db = g.con.get_user(nickname)
-        if not user_db:
-            return create_error_response(404, "Unknown user",
-                                         "There is no a user with nickname %s"
-                                         % nickname)
-        
-        pub_profile = user_db["public_profile"]
-        
-        # We could also by lazy and do the next step with:
-        # envelope = ForumObject(nickname=nickname)
-        # envelope.update(pub_profile)
-        
-        envelope = ForumObject(
-            nickname=nickname,
-            registrationdate=pub_profile["registrationdate"],
-            signature=pub_profile["signature"],
-            avatar=pub_profile["avatar"],
-        )
-        
-        envelope.add_namespace("forum", LINK_RELATIONS_URL)
-        envelope.add_control("self", href=api.url_for(User_public, nickname=nickname))
-        envelope.add_control("up", href=api.url_for(User, nickname=nickname))
-        envelope.add_control("forum:private-data", href=api.url_for(User_restricted, nickname=nickname))
-        envelope.add_control_messages_history(nickname)
-        envelope.add_control_edit_public_profile(nickname)
-        
-        return Response(json.dumps(envelope), 200, mimetype=MASON + ";" + FORUM_USER_PROFILE)
-
-    def put(self, nickname):
-        """
-        Modify the public profile of a user. 
-        
-        REQUEST ENTITY BODY:
-        * Media type: JSON
-        
-        """
-        
-        if not g.con.contains_user(nickname):
-            return create_error_response(404, "Unknown user", "There is no user with nickname {}".format(nickname))
-            
-        request_body = request.get_json()
-        if not request_body:
-            return create_error_response(415, "Unsupported Media Type", "Use a JSON compatible format")            
-        
-        try:
-            avatar = request_body["avatar"]
-            signature = request_body["signature"]
-        except KeyError:
-            return create_error_response(400, "Wrong request format", "Be sure to include all mandatory properties")
-        
-        user = {
-            "public_profile":
-            {
-                "signature": signature,
-                "avatar": avatar
-            }
-        }
-            
-        if not g.con.modify_user(nickname, user):
-            return create_error_response(404, "Unknown user", "There is no user with nickname {}".format(nickname))
-        
-        return "", 204
-
-class User_restricted(Resource):
-
-    def get (self, nickname):
-        """
-        Get the private profile of a user
-        
-        RESPONSE ENTITY BODY:
-        * Media type: Mason
-          https://github.com/JornWildt/Mason
-         * Profile: Forum_User_Profile
-           http://atlassian.virtues.fi: 8090/display/PWP
-           /Exercise+4#Exercise4-Forum_User_Profile
-        """
-        
-        user_db = g.con.get_user(nickname)
-        if not user_db:
-            return create_error_response(404, "Unknown user",
-                                         "There is no a user with nickname %s"
-                                         % nickname)
-        
-        priv_profile = user_db["restricted_profile"]
-        
-        # Here we can't just update the envelope
-        # with private profile because some of the keys
-        # differ... So, lesson, if you want to be lazy
-        # make sure to use the same key names everywhere =p
-        
-        try:
-            country, locality = priv_profile["residence"].split(":")
-            address = {"addressCountry": country, "addressLocality": locality}
-        except (AttributeError, ValueError):
-            address = {"addressCountry": "", "addressLocality": ""}
-        
-        envelope = ForumObject(
-            nickname=nickname,
-            address=address,
-            birthDate=priv_profile["birthday"],
-            email=priv_profile["email"],
-            familyName=priv_profile["lastname"],
-            gender=priv_profile["gender"],
-            givenName=priv_profile["firstname"],
-            website=priv_profile["website"],
-            telephone=priv_profile["mobile"],
-            skype=priv_profile["skype"],
-            image=priv_profile["picture"]
-        )
-        
-        envelope.add_namespace("forum", LINK_RELATIONS_URL)
-        envelope.add_control("self", href=api.url_for(User_restricted, nickname=nickname))
-        envelope.add_control("up", href=api.url_for(User, nickname=nickname))
-        envelope.add_control("forum:public-data", href=api.url_for(User_public, nickname=nickname))
-        envelope.add_control_messages_history(nickname)
-        envelope.add_control_edit_private_profile(nickname)
-        
-        return Response(json.dumps(envelope), 200, mimetype=MASON + ";" + FORUM_USER_PROFILE)
-
-    def put(self, nickname):
-        """
-        Edit the private profile of a user
-        
-        REQUEST ENTITY BODY:
-        * Media type: JSON
-        """
-        
-        if not g.con.contains_user(nickname):
-            return create_error_response(404, "Unknown user", "There is no user with nickname {}".format(nickname))
-            
-        request_body = request.get_json()
-        if not request_body:
-            return create_error_response(415, "Unsupported Media Type", "Use  JSON format")            
-        
-        # Note: this is basically the reverse of what
-        # we did in get(). Those identical keys would
-        # have been nice again, no?
-        
-        try:
-            priv_profile = dict(
-                residence="{addressCountry}:{addressLocality}".format(**request_body["address"]),
-                birthday=request_body["birthDate"],
-                email=request_body["email"],
-                lastname=request_body["familyName"],
-                gender=request_body["gender"],
-                firstname=request_body["givenName"],
-                website=request_body.get("website", ""),
-                mobile=request_body.get("telephone", ""),
-                skype=request_body.get("skype", ""),
-                image=request_body.get("picture", "")
-            )
-        except KeyError:
-            return create_error_response(400, "Wrong request format", "Be sure to include all mandatory properties")
-        
-        user = {"restricted_profile": priv_profile}
-            
-        if not g.con.modify_user(nickname, user):
-            return NotFound()
-        
-        return "", 204
-
-
-class History(Resource):
-    def get (self, nickname):
-        """
-            This method returns a list of messages that has been sent by an user
-            and meet certain restrictions (result of an algorithm).
-            The restrictions are given in the URL as query parameters.
-
-            INPUT:
-            The query parameters are:
-             * length: the number of messages to return
-             * after: the messages returned must have been modified after
-                      the time provided in this parameter.
-                      Time is UNIX timestamp
-             * before: the messages returned must have been modified before the
-                       time provided in this parameter. Time is UNIX timestamp
-
-            RESPONSE STATUS CODE:
-             * Returns 200 if the list can be generated and it is not empty
-             * Returns 404 if no message meets the requirement
-
-            RESPONSE ENTITY BODY:
-            * Media type recommended: application/vnd.mason+json
-            * Profile recommended: Forum_Message
-                /profiles/message-profile
-
-            Link relations used in items: None
-
-            Semantic descriptions used in items: headline
-
-            Link relations used in links: messages-all, author
-
-            Semantic descriptors used in queries: after, before, lenght
-        """
-
-        #INTIAL CHECKING
-        #Extract query parameters
-        parameters = request.args
-        length = int(parameters.get('length', -1))
-        before = int(parameters.get('before', -1))
-        after = int(parameters.get('after', -1))
-        #PERFORM OPERATIONS
-        #Get the messages. This method return None if there is
-        #not user with nickname = nickname
-        messages_db = g.con.get_messages(nickname, length, before, after)
-        if messages_db is None or not messages_db:
-            return create_error_response(404, "Empty list",
-                                         "Cannot find any message with the"
-                                         " provided restrictions")
-        envelope = ForumObject()
-        envelope.add_namespace("forum", LINK_RELATIONS_URL)
-        envelope.add_control("self", href=api.url_for(History, nickname=nickname))
-        envelope.add_control("author", href=api.url_for(User,nickname=nickname))
-        envelope.add_control_messages_all()
-        envelope.add_control_users_all()
-
-        items = envelope["items"] = []
-
-        for msg in messages_db:
-            item = ForumObject(id=msg["messageid"], headline=msg["title"])
-            item.add_control("self", href=api.url_for(Message, messageid=msg["messageid"]))
-            item.add_control("profile", href=FORUM_MESSAGE_PROFILE)
-            items.append(item)
-
-        #RENDER
-        return Response(json.dumps(envelope), 200, mimetype=MASON+";" + FORUM_MESSAGE_PROFILE)
-
-        return None
 
 #Add the Regex Converter so we can use regex expressions when we define the
 #routes
@@ -1358,8 +1116,7 @@ api.add_resource(Friends,"/exercisetracker/api/users/<username>/friends",
 #TODO TONI
 # sama ku ylempänä on tehty userille. Exercise add_controls funktiot ei toimi ennen tätä
 
-api.add_resource(History, "/forum/api/users/<nickname>/history/",
-                 endpoint="history")
+
 
 #Redirect profile
 @app.route("/profiles/<profile_name>")
