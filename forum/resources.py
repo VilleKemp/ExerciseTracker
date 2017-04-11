@@ -192,38 +192,38 @@ class ForumObject(MasonObject):
             
         }
 #exercise controls #cant use until exercise endpoints are done
-    def add_control_get_exercise(self):
+    def add_control_get_exercise(self, exercise_id):
         """
         Adds "get exercise" control to an object
         """
 
         self["@controls"]["get exercise"] = {
             "title": "get exercise",
-            "href": api.url_for(Exercise),
+            "href": api.url_for(Exercise, exercise_id=exercise_id),
             "encoding": "json",
             "method": "GET"
             
         }
-    def add_control_remove_exercise(self):
+    def add_control_remove_exercise(self, exercise_id):
         """
         Adds "remove exercise" control to an object
         """
 
         self["@controls"]["remove exercise"] = {
             "title": "remove exercise",
-            "href": api.url_for(Exercise),
+            "href": api.url_for(Exercise, exercise_id=exercise_id),
             "encoding": "json",
             "method": "DELETE"
             
         }
-    def add_control_modify_exercise(self):
+    def add_control_modify_exercise(self, exercise_id):
         """
         Adds "modify exercise" control to an object
         """
 
         self["@controls"]["modify exercise"] = {
             "title": "modify exercise information",
-            "href": api.url_for(Exercise),
+            "href": api.url_for(Exercise, exercise_id=exercise_id),
             "encoding": "json",
             "method": "PUT",
             "schemaUrl": "/exercisetracker/schema/exercise/" 
@@ -377,12 +377,12 @@ def close_connection(exc):
         #merkitty osa add_controlseissa ja users get.
 class Exercises(Resource):
     """
-    Resource Messages implementation
+    Resource Exercisess implementation
     """
 
     def get(self):#, exerciseid):
         """
-        Get all messages.
+        Get all exercises.
 
         INPUT parameters:
           None
@@ -390,14 +390,7 @@ class Exercises(Resource):
         RESPONSE ENTITY BODY:
         * Media type: Mason
           https://github.com/JornWildt/Mason
-         * Profile: Forum_Message
-           http://atlassian.virtues.fi: 8090/display/PWP
-           /Exercise+4#Exercise4-Forum_Message
-
-        NOTE:
-         * The attribute articleBody is obtained from the column messages.body
-         * The attribute headline is obtained from the column messages.title
-         * The attribute author is obtained from the column messages.sender
+         * Profile: Forum_Exercise
         """
         #PERFORM OPERATIONS
         #Create the users list
@@ -410,8 +403,10 @@ class Exercises(Resource):
         envelope = ForumObject()
         #add controls to response
         envelope.add_control("self", href=api.url_for(Exercises))
+        envelope.add_control_add_exercise()
  
-        envelope.add_control_add_user()
+        #envelope.add_control_add_user()
+        #envelope.add_control_list_exercises()
         envelope.add_control_list_exercises()
         #not yet implemented
         #envelope.add_control_list_exercises()
@@ -432,6 +427,7 @@ class Exercises(Resource):
                 timeunit=exercise["timeunit"]   
             )
             #add controls to each object in the list
+            
             item.add_control("self", href=api.url_for(Exercises, exercise_id=exercise["exercise_id"]))
 
             
@@ -451,25 +447,17 @@ class Exercises(Resource):
 
         REQUEST ENTITY BODY:
          * Media type: JSON:
-         * Profile: Forum_Message
+         * Profile: Forum_Exercise
            http://atlassian.virtues.fi: 8090/display/PWP
            /Exercise+4#Exercise4-Forum_Message
 
-        NOTE:
-         * The attribute articleBody is obtained from the column messages.body
-         * The attribute headline is obtained from the column messages.title
-         * The attribute author is obtained from the column messages.sender
-
-        The body should be a JSON document that matches the schema for new messages
-        If author is not there consider it  "Anonymous".
-
         RESPONSE STATUS CODE:
-         * Returns 201 if the message has been added correctly.
+         * Returns 201 if the exercise has been added correctly.
            The Location header contains the path of the new message
-         * Returns 400 if the message is not well formed or the entity body is
+         * Returns 400 if the exercise is not well formed or the entity body is
            empty.
          * Returns 415 if the format of the response is not json
-         * Returns 500 if the message could not be added to database.
+         * Returns 500 if the exercise could not be added to database.
 
         """
 
@@ -515,6 +503,7 @@ class Exercises(Resource):
         #Create the Location header with the id of the message created
         url = api.url_for(Exercise, exercise_id=newexercise_id)
 
+        
         #RENDER
         #Return the response
         #return Response((json.dumps(envelope),status=201)
@@ -530,48 +519,45 @@ class Exercises(Resource):
             time=exerciseinfo["time"],   
             timeunit=exerciseinfo["timeunit"]   
             )
-
+        
+        envelope.add_control("self", href=api.url_for(Exercises, exercise_id=newexercise_id))
+        #envelope.add_get_exercise()
+        #envelope.add_remove_exercise()
+        #envelope.add_modify_exercise()
+        #envelope.add_list_exercises()
+        envelope.add_control_list_exercises()
+        envelope.add_control_remove_exercise(newexercise_id)
+        envelope.add_control_get_exercise(newexercise_id)
+        envelope.add_control_modify_exercise(newexercise_id)
+        
         return Response(json.dumps(envelope),status=201)
         #CREATE RESPONSE AND RENDER
         #return Response(json.dumps(envelope),status=200)
 
 class Exercise(Resource):
     """
-    Resource that represents a single message in the API.
+    Resource that represents a single exercise in the API.
     """
 
     def get(self, exercise_id):
         """
-        Get the body, the title and the id of a specific message.
+        Get the body, the title and the id of a specific exercise.
 
-        Returns status code 404 if the messageid does not exist in the database.
+        Returns status code 404 if the exercise_id does not exist in the database.
 
         INPUT PARAMETER
-       : param str messageid: The id of the message to be retrieved from the
+       : param str exercise_id: The id of the exercise to be retrieved from the
             system
 
         RESPONSE ENTITY BODY:
         * Media type: Mason
           https://github.com/JornWildt/Mason
-         * Profile: Forum_Message
-           http://atlassian.virtues.fi: 8090/display/PWP
-           /Exercise+4#Exercise4-Forum_Message
-
-            Link relations used: self, collection, author, replies and
-            in-reply-to
-
-            Semantic descriptors used: articleBody, headline, editor and author
-            NOTE: editor should not be included in the output if the database
-            return None.
+         * Profile: Forum_Exercise
 
         RESPONSE STATUS CODE
          * Return status code 200 if everything OK.
-         * Return status code 404 if the message was not found in the database.
+         * Return status code 404 if the exercise was not found in the database.
 
-        NOTE:
-         * The attribute articleBody is obtained from the column messages.body
-         * The attribute headline is obtained from the column messages.title
-         * The attribute author is obtained from the column messages.sender
         """
         exercise_db = g.con.get_exercise(exercise_id)
         if not exercise_db:
@@ -600,9 +586,11 @@ class Exercise(Resource):
                     timeunit=exercise_db["timeunit"]      
         )
 
-        envelope.add_control("self", href=api.url_for(Exercises))
-        envelope.add_control_delete_exercise(exercise_id)
-        envelope.add_control_edit_exercise(exercise_id)
+        #envelope.add_control("self", href=api.url_for(Exercises))
+        envelope.add_control_list_exercises()
+        envelope.add_control_remove_exercise(exercise_id)
+        envelope.add_control_modify_exercise(exercise_id)
+        envelope.add_control_list_users()
         envelope.add_control("self", href=api.url_for(Exercises), exercise_id=exercise_db["exercise_id"])
 
         #RENDER
@@ -612,14 +600,14 @@ class Exercise(Resource):
 
     def delete(self, exercise_id):
         """
-        Deletes a message from the Forum API.
+        Deletes a exercise from the Forum API.
 
         INPUT PARAMETERS:
-       : param str messageid: The id of the message to be deleted
+       : param str exercise_id: The id of the exercise to be deleted
 
         RESPONSE STATUS CODE
-         * Returns 204 if the message was deleted
-         * Returns 404 if the messageid is not associated to any message.
+         * Returns 204 if the exercise was deleted
+         * Returns 404 if the exercise_id is not associated to any exercise.
         """
 
         #PERFORM DELETE OPERATIONS
@@ -633,32 +621,23 @@ class Exercise(Resource):
 
     def put(self, exercise_id):
         """
-        Modifies the title, body and editor properties of this message.
+        Modifies the all part of the exercise expect, id and username..
 
         INPUT PARAMETERS:
-       : param str messageid: The id of the message to be deleted
+       : param str exercise_id: The id of the exercise to be deleted
 
         RESPONSE ENTITY BODY:
         * Media type: Mason
           https://github.com/JornWildt/Mason
-        * Profile: Forum_Message
-          /profiles/message-profile
-
-        The body should be a JSON document that matches the schema for editing messages
-        If author is not there consider it  "Anonymous".
+        * Profile: Forum_Exercise
 
         OUTPUT:
-         * Returns 204 if the message is modified correctly
+         * Returns 204 if the exercise is modified correctly
          * Returns 400 if the body of the request is not well formed or it is
            empty.
-         * Returns 404 if there is no message with messageid
+         * Returns 404 if there is no exercise with exercise_id
          * Returns 415 if the input is not JSON.
          * Returns 500 if the database cannot be modified
-
-        NOTE:
-         * The attribute articleBody is obtained from the column messages.body
-         * The attribute headline is obtained from the column messages.title
-         * The attribute author is obtained from the column messages.sender
 
         """
 
@@ -674,6 +653,13 @@ class Exercise(Resource):
         request_body = request.get_json(force=True)
          #It throws a BadRequest exception, and hence a 400 code if the JSON is
         #not wellformed
+        envelope = ForumObject ()
+
+        envelope.add_control_list_exercises()
+        envelope.add_control_remove_exercise(exercise_id)
+        envelope.add_control_get_exercise(exercise_id)
+        envelope.add_control_list_users()
+        
         try:         
             _username=request_body["username"]
             _type=request_body["type"]
@@ -701,39 +687,32 @@ class Exercise(Resource):
 
     def post(self, exercise_id):
         """
-        Adds a response to a message with id <exerciseid>.
+        Adds a response to a exercise with id <exercise_id>.
 
         INPUT PARAMETERS:
-       : param str messageid: The id of the message to be deleted
+       : param str exercise_id: The id of the exercise to be deleted
 
         REQUEST ENTITY BODY:
         * Media type: JSON:
-         * Profile: Forum_Message
-          /profiles/message-profile
-
-        The body should be a JSON document that matches the schema for new messages
-        If author is not there consider it  "Anonymous".
+         * Profile: Forum_Exercise
+          /profiles/exercise-profile
 
         RESPONSE HEADERS:
          * Location: Contains the URL of the new message
 
         RESPONSE STATUS CODE:
-         * Returns 201 if the message has been added correctly.
-           The Location header contains the path of the new message
-         * Returns 400 if the message is not well formed or the entity body is
+         * Returns 201 if the exercise has been added correctly.
+           The Location header contains the path of the new exercise
+         * Returns 400 if the exercise is not well formed or the entity body is
            empty.
-         * Returns 404 if there is no message with messageid
+         * Returns 404 if there is no exercise with exerciseid
          * Returns 415 if the format of the response is not json
-         * Returns 500 if the message could not be added to database.
+         * Returns 500 if the exercise could not be added to database.
 
-         NOTE:
-         * The attribute articleBody is obtained from the column messages.body
-         * The attribute headline is obtained from the column messages.title
-         * The attribute author is obtained from the column messages.sender
         """
 
-        #CHECK THAT MESSAGE EXISTS
-        #If the message with messageid does not exist return status code 404
+        #CHECK THAT EXERCISE EXISTS
+        #If the exercise with exerciseid does not exist return status code 404
         if not g.con.contains_exercise(exercise_id):
             return create_error_response(404, "Exercise not found",
                                          "There is no a exercise with id %s" % exercise_id
@@ -765,7 +744,7 @@ class Exercise(Resource):
         exercise = {"username": username, "type": type,
                 "value": value, "valueunit": valueunit, "date": date, "time": time, "timeunit": timeunit}
 
-        #Create the new message and build the response code"
+        #Create the new exercise and build the response code"
         newexercise_id = g.con.append_exercise(username, exercise)
         if not newexercise_id:
             abort(500)

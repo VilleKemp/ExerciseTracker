@@ -410,7 +410,7 @@ class ExerciseTestCase (ResourcesAPITestCase):
 
     def test_wrong_url(self):
         """
-        Checks that GET Message return correct status code if given a
+        Checks that GET Exercise return correct status code if given a
         wrong message
         """
         resp = self.client.get(self.url_wrong, "0")
@@ -452,6 +452,65 @@ class ExerciseTestCase (ResourcesAPITestCase):
                                 headers={"Content-Type": JSON})
         self.assertEquals(resp.status_code, 200)
         data = json.loads(resp.data)
+
+        #Check controls
+        controls = data["@controls"]
+        self.assertIn("self", controls)
+        self.assertIn("forum:add-exercise", controls)
+        self.assertIn("forum:users-all", controls)
+
+        self.assertIn("href", controls["self"])
+        self.assertEquals(controls["self"]["href"], self.url)
+
+        # Check that users-all control is correct
+        users_ctrl = controls["forum:users-all"]
+        self.assertIn("title", users_ctrl)
+        self.assertIn("href", users_ctrl)
+        self.assertEquals(users_ctrl["href"], "/forum/api/users/")
+
+        #Check that add-message control is correct
+        msg_ctrl = controls["forum:add-message"]
+        self.assertIn("title", msg_ctrl)
+        self.assertIn("href", msg_ctrl)
+        self.assertEquals(msg_ctrl["href"], "/forum/api/exercises/")
+        self.assertIn("encoding", msg_ctrl)
+        self.assertEquals(msg_ctrl["encoding"], "json")        
+        self.assertIn("method", msg_ctrl)
+        self.assertEquals(msg_ctrl["method"], "POST")
+        self.assertIn("schema", msg_ctrl)
+        
+        schema_data = msg_ctrl["schema"]
+        self.assertIn("type", schema_data)
+        self.assertIn("properties", schema_data)
+        self.assertIn("required", schema_data)
+        
+        props = schema_data["properties"]
+        self.assertIn("headline", props)
+        self.assertIn("articleBody", props)
+        self.assertIn("author", props)
+        
+        req = schema_data["required"]
+        self.assertIn("headline", req)
+        self.assertIn("articleBody", req)
+        
+        for key, value in props.items():
+            self.assertIn("description", value)
+            self.assertIn("title", value)
+            self.assertIn("type", value)
+            self.assertEquals("string", value["type"])
+
+        #Check that items are correct.
+        items = data["items"]
+        self.assertEquals(len(items), initial_messages)
+        for item in items:
+            self.assertIn("id", item)
+            self.assertIn("headline", item)
+            self.assertIn("@controls", item)
+            self.assertIn("self", item["@controls"])
+            self.assertIn("href", item["@controls"]["self"])
+            self.assertEquals(item["@controls"]["self"]["href"], resources.api.url_for(resources.Exercise, exercise_id=item["id"], _external=False))
+            self.assertIn("profile", item["@controls"])
+            self.assertEquals(item["@controls"]["profile"]["href"], FORUM_EXERCISE_PROFILE)
 
     def test_get_exercise_mimetype(self):
         """
