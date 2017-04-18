@@ -58,7 +58,7 @@ const DEFAULT_DATATYPE = "json";
  * @constant {string}
  * @default 
  */
-const ENTRYPOINT = "/forum/api/users/"; //Entrypoint: Resource Users
+const ENTRYPOINT = "/exercisetracker/api/users/"; //Entrypoint: Resource Users
 
 /**** END CONSTANTS****/
 
@@ -92,7 +92,8 @@ function getUsers(apiurl) {
     $("#mainContent").hide();
     return $.ajax({
         url: apiurl,
-        dataType:DEFAULT_DATATYPE
+        dataType:DEFAULT_DATATYPE,
+		contentType: 'application/json'
     }).always(function(){
         //Remove old list of users
         //clear the form data hide the content information(no selected)
@@ -103,6 +104,7 @@ function getUsers(apiurl) {
         if (DEBUG) {
             console.log ("RECEIVED RESPONSE: data:",data,"; textStatus:",textStatus);
         }
+		console.log ("RECEIVED RESPONSE: data:",data,"; textStatus:",textStatus);
         //Extract the users
         users = data.items;
         for (var i=0; i < users.length; i++){
@@ -110,11 +112,11 @@ function getUsers(apiurl) {
             //Extract the nickname by getting the data values. Once obtained
             // the nickname use the method appendUserToList to show the user
             // information in the UI.
-            appendUserToList(user["@controls"].self.href, user.nickname)
+            appendUserToList(user["@controls"].self.href, user.username)
         }
 
         //Prepare the new_user_form to create a new user
-        var create_ctrl = data["@controls"]["forum:add-user"]
+        var create_ctrl = data["@controls"]["add user"]
         
         if (create_ctrl.schema) {
             createFormFromSchema(create_ctrl.href, create_ctrl.schema, "new_user_form");
