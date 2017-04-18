@@ -1,9 +1,9 @@
 {
     "type": "object",
     "properties": {
-        "nickname": {
-            "title": "Nickname",
-            "description": "User's nickname (unique identifier)",
+        "username": {
+            "title": "Username",
+            "description": "User's username (unique identifier)",
             "type": "string"
         },
         "address": {
@@ -77,5 +77,5 @@
             "type": "string"
         }
     },
-    "required": ["nickname", "avatar", "birthDate", "email", "familyName", "gender", "givenName", "signature"]
+    "required": ["username", "avatar", "birthDate", "email", "familyName", "gender", "givenName", "signature"]
 }

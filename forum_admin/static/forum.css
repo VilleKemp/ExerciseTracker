@@ -144,7 +144,7 @@ form label:first-letter{
 	background: #f0f0f0; 
 }
 
-#nickname_id, #nickname {
+#username_id, #username {
     font-size: 2.2em;
     width: 15em;
     font-weight: bold;

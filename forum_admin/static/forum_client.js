@@ -109,8 +109,8 @@ function getUsers(apiurl) {
         users = data.items;
         for (var i=0; i < users.length; i++){
             var user = users[i];
-            //Extract the nickname by getting the data values. Once obtained
-            // the nickname use the method appendUserToList to show the user
+            //Extract the username by getting the data values. Once obtained
+            // the username use the method appendUserToList to show the user
             // information in the UI.
             appendUserToList(user["@controls"].self.href, user.username)
         }
@@ -364,12 +364,12 @@ function messages_history(apiurl){
         for (var i=0; i < messages.length; i++){
             var message = messages[i];
             
-            //Extract the nickname by getting the data values. Once obtained
-            // the nickname use the method appendUserToList to show the user
+            //Extract the username by getting the data values. Once obtained
+            // the username use the method appendUserToList to show the user
             // information in the UI.
             
             get_message(message["@controls"].self.href);
-           // appendUserToList(user["@controls"].self.href, user.nickname)
+           // appendUserToList(user["@controls"].self.href, user.username)
         }
     
     
@@ -528,7 +528,7 @@ function private_data(apiurl){
 **/   
 function add_user(apiurl,user){
     var userData = JSON.stringify(user);
-    var nickname = user.nickname;
+    var username = user.username;
     return $.ajax({
         url: apiurl,
         type: "POST",
@@ -542,7 +542,7 @@ function add_user(apiurl,user){
         }
         alert ("User successfully added");
         //Add the user to the list and load it.
-        $user = appendUserToList(jqXHR.getResponseHeader("Location"),nickname);
+        $user = appendUserToList(jqXHR.getResponseHeader("Location"),username);
         $user.children("a").click();
 
     }).fail(function (jqXHR, textStatus, errorThrown){
@@ -620,7 +620,7 @@ function edit_user(apiurl, body){
  * Associated link relation:self (inside the user profile)
  *
  *  ONSUCCESS =>
- *              a) Fill basic user information: nickname and registrationdate.
+ *              a) Fill basic user information: username and registrationdate.
  *                  Extract the information from the attribute input
  *              b) Extract associated link relations from the response
  *                    b.1) If user:delete: Show the #deleteUser button. Add the href
@@ -642,6 +642,7 @@ function get_user(apiurl) {
     return $.ajax({
         url: apiurl,
         dataType:DEFAULT_DATATYPE,
+		contentType: 'application/json',
         processData:false,
     }).done(function (data, textStatus, jqXHR){
         if (DEBUG) {
@@ -650,8 +651,8 @@ function get_user(apiurl) {
 
 
         //Fill basic information from the user_basic_form 
-        $("#nickname").val(data.nickname || "??");
-        delete(data.nickname);
+        $("#username").val(data.username || "??");
+        delete(data.username);
         $("#registrationdate").val(getDate(data.registrationdate || 0));
         delete(data.registrationdate);
         $("#messagesNumber").val("??");
@@ -716,11 +717,11 @@ function get_user(apiurl) {
  * using the information received in the arguments.  
  *
  * @param {string} url - The url of the User to be added to the list
- * @param {string} nickname - The nickname of the User to be added to the list
+ * @param {string} username - The username of the User to be added to the list
  * @returns {Object} The jQuery representation of the generated <li> elements.
 **/
-function appendUserToList(url, nickname) {
-    var $user = $('<li>').html('<a class= "user_link" href="'+url+'">'+nickname+'</a>');
+function appendUserToList(url, username) {
+    var $user = $('<li>').html('<a class= "user_link" href="'+url+'">'+username+'</a>');
     //Add to the user list
     $("#user_list").append($user);
     return $user;
