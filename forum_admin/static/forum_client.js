@@ -1193,34 +1193,11 @@ function handleGetUser(event) {
     $(this).parent().find("selected").removeClass("selected");
     
     $(this).addClass("selected");
-    
+    console.log ($(this).attr("href"));
     prepareUserDataVisualization();
 	console.log($(this));
     get_user($(this).attr("href"));
 
-	//get_user(ENTRYPOINT);
-	//get_user()
-	//get_user($(this).attr("username"));
-	//attr("username");
-    //TODO 2
-    // This event is triggered by an #user_list li a element. Hence, $(this)
-    // is the <a> that the user has pressed. $(this).parent() is the li element
-    // containing such anchor.
-    //
-    // Use the method event.preventDefault() in order to avoid default action
-    // for anchor links.
-    //
-    // Remove the class "selected" from the previous #user_list li element and
-    // add it to the current #user_list li element. Remember, the current
-    // #user_list li element is $(this).parent()
-    //
-    // Purge the forms by calling the function prepareUserDataVisualization()
-    // 
-    // Finally extract the href attribute from the current anchor ($(this))
-    // and call the function get_user(url) to make the corresponding 
-    // HTTP call to the RESTful API. You can extract an HTML attribute using the
-    // attr("attribute_name") method from JQuery.
-    
    
     return false; //IMPORTANT TO AVOID <A> BUBLING
 }
@@ -1244,6 +1221,24 @@ function handleDeleteMessage(event){
     
 }
 
+//own stuff
+function handleSearchUser(event) {
+    if (DEBUG) {
+        console.log ("Triggered handleSearchUser");
+    }
+    event.preventDefault();
+
+    prepareUserDataVisualization();
+	
+	console.log ("/exercisetracker/api/users/"+$("#search_field").find('input[name="search_field_text"]').val());
+    
+	get_user("/exercisetracker/api/users/"+$("#search_field").find('input[name="search_field_text"]').val());
+ 
+   
+    return false; //IMPORTANT TO AVOID <A> BUBLING
+}
+
+//
 /**** END BUTTON HANDLERS ****/
 
 /*** START ON LOAD ***/
@@ -1258,18 +1253,10 @@ $(function(){
     
     $(".deleteMessage").on("click", handleDeleteMessage);
     $("#user_list").on("click","li a" ,handleGetUser);
-    
-    //TODO 1: Add corresponding click handler to all HTML buttons
-    // The handlers are:
-    // #addUserButton -> handleShowUserForm
-    // #deleteUser -> handleDeleteUser
-    // #editUser -> handleEditUser
-    // #deleteUserRestricted -> handleDeleteUserRestricted
-    // #editUserRestricted -> handleEditUserRestricted
-    // #createUser -> handleCreateUser
-    //
-    // Check http://api.jquery.com/on/ for more help.
-   
+//own additions
+	$("#search_button").on("click",handleSearchUser);
+//
+
 
     
     //TODO 1: Add corresponding click handlers for .deleteMessage button and
