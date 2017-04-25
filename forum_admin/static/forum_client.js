@@ -1166,7 +1166,7 @@ function handleSearchUser(event) {
 
     prepareUserDataVisualization();
 	
-	console.log ($("#search_field").find('input[name="search_field_text"]').val());
+	console.log ("/exercisetracker/api/users/"+$("#search_field").find('input[name="search_field_text"]').val());
     
 	get_user("/exercisetracker/api/users/"+$("#search_field").find('input[name="search_field_text"]').val());
  
