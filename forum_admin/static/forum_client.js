@@ -107,6 +107,7 @@ function getUsers(apiurl) {
 		console.log ("RECEIVED RESPONSE: data:",data,"; textStatus:",textStatus);
         //Extract the users
         users = data.items;
+
         for (var i=0; i < users.length; i++){
             var user = users[i];
             //Extract the username by getting the data values. Once obtained
@@ -142,7 +143,56 @@ function getUsers(apiurl) {
         alert ("Could not fetch the list of users.  Please, try again");
     });
 }
+//own stuff
+function startup(apiurl) {
+    apiurl = apiurl || ENTRYPOINT;
+    $("#mainContent").hide();
+    return $.ajax({
+        url: apiurl,
+        dataType:DEFAULT_DATATYPE,
+		contentType: 'application/json'
+    }).always(function(){
+        //Remove old list of users
+        //clear the form data hide the content information(no selected)
+        $("#user_list").empty();
+        $("#mainContent").hide();
 
+    }).done(function (data, textStatus, jqXHR){
+        if (DEBUG) {
+            console.log ("RECEIVED RESPONSE: data:",data,"; textStatus:",textStatus);
+        }
+		console.log ("RECEIVED RESPONSE: data:",data,"; textStatus:",textStatus);
+        //Extract the users
+        users = data.items;
+
+        //Prepare the new_user_form to create a new user
+        var create_ctrl = data["@controls"]["add user"]
+        
+        if (create_ctrl.schema) {
+            createFormFromSchema(create_ctrl.href, create_ctrl.schema, "new_user_form");
+        }
+        else if (create_ctrl.schemaUrl) {
+            $.ajax({
+                url: create_ctrl.schemaUrl,
+                dataType: DEFAULT_DATATYPE
+            }).done(function (data, textStatus, jqXHR) {
+                createFormFromSchema(create_ctrl.href, data, "new_user_form");
+            }).fail(function (jqXHR, textStatus, errorThrown) {
+                if (DEBUG) {
+                    console.log ("RECEIVED ERROR: textStatus:",textStatus, ";error:",errorThrown);
+                }
+                alert ("Could not fetch form schema.  Please, try again");
+            });
+        }
+    }).fail(function (jqXHR, textStatus, errorThrown){
+        if (DEBUG) {
+            console.log ("RECEIVED ERROR: textStatus:",textStatus, ";error:",errorThrown);
+        }
+        //Inform user about the error using an alert message.
+        alert ("Could not fetch the list of users.  Please, try again");
+    });
+}
+///ownstuff
 
 /*** RELATIONS USED IN MESSAGES AND USERS PROFILES ***/
 
@@ -543,8 +593,7 @@ function add_user(apiurl,user){
         alert ("User successfully added");
         //Add the user to the list and load it.
 		
-        $user = appendUserToList(jqXHR.getResponseHeader("Location"),username);
-        $user.children("a").click();
+
 		
 
     }).fail(function (jqXHR, textStatus, errorThrown){
@@ -709,7 +758,7 @@ function get_user(apiurl) {
             console.log ("RECEIVED ERROR: textStatus:",textStatus, ";error:",errorThrown);
         }
         //Show an alert informing that I cannot get info from the user.
-        alert ("Cannot extract information about this user from the forum service.");
+        alert ("Cannot extract information about this user");
         //Deselect the user from the list.
         deselectUser();
     });
@@ -1261,6 +1310,9 @@ $(function(){
     $("#user_list").on("click","li a" ,handleGetUser);
 //own additions
 	$("#search_button").on("click",handleSearchUser);
+	//startup sequence. Creates schemas etc
+	startup(ENTRYPOINT);
+	//$("#mainContent").hide();
 //
 
 
@@ -1277,7 +1329,7 @@ $(function(){
     
 
     
-    //Retrieve list of users from the server
-    getUsers(ENTRYPOINT);
+
+
 });
 /*** END ON LOAD**/
