@@ -167,7 +167,9 @@ function startup(apiurl) {
 
         //Prepare the new_user_form to create a new user
         var create_ctrl = data["@controls"]["add user"]
-        
+        console.log("################################");
+		console.log(create_ctrl.href);
+		console.log(create_ctrl.schema);
         if (create_ctrl.schema) {
             createFormFromSchema(create_ctrl.href, create_ctrl.schema, "new_user_form");
         }
@@ -176,6 +178,7 @@ function startup(apiurl) {
                 url: create_ctrl.schemaUrl,
                 dataType: DEFAULT_DATATYPE
             }).done(function (data, textStatus, jqXHR) {
+				console.log(data);
                 createFormFromSchema(create_ctrl.href, data, "new_user_form");
             }).fail(function (jqXHR, textStatus, errorThrown) {
                 if (DEBUG) {
@@ -1292,6 +1295,32 @@ function handleSearchUser(event) {
    
     return false; //IMPORTANT TO AVOID <A> BUBLING
 }
+function handleAddExercise(event) {
+    if (DEBUG) {
+        console.log ("Triggered handleAddExercise");
+    }
+    event.preventDefault();
+
+    prepareUserDataVisualization();
+	$.ajax({
+                url: "/forum/schema/add-exer/",
+                dataType: DEFAULT_DATATYPE
+            }).done(function (data, textStatus, jqXHR) {
+				console.log(data);
+                createFormFromSchema("/exercisetracker/api/exercises/", data, "add_exercise_form");
+            }).fail(function (jqXHR, textStatus, errorThrown) {
+                if (DEBUG) {
+                    console.log ("RECEIVED ERROR: textStatus:",textStatus, ";error:",errorThrown);
+                }
+                alert ("Could not fetch form schema.  Please, try again");
+            });
+	//createFormFromSchema("/exercisetracker/api/exercises/", "add-exer.schema", "add_exercise_form");
+	$("#add_exercise").show();
+   
+    return false; //IMPORTANT TO AVOID <A> BUBLING
+}
+
+
 
 //
 /**** END BUTTON HANDLERS ****/
@@ -1310,6 +1339,7 @@ $(function(){
     $("#user_list").on("click","li a" ,handleGetUser);
 //own additions
 	$("#search_button").on("click",handleSearchUser);
+	$("#add_exercise_button").on("click",handleAddExercise);
 	//startup sequence. Creates schemas etc
 	startup(ENTRYPOINT);
 	//$("#mainContent").hide();
