@@ -150,6 +150,23 @@ form label:first-letter{
     font-weight: bold;
 }
 
+#description {
+    font-size: 2.2em;
+    width: 30em;
+
+}
+
+#visibility {
+    font-size: 2.2em;
+    width: 30em;
+
+}
+#avatar {
+    font-size: 2.2em;
+    width: 30em;
+
+}
+
 /*messages list*/
 #messages_list .commands{
   margin-right: 0;

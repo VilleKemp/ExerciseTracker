@@ -640,21 +640,29 @@ function edit_user(apiurl, body){
 **/
 function get_user(apiurl) {
     return $.ajax({
-        url: apiurl,
+        //url: apiurl,
+        //dataType:DEFAULT_DATATYPE,
+		//contentType: 'application/json',
+        //processData:false,
+		url: apiurl,
         dataType:DEFAULT_DATATYPE,
-		contentType: 'application/json',
-        processData:false,
+		contentType: 'application/json'
     }).done(function (data, textStatus, jqXHR){
         if (DEBUG) {
             console.log ("RECEIVED RESPONSE: data:",data,"; textStatus:",textStatus);
+			//console.log ( "" + data[1]);
         }
 
 
-        //Fill basic information from the user_basic_form 
-        $("#username").val(data.username || "??");
-        delete(data.username);
+        //Fill basic information from the user_basic_form	
+        $("#username").val("Username: " + data.username);
+		$("#visibility").val("Visibility: " + data.visibility || "??");
+		$("#description").val("Description: " + data.description || "??");
+		$("#password").val(data.password || "??");
+		$("#avatar").val("Avatar: " +data.avatar || "??");
+        //delete(data.username);
         $("#registrationdate").val(getDate(data.registrationdate || 0));
-        delete(data.registrationdate);
+        //delete(data.registrationdate);
         $("#messagesNumber").val("??");
 
         //Extract user information
@@ -703,6 +711,61 @@ function get_user(apiurl) {
         //Deselect the user from the list.
         deselectUser();
     });
+	
+	/*
+	 apiurl = apiurl || ENTRYPOINT;
+    $("#mainContent").hide();
+    return $.ajax({
+        url: apiurl,
+        dataType:DEFAULT_DATATYPE,
+		contentType: 'application/json'
+    }).always(function(){
+        //Remove old list of users
+        //clear the form data hide the content information(no selected)
+        $("#user_list").empty();
+        $("#mainContent").hide();
+
+    }).done(function (data, textStatus, jqXHR){
+        if (DEBUG) {
+            console.log ("RECEIVED RESPONSE: data:",data,"; textStatus:",textStatus);
+        }
+		console.log ("RECEIVED RESPONSE: data:",data,"; textStatus:",textStatus);
+        //Extract the users
+        users = data.items;
+        for (var i=0; i < users.length; i++){
+            var user = users[i];
+            //Extract the username by getting the data values. Once obtained
+            // the username use the method appendUserToList to show the user
+            // information in the UI.
+            appendUserToList(user["@controls"].self.href, user.username)
+        }
+
+        //Prepare the new_user_form to create a new user
+        var create_ctrl = data["@controls"]["add user"]
+        
+        if (create_ctrl.schema) {
+            createFormFromSchema(create_ctrl.href, create_ctrl.schema, "new_user_form");
+        }
+        else if (create_ctrl.schemaUrl) {
+            $.ajax({
+                url: create_ctrl.schemaUrl,
+                dataType: DEFAULT_DATATYPE
+            }).done(function (data, textStatus, jqXHR) {
+                createFormFromSchema(create_ctrl.href, data, "new_user_form");
+            }).fail(function (jqXHR, textStatus, errorThrown) {
+                if (DEBUG) {
+                    console.log ("RECEIVED ERROR: textStatus:",textStatus, ";error:",errorThrown);
+                }
+                alert ("Could not fetch form schema.  Please, try again");
+            });
+        }
+    }).fail(function (jqXHR, textStatus, errorThrown){
+        if (DEBUG) {
+            console.log ("RECEIVED ERROR: textStatus:",textStatus, ";error:",errorThrown);
+        }
+        //Inform user about the error using an alert message.
+        alert ("Could not fetch the list of users.  Please, try again");
+    });*/
 }
 
 /**** END RESTFUL CLIENT****/
@@ -1132,7 +1195,13 @@ function handleGetUser(event) {
     $(this).addClass("selected");
     
     prepareUserDataVisualization();
+	console.log($(this));
     get_user($(this).attr("href"));
+
+	//get_user(ENTRYPOINT);
+	//get_user()
+	//get_user($(this).attr("username"));
+	//attr("username");
     //TODO 2
     // This event is triggered by an #user_list li a element. Hence, $(this)
     // is the <a> that the user has pressed. $(this).parent() is the li element

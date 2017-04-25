@@ -875,7 +875,7 @@ class Users(Resource):
                 visibility=user["visibility"]
             )
             #add controls to each object in the list
-            item.add_control("self", href=api.url_for(Users, username=user["username"]))
+            item.add_control("self", href=api.url_for(User, username=user["username"]))
             #WIP
             #envelope.add_control_get_user_information(username)
             
