@@ -6,76 +6,30 @@
             "description": "User's username (unique identifier)",
             "type": "string"
         },
-        "address": {
-            "title": "Address",
-            "description": "User's address (from http://schema.org/PostalAddress)",
-            "type": "object",
-            "properties": {
-                "addressCountry": {
-                    "title": "Country",
-                    "type": "string"
-                },
-                "addressLocality": {
-                    "title": "Locality",
-                    "type": "string"
-                }
-            }
+        "password": {
+            "title": "Password",
+            "description": "User's password",
+            "type": "string"
+        },
+		"description": {
+            "title": "Description",
+            "description": "User's description",
+            "type": "string"
         },
         "avatar": {
             "title": "Avatar",
-            "description": "URL to user's avatar",
-            "type": "string"
+            "description": "User's avatar",
+            "type": "blob"
         },
-        "birthDate": {
-            "title": "Birth date",
-            "description": "User's birth date as YYYY-MM-DD  (from http://schema.org/Person)",
-            "type": "string"
-        },
-        "email": {
-            "title": "Email address",
-            "description": "User's email address (from http://schema.org/Person)",
-            "type": "string"
-        },
-        "familyName": {
-            "title": "Family name",
-            "description": "User's family name (from http://schema.org/Person)",
-            "type": "string"
-        },        
-        "gender": {
-            "title": "Gender",
-            "description": "User's gender (from http://schema.org/Person)",
-            "type": "string"
-        },
-        "givenName": {
-            "title": "Given name",
-            "description": "User's given name (from http://schema.org/Person)",
-            "type": "string"
-        },
-        "image": {
-            "title": "Image",
-            "description": "URL to user's image (from http://schema.org/Person)",
-            "type": "string"
-        },
-        "signature": {
-            "title": "Signature",
-            "description": "User's signature",
-            "type": "string"
-        },
-        "skype": {
-            "title": "Skype username",
-            "description": "User's Skype account",
-            "type": "string"
-        },
-        "telephone": {
-            "title": "Phone number",
-            "description": "User's telephone number (from http://schema.org/Person)",
-            "type": "string"
-        },
-        "website": {
-            "title": "Website",
-            "description": "User's website",
-            "type": "string"
+
+        "visibility": {
+            "title": "Visibility",
+            "description": "User's visibility",
+            "type": "integer"
         }
+        
+        
+        
     },
-    "required": ["username", "avatar", "birthDate", "email", "familyName", "gender", "givenName", "signature"]
+    "required": ["username", "avatar","password","description","visibility" ]
 }
