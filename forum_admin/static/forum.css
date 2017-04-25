@@ -5,10 +5,13 @@
 }  
   
 /*general*/ 
-div#sidebar, div.message {  
+div#sidebar,  div.message {  
+    display: block;  
+} 
+div#exer_sidebar,  div.message {  
     display: block;  
 }  
-  
+
 body {  
     margin: 0 auto;  
     width: 940px;  
@@ -50,6 +53,8 @@ h3 {
 	font-family:"Lucida Console", Monaco, monospace;
 }
 
+
+
 /* side bar */
 div#sidebar {  
     display: table-cell;  
@@ -60,7 +65,7 @@ div#sidebar {
 
 #sidebar ul li a {  
         display: block;  
-        margin-right: 20px;  
+        margin-bottom: 20px;  
         width: 140px;  
         font-size: 14px;  
         line-height: 44px;  
@@ -104,12 +109,14 @@ width: 70%;
 }
 
 
+
 /*main area*/
  
 #mainContent {  
 	display: table-cell;  
 	width: 620px;  
 	padding-left: 22px;
+	position: relative;   
   padding-bottom: 5em;
 }
 
@@ -197,6 +204,38 @@ form label:first-letter{
 	font-weight:bold;
   width:100%;
 }
+
+/* side bar */
+div#exer_sidebar {  
+    display: table-cell;  
+	position: relative;
+	position: bottom;   
+    width: 400px; 
+    padding-top: 12px;    
+    background:#000;
+} 
+
+#exer_sidebar ul li a {  
+        display: block;  
+        margin-top: 0px;  
+        width: 300px;  
+        font-size: 14px;  
+        line-height: 44px;  
+        text-align: top;  
+        text-decoration: none;  
+        color: #777;  
+    }   
+#exer_sidebar ul li a:hover {  
+    color: #fff;  
+}  
+
+#exer_sidebar ul li.selected a {  
+    color: #fff;  
+}
+
+
+
+
 
 
 

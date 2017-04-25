@@ -143,6 +143,67 @@ function getUsers(apiurl) {
     });
 }
 
+function getUsersExercises(apiurl, username) {
+    apiurl = apiurl || ENTRYPOINT;
+    //$("#mainContent").hide();
+    return $.ajax({
+        url: apiurl,
+        dataType:DEFAULT_DATATYPE,
+		contentType: 'application/json'
+    }).always(function(){
+        //Remove old list of users
+        //clear the form data hide the content information(no selected)
+        $("#exercise_list").empty();
+        //$("#mainContent").hide();
+
+    }).done(function (data, textStatus, jqXHR){
+        if (DEBUG) {
+            console.log ("RECEIVED RESPONSE: data:",data,"; textStatus:",textStatus);
+        }
+		console.log ("RECEIVED RESPONSE: data:",data,"; textStatus:",textStatus);
+        //Extract the users
+        exercises = data.items;
+        for (var i=0; i < exercises.length; i++){
+            var exercise = exercises[i];
+			
+			if(exercise.username == username)
+			{
+            //Extract the username by getting the data values. Once obtained
+            // the username use the method appendUserToList to show the user
+            // information in the UI.
+		
+            appendExerciseToList(exercise["@controls"].self.href, exercise.type, exercise.date)
+			}
+        }
+
+        //Prepare the new_user_form to create a new user
+        /*var create_ctrl = data["@controls"]["add exercise"]
+        
+        if (create_ctrl.schema) {
+            createFormFromSchema(create_ctrl.href, create_ctrl.schema, "new_exercise_form");
+        }
+        else if (create_ctrl.schemaUrl) {
+            $.ajax({
+                url: create_ctrl.schemaUrl,
+                dataType: DEFAULT_DATATYPE
+            }).done(function (data, textStatus, jqXHR) {
+                createFormFromSchema(create_ctrl.href, data, "new_exercise_form");
+            }).fail(function (jqXHR, textStatus, errorThrown) {
+                if (DEBUG) {
+                    console.log ("RECEIVED ERROR: textStatus:",textStatus, ";error:",errorThrown);
+                }
+                alert ("Could not fetch form schema.  Please, try again");
+            });
+        }*/
+    }).fail(function (jqXHR, textStatus, errorThrown){
+        if (DEBUG) {
+            console.log ("RECEIVED ERROR: textStatus:",textStatus, ";error:",errorThrown);
+        }
+        //Inform user about the error using an alert message.
+        alert ("Could not fetch the list of exercises.  Please, try again");
+    });
+}
+
 
 /*** RELATIONS USED IN MESSAGES AND USERS PROFILES ***/
 
@@ -664,7 +725,9 @@ function get_user(apiurl) {
         $("#registrationdate").val(getDate(data.registrationdate || 0));
         //delete(data.registrationdate);
         $("#messagesNumber").val("??");
+		
 
+		
         //Extract user information
         var user_links = data["@controls"];
         //Extracts urls from links. I need to get if the different links in the
@@ -700,7 +763,7 @@ function get_user(apiurl) {
         if (messages_url){
             messages_history(messages_url);
         }
-       
+       getUsersExercises("/exercisetracker/api/exercises/", data.username)
 
     }).fail(function (jqXHR, textStatus, errorThrown){
         if (DEBUG) {
@@ -788,6 +851,12 @@ function appendUserToList(url, username) {
     //Add to the user list
     $("#user_list").append($user);
     return $user;
+}
+function appendExerciseToList(url, type, date) {
+    var $exercise = $('<li>').html('<a class= "exercise_link" href="'+url+'">'+type+ " " + date +'</a>');
+    //Add to the user list
+    $("#exercise_list").append($exercise);
+    return $exercise;
 }
 
 /**

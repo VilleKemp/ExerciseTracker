@@ -480,7 +480,7 @@ class Exercises(Resource):
                 time=exercise["time"],   
                 timeunit=exercise["timeunit"]   
             )
-            item.add_control("self", href=api.url_for(Exercises, exercise_id=exercise["exercise_id"]))
+            item.add_control("self", href=api.url_for(Exercise, exercise_id=exercise["exercise_id"]))
             item.add_control("profile", href=FORUM_EXERCISE_PROFILE)
             #add controls to each object in the list
             
