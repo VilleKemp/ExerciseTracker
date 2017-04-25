@@ -532,9 +532,9 @@ function add_user(apiurl,user){
     return $.ajax({
         url: apiurl,
         type: "POST",
-        //dataType:DEFAULT_DATATYPE,
+        dataType:DEFAULT_DATATYPE,
         data:userData,
-        processData:false,
+        //processData:false,
         contentType: PLAINJSON
     }).done(function (data, textStatus, jqXHR){
         if (DEBUG) {
@@ -542,8 +542,10 @@ function add_user(apiurl,user){
         }
         alert ("User successfully added");
         //Add the user to the list and load it.
+		
         $user = appendUserToList(jqXHR.getResponseHeader("Location"),username);
         $user.children("a").click();
+		
 
     }).fail(function (jqXHR, textStatus, errorThrown){
         if (DEBUG) {
@@ -1174,6 +1176,10 @@ function handleCreateUser(event){
     var $form = $(this).closest("form");
     var template = serializeFormTemplate($form);
     var url = $form.attr("action");
+	console.log("#####################");
+	console.log(template);
+	console.log(url);
+	console.log("#####################");
     add_user(url, template);
     return false; //Avoid executing the default submit
 }
