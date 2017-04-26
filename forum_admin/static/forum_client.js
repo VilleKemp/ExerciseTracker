@@ -164,7 +164,32 @@ function startup(apiurl) {
 		console.log ("RECEIVED RESPONSE: data:",data,"; textStatus:",textStatus);
         //Extract the users
         users = data.items;
-});
+          //Prepare the new_user_form to create a new user
+        var create_ctrl = data["@controls"]["add user"]
+        
+        if (create_ctrl.schema) {
+            createFormFromSchema(create_ctrl.href, create_ctrl.schema, "new_user_form");
+        }
+        else if (create_ctrl.schemaUrl) {
+            $.ajax({
+                url: create_ctrl.schemaUrl,
+                dataType: DEFAULT_DATATYPE
+            }).done(function (data, textStatus, jqXHR) {
+                createFormFromSchema(create_ctrl.href, data, "new_user_form");
+            }).fail(function (jqXHR, textStatus, errorThrown) {
+                if (DEBUG) {
+                    console.log ("RECEIVED ERROR: textStatus:",textStatus, ";error:",errorThrown);
+                }
+                alert ("Could not fetch form schema.  Please, try again");
+            });
+        }
+    }).fail(function (jqXHR, textStatus, errorThrown){
+        if (DEBUG) {
+            console.log ("RECEIVED ERROR: textStatus:",textStatus, ";error:",errorThrown);
+        }
+        //Inform user about the error using an alert message.
+        alert ("Could not fetch the list of users.  Please, try again");
+    });
 }
 
 function getUsersExercises(apiurl, username) {
