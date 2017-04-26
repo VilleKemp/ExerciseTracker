@@ -10,8 +10,8 @@
 
 <body> 
     <div id="intro">
-        <h1>Forum administration panel</h1>
-        <span id="instructions">Click on a username in the sidebar to edit/delete a user info. Press <span class="oblique">"Add User"</span> to add a new user.</span>
+        <h1 style="color:#f27500";>ExerciseTracker</h1>
+        <span id="instructions"; style="color:#f27500";>Click on a username in the sidebar to edit/delete a user info. Press <span class="oblique">"Add User"</span> to add a new user.</span>
     </div>
     <div id= "content">
         <div id="sidebar"> 
@@ -32,7 +32,7 @@
             </div>
         </div>
 		<div id="exer_sidebar"> 
-
+		 <h3 align="center"; style="color:#f27500";>Exercises</h3> 
 			<!-- own additions above-->
              <ul id="exercise_list">  
 
@@ -91,7 +91,24 @@
                             </form>
                         </div>  
                     </div>  
-                </div>  
+                </div>
+				<div id="exerciseData">  
+                <div class="section" id="exerciseHeader">  
+                        <input class="noEditable" name="type" id="type" placeholder="type" type="text"  readonly="readonly"/> 
+                        <input class="noEditable" name="date" id="date" placeholder="date" type="text"  readonly="readonly"/> 
+						<input class="noEditable" name="value" id="value" placeholder="value" type="text"  readonly="readonly"/> 
+						<input class="noEditable" name="valueunit" id="valueunit" placeholder="valueunit" type="text"  readonly="readonly"/> 
+						<input class="noEditable" name="time" id="time" placeholder="time" type="text"  readonly="readonly"/>
+						<input class="noEditable" name="timeunit" id="timeunit" placeholder="timeunit" type="text"  readonly="readonly"/>
+						
+                        <input type="text" class="noeditable" id="messagesNumber" name="messagesNumber" readonly="readonly" size="2" value="??"/> <a href="#messages">messages</a></p>  
+
+						<!--Add exercise button -->
+						<div id="add_exercise_button_container">
+						<a href="#" id="add_exercise_button">Add exercise</a>
+						</div>
+
+				</div>
             </div>
             <div id ="newUser">
                 <form action="#" id="new_user_form"> 

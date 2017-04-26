@@ -830,6 +830,69 @@ function get_user(apiurl) {
     });*/
 }
 
+function get_exercise(apiurl) {
+    return $.ajax({
+        //url: apiurl,
+        //dataType:DEFAULT_DATATYPE,
+        //contentType: 'application/json',
+        //processData:false,
+        url: apiurl,
+        dataType:DEFAULT_DATATYPE,
+        contentType: 'application/json'
+    }).done(function (data, textStatus, jqXHR){
+        if (DEBUG) {
+            console.log ("RECEIVED RESPONSE: data:",data,"; textStatus:",textStatus);
+            //console.log ( "" + data[1]);
+        }
+
+
+        //Fill basic information from the user_basic_form   
+        $("#type").val("Type: " + data.type);
+        $("#value").val("Value: " + data.value || "??");
+        $("#valueunit").val("Valueunit: " + data.valueunit || "??");
+        $("#date").val("Date: "  + data.date || "??");
+        $("#time").val("Time: " +data.time || "??");
+        $("#timeunit").val("Timeunit: " +data.timeunit || "??");
+        
+        //Extract user information
+        var exercise_links = data["@controls"];
+        //Extracts urls from links. I need to get if the different links in the
+        //response.
+        /*if ("forum:private-data" in user_links) {
+           var private_profile_url = user_links["forum:private-data"].href; //Restricted profile
+        }
+        if ("forum:messages-history" in user_links){            
+            var messages_url = user_links["forum:messages-history"].href;
+            // cut out the optional query parameters. this solution is not pretty. 
+            messages_url = messages_url.slice(0, messages_url.indexOf("{?")); 
+        }
+        if ("forum:delete" in user_links)
+            var delete_link = user_links["forum:delete"].href; // User delete linke
+        if ("edit" in user_links)
+            var edit_link = user_links["edit"].href;*/
+
+        /*if (delete_link){
+            $("#user_form").attr("action", delete_link);
+            $("#deleteUser").show();
+        }
+        if (edit_link){
+            $("#user_form").attr("action", edit_link);
+            $("#editUser").show();
+        }*/
+
+
+    }).fail(function (jqXHR, textStatus, errorThrown){
+        if (DEBUG) {
+            console.log ("RECEIVED ERROR: textStatus:",textStatus, ";error:",errorThrown);
+        }
+        //Show an alert informing that I cannot get info from the user.
+        alert ("Cannot extract information about this exercise");
+        //Deselect the user from the list.
+        //deselectUser();
+    });
+
+}
+
 /**** END RESTFUL CLIENT****/
 
 /**** UI HELPERS ****/
@@ -856,6 +919,20 @@ function appendExerciseToList(url, type, date) {
     //Add to the user list
     $("#exercise_list").append($exercise);
     return $exercise;
+
+    /*var $exercise = $("<div>").addClass('exercise').html(""+
+                        "<form action='"+url+"'>"+
+                        "   <div class='form_content'>"+
+                        "       <input type=text class='type' value='"+type+"' readonly='readonly'/>"+
+                        "       <div class='articlebody'>"+articlebody+"</div>"+
+                        "   </div>"+
+                        "   <div class='commands'>"+
+                        "        <input type='button' class='deleteButton deleteExercise' value='Delete'/>"+
+                        "   </div>" +
+                        "</form>"
+                    );
+    //Append to list
+    $("#exercise_list").append($exercise);*/
 }
 
 /**
@@ -1274,6 +1351,24 @@ function handleGetUser(event) {
     return false; //IMPORTANT TO AVOID <A> BUBLING
 }
 
+function handleGetExercise(event) {
+    if (DEBUG) {
+        console.log ("Triggered handleGetExercise");
+    }
+    event.preventDefault();
+    
+    $(this).parent().find("selected").removeClass("selected");
+    
+    $(this).addClass("selected");
+    console.log ($(this).attr("href"));
+    //prepareUserDataVisualization();
+    console.log($(this));
+    get_exercise($(this).attr("href"));
+
+   
+    return false; //IMPORTANT TO AVOID <A> BUBLING
+}
+
 
 /**
  * Uses the API to delete the associated message
@@ -1354,6 +1449,7 @@ $(function(){
 //own additions
 	$("#search_button").on("click",handleSearchUser);
 	$("#add_exercise_button").on("click",handleAddExercise);
+    $("#exercise_list").on("click","li a" ,handleGetExercise);
 	//startup sequence. Creates schemas etc
 	startup(ENTRYPOINT);
 	//$("#mainContent").hide();

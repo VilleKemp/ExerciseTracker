@@ -16,7 +16,7 @@ body {
     margin: 0 auto;  
     width: 940px;  
     font: 13px/22px Helvetica, Arial, sans-serif;  
-    background: #f0f0f0;  
+    background: #27010e;  
 }  
   
 h2 {  
@@ -44,7 +44,7 @@ h3 {
 #intro {  
     margin-top: 66px;  
     padding: 44px;  
-    background: #467612;   
+    background: #180d29;   
 }
 .oblique{
 	font-style: oblique;
@@ -95,17 +95,18 @@ width: 70%;
 }
 /* own button */
 #search_button:visited, #search_button:link {
-    color:black;
+    color:#f27500;
     text-decoration: none;
 }#search_button_container {
 width: 70%;
   text-align: center;
-  border: white solid;
+  position: center;
+  border: #f27500;
   position: relative;
   margin-left: auto;
   margin-right: auto;
   margin-bottom: 4em;
-  background: white;
+  background: #180d29;
 }
 
 #add_exercise_button:visited, #add_exercise_button:link {
@@ -114,7 +115,7 @@ width: 70%;
 }#add_exercise_button_container {
 width: 70%;
   text-align: center;
-  border: white solid;
+  border: #f27500;
   position: relative;
   margin-left: auto;
   margin-right: auto;
@@ -204,7 +205,7 @@ form label:first-letter{
 
 /*messages list*/
 #messages_list .commands{
-  margin-right: 0;
+  margin-right: 0;__--
 }
 .message{
   padding:0.5em;
@@ -218,32 +219,50 @@ form label:first-letter{
   width:100%;
 }
 
+/*exercises list*/
+#exercises_list .commands{
+  margin-right: 0;
+}
+.exercise{
+  padding:0.5em;
+	padding-bottom: 2.2em;
+  margin-bottom: 1.5em;
+  border:2px solid black;
+}
+
+.type{
+	font-weight:bold;
+  width:100%;
+}
+
 /* side bar */
 div#exer_sidebar {  
     display: table-cell;  
 	position: relative;
 	position: bottom;   
-    width: 400px; 
+    width: 140px; 
     padding-top: 12px;    
     background:#000;
 } 
 
 #exer_sidebar ul li a {  
         display: block;  
-        margin-top: 0px;  
-        width: 300px;  
+        margin-top: 0px;
+		margin-left: 0px;  
+        width: 120px;  
         font-size: 14px;  
-        line-height: 44px;  
-        text-align: top;  
+        line-height: 35px;  
+        text-align: top;
+		text-align: center; 		
         text-decoration: none;  
-        color: #777;  
+        color:  #f27500;  
     }   
 #exer_sidebar ul li a:hover {  
-    color: #fff;  
+    color:  #d36701;  
 }  
 
 #exer_sidebar ul li.selected a {  
-    color: #fff;  
+    color:  #d36701;  
 }
 
 
