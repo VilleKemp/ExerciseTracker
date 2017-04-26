@@ -164,7 +164,8 @@ function startup(apiurl) {
 		console.log ("RECEIVED RESPONSE: data:",data,"; textStatus:",textStatus);
         //Extract the users
         users = data.items;
-
+});
+}
 
 function getUsersExercises(apiurl, username) {
     apiurl = apiurl || ENTRYPOINT;
@@ -197,26 +198,10 @@ function getUsersExercises(apiurl, username) {
 		
             appendExerciseToList(exercise["@controls"].self.href, exercise.type, exercise.date)
 			}
-        }
-
-        //Prepare the new_user_form to create a new user
-        /*var create_ctrl = data["@controls"]["add exercise"]
-        
-        if (create_ctrl.schema) {
-            createFormFromSchema(create_ctrl.href, create_ctrl.schema, "new_exercise_form");
-
-        }
-
-    }).fail(function (jqXHR, textStatus, errorThrown){
-        if (DEBUG) {
-            console.log ("RECEIVED ERROR: textStatus:",textStatus, ";error:",errorThrown);
-        }
-        //Inform user about the error using an alert message.
-
-        alert ("Could not fetch the list of users.  Please, try again");
-    });
+    }});
 }
-
+    
+    
 
 /*** RELATIONS USED IN MESSAGES AND USERS PROFILES ***/
 
