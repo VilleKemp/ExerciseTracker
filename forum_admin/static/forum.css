@@ -242,7 +242,7 @@ div#exer_sidebar {
 	position: bottom;   
     width: 140px; 
     padding-top: 12px;    
-    background:#000;
+    background:#27010e;
 } 
 
 #exer_sidebar ul li a {  
@@ -263,6 +263,11 @@ div#exer_sidebar {
 
 #exer_sidebar ul li.selected a {  
     color:  #d36701;  
+}
+
+#deleteExercise{
+  position:relative;
+  top:-3em;
 }
 
 

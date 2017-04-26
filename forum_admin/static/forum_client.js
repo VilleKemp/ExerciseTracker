@@ -313,6 +313,39 @@ function delete_message(apiurl){
  * @param {string} apiurl - The url of the parent Messages collection
  * 
 **/
+
+function delete_exercise(apiurl){
+    //TODO 3: Send an AJAX request to remove the current message
+        // Do not implement the handlers yet, just show some DEBUG text in the console.
+        // You just need to send a $.ajax request of type "DELETE". No extra parameters
+        //are required.
+    //TODO 4
+       //Implemente the handlers following the instructions from the function documentation.
+    $.ajax({
+       url: apiurl, //The URL of the resource
+       type: "DELETE", //The resource method
+      // dataType:RESPONSE_FORMAT, //The format expected in the
+ //response : xml or json
+       headers: {"Authorization":"admin"}// An object containing
+ //headers
+    }).done(function (data, textStatus, jqXHR){
+       alert("exercise deleted");
+       reloadUserData();
+
+    }).fail(function (jqXHR, textStatus, errorThrown){
+        alert("couldn't delete exercise");
+    });
+}
+
+/**
+ * This client does not support this functionality.
+ *
+ * Associated rel attribute: add-message
+ *
+ * @param {string} apiurl - The url of the parent Messages collection
+ * 
+**/
+
 function add_message(apiurl,template){
     return; //THE CLIENT DOES NOT KNOW HOW TO HANDLE COLLECTION OF MESSAGES
 }
@@ -871,7 +904,8 @@ function get_exercise(apiurl) {
         }
 
 
-        //Fill basic information from the user_basic_form   
+        //Fill basic information from the user_basic_form
+        $("#exerciseid").val(data.exerciseid);   
         $("#type").val("Type: " + data.type);
         $("#value").val("Value: " + data.value || "??");
         $("#valueunit").val("Valueunit: " + data.valueunit || "??");
@@ -896,11 +930,11 @@ function get_exercise(apiurl) {
         if ("edit" in user_links)
             var edit_link = user_links["edit"].href;*/
 
-        /*if (delete_link){
-            $("#user_form").attr("action", delete_link);
-            $("#deleteUser").show();
+        if (delete_link){
+            //$("#user_form").attr("action", delete_link);
+            $("#deleteExercise").show();
         }
-        if (edit_link){
+        /*if (edit_link){
             $("#user_form").attr("action", edit_link);
             $("#editUser").show();
         }*/
@@ -1413,6 +1447,18 @@ function handleDeleteMessage(event){
     
 }
 
+function handleDeleteExercise(event){
+    if (DEBUG) {
+        console.log ("Triggered handleDeleteExercise");
+    }
+    var exerciseurl = $(this).closest("form").attr("action");
+    delete_message(exerciseurl);    
+    //TODO 2:
+    //  Extract the url of the resource to be deleted from the form action attribute.
+    //  Call the method delete_message(messageurl).
+    //  Check handleDeleteUser for more hints.
+    
+}
 //own stuff
 function handleSearchUser(event) {
     if (DEBUG) {
@@ -1470,6 +1516,7 @@ $(function(){
     $("#createUser").on("click", handleCreateUser);
     
     $(".deleteMessage").on("click", handleDeleteMessage);
+    $("#deleteExercise").on("click", handleDeleteExercise);
     $("#user_list").on("click","li a" ,handleGetUser);
 //own additions
 	$("#search_button").on("click",handleSearchUser);
