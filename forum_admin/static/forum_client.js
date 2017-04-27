@@ -146,7 +146,7 @@ function getUsers(apiurl) {
 
 function getUsersFriends(apiurl) {
     apiurl = apiurl || ENTRYPOINT;
-    $("#mainContent").hide();
+    //$("#mainContent").hide();
     return $.ajax({
         url: apiurl,
         dataType:DEFAULT_DATATYPE,
@@ -170,15 +170,17 @@ function getUsersFriends(apiurl) {
             //Extract the username by getting the data values. Once obtained
             // the username use the method appendUserToList to show the user
             // information in the UI.
-            appendFriendToList(friend["@controls"].self.href, friend.friendname)
+            console.log("HREF: " + friend["@controls"].self.href + "   Friendname:" + friend.friend)
+            appendFriendToList(friend["@controls"].self.href, friend.friend)
+            console.log
         }
         
     }).fail(function (jqXHR, textStatus, errorThrown){
         if (DEBUG) {
-            console.log ("RECEIVED ERROR: textStatus:",textStatus, ";error:",errorThrown);
-        }
+            console.log ("RECEIVED ERROR: textStatus:",textStatus, ";error:",errorThrown, "URL: apiurl:", apiurl);
+                    }
         //Inform user about the error using an alert message.
-        alert ("Could not fetch the list of users.  Please, try again");
+        //alert ("Could not fetch the list of friends.  Please, try again");
     });
 }
 
@@ -855,6 +857,11 @@ function get_user(apiurl) {
         var user_links = data["@controls"];
         //Extracts urls from links. I need to get if the different links in the
         //response.
+        if("list-friends" in user_links)
+        {
+            var friends_url = user_links["list-friends"].href;
+        }
+
         if ("forum:private-data" in user_links) {
            var private_profile_url = user_links["forum:private-data"].href; //Restricted profile
         }
@@ -887,6 +894,7 @@ function get_user(apiurl) {
             messages_history(messages_url);
         }
        getUsersExercises("/exercisetracker/api/exercises/", data.username)
+       getUsersFriends(friends_url, data.username)
 
     }).fail(function (jqXHR, textStatus, errorThrown){
         if (DEBUG) {
@@ -1043,7 +1051,7 @@ function appendFriendToList(url, friendname) {
     var $friend = $('<li>').html('<a class= "user_link" href="'+url+'">'+friendname+'</a>');
     //Add to the user list
     $("#friend_list").append($friend);
-    return $user;
+    return $friend;
 }
 
 function appendExerciseToList(url, type, date) {
@@ -1642,9 +1650,11 @@ $(function(){
     $(".deleteMessage").on("click", handleDeleteMessage);
     $("#deleteExercise").on("click", handleDeleteExercise);
     $("#user_list").on("click","li a" ,handleGetUser);
+
 //own additions
 	$("#search_button").on("click",handleSearchUser);
 	$("#add_exercise_button").on("click",handleAddExercise);
+    $("#friend_list").on("click","li a" ,handleGetUser);
 
     $("#addExercise").on("click",handleSubmitAddExercise);
 
