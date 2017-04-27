@@ -1529,6 +1529,8 @@ function handleAddExercise(event) {
     console.log($("#userHeader").children('input[name="username"]').val());
     var name = $("#userHeader").children('input[name="username"]').val();
 	
+    
+    /*
     //Remove all children from form_content
     $("#userData .form_content").empty();
     //Hide buttons
@@ -1543,7 +1545,7 @@ function handleAddExercise(event) {
     //Be sure that mainContent is shown
     $("#mainContent").show();
 
- 
+ */
     
     
 
