@@ -8,7 +8,7 @@
     <script type="text/javascript" src="forum_client.js"></script>
 </head>
 
-<body> 
+<body bgcolor="#27010e> 
     <div id="intro">
         <h1 style="color:#f27500";>ExerciseTracker</h1>
         <span id="instructions"; style="color:#f27500";>Click on a username in the sidebar to edit/delete a user info. Press <span class="oblique">"Add User"</span> to add a new user.</span>
@@ -27,6 +27,9 @@
              <ul id="user_list">  
 
             </ul>
+			<ul id="friend_list">  
+
+            </ul>
             <div id="addUserButtonContainer">
                 <a href="#" id="addUserButton">Add User</a>
             </div>
@@ -42,12 +45,10 @@
             <!-- Main content area -->
             <div id="userData">  
                 <div class="section" style="color:#27010e" id="userHeader">  
-                        <input class="noEditable" name="username" style="color:#f27500" id="username" placeholder="username" type="text"  readonly="readonly"/> 
-                        <input class="noEditable" name="description" style="color:#f27500" id="description" placeholder="description" type="text"  readonly="readonly"/> 
-						<input class="noEditable" name="avatar" style="color:#f27500" id="avatar" placeholder="avatar" type="text"  readonly="readonly"/> 
-						<input class="noEditable" name="visibility" style="color:#f27500" id="visibility" placeholder="visibility" type="text"  readonly="readonly"/> 						
-						<p>Registered at <input class="noEditable" style="color:#f27500" type="text" name="registrationdate" id="registrationdate" readonly="readonly"/>- 
-                        <input type="text" class="noeditable" style="color:#f27500" id="messagesNumber" name="messagesNumber" readonly="readonly" size="2" value="??"/> <a href="#messages">messages</a></p>  
+                        <input class="noEditable" name="username" style="background-color:#27010e; color:#f27500" id="username" placeholder="username" type="text"  readonly="readonly"/> 
+                        <input class="noEditable" name="description" style="background-color:#27010e; color:#f27500" id="description" placeholder="description" type="text"  readonly="readonly"/> 
+						<input class="noEditable" name="avatar" style="background-color:#27010e; color:#f27500" id="avatar" placeholder="avatar" type="text"  readonly="readonly"/> 
+						<input class="noEditable" name="visibility" style="background-color:#27010e; color:#f27500" id="visibility" placeholder="visibility" type="text"  readonly="readonly"/> 						
 
 						<!--Add exercise button -->
 						<div id="add_exercise_button_container">
@@ -56,17 +57,6 @@
 
 				</div>
                 <div class="section" id="userProfile">
-                    <!-- User info area -->
-                    <h3>User profile</h3>  
-                    <form action="#" id="user_form">    
-                        <div class="commands">
-                            <input id="deleteUser" type="button" class="deleteButton" value="Delete"/>
-                            <input id="editUser" type="button" class="editButton" value="Edit"/>
-                        </div>
-                        <div class="form_content">
-                            
-                        </div>
-                        
                     </form> 
                     <form action="#" id="user_restricted_form">
                         
@@ -81,7 +71,7 @@
                 </div>
                 <div class="section" id="messages">  
                     <!-- Message list area -->
-                    <h3>Message List</h3>  
+                    <h3 style="color:#f27500";>Exercise List </h3>  
                     <div id="messages_list">
                         <div class="message">  
                             <form action="#">
@@ -94,14 +84,14 @@
                 </div>
 				<div id="exerciseData">  
                 <div class="section" id="exerciseHeader">  
-                        <input class="noEditable" name="type" id="type" placeholder="type" type="text"  readonly="readonly"/> 
-                        <input class="noEditable" name="date" id="date" placeholder="date" type="text"  readonly="readonly"/> 
-						<input class="noEditable" name="value" id="value" placeholder="value" type="text"  readonly="readonly"/> 
-						<input class="noEditable" name="valueunit" id="valueunit" placeholder="valueunit" type="text"  readonly="readonly"/> 
-						<input class="noEditable" name="time" id="time" placeholder="time" type="text"  readonly="readonly"/>
-						<input class="noEditable" name="timeunit" id="timeunit" placeholder="timeunit" type="text"  readonly="readonly"/>
+                        <input class="noEditable" style="background-color:#27010e; color:#f27500" name="type" id="type" placeholder="type" type="text"  readonly="readonly"/> 
+                        <input class="noEditable" style="background-color:#27010e; color:#f27500" name="date" id="date" placeholder="date" type="text"  readonly="readonly"/> 
+						<input class="noEditable" style="background-color:#27010e; color:#f27500" name="value" id="value" placeholder="value" type="text"  readonly="readonly"/> 
+						<input class="noEditable" style="background-color:#27010e; color:#f27500" name="valueunit" id="valueunit" placeholder="valueunit" type="text"  readonly="readonly"/> 
+						<input class="noEditable" style="background-color:#27010e; color:#f27500" name="time" id="time" placeholder="time" type="text"  readonly="readonly"/>
+						<input class="noEditable" style="background-color:#27010e; color:#f27500" name="timeunit" id="timeunit" placeholder="timeunit" type="text"  readonly="readonly"/>
 						
-                        <input type="text" class="noeditable" id="messagesNumber" name="messagesNumber" readonly="readonly" size="2" value="??"/> <a href="#messages">messages</a></p>  
+                        <input type="text" style="background-color:#27010e; color:#f27500" class="noeditable" id="messagesNumber" name="messagesNumber" readonly="readonly" size="2" value="??"/> <a href="#messages">messages</a></p>  
 
 						<!--Add exercise button -->
 						<div id="add_exercise_button_container">
