@@ -683,6 +683,32 @@ function private_data(apiurl){
  * @param {object} user - An associative array containing the new user's information
  * 
 **/   
+
+function add_exercise(apiurl,exercise){
+    var exerciseData = JSON.stringify(exercise);
+    return $.ajax({
+        url: apiurl,
+        type: "POST",
+        dataType:DEFAULT_DATATYPE,
+        data:exerciseData,
+        //processData:false,
+        contentType: PLAINJSON
+    }).done(function (data, textStatus, jqXHR){
+        if (DEBUG) {
+            console.log ("RECEIVED RESPONSE: data:",data,"; textStatus:",textStatus);
+        }
+        alert ("Exercise successfully added");
+    }).fail(function (jqXHR, textStatus, errorThrown){
+        if (DEBUG) {
+            console.log ("RECEIVED ERROR: textStatus:",textStatus, ";error:",errorThrown);
+        }
+        alert ("Could not create new exercise:"+jqXHR.responseJSON.message);
+    });    
+    
+    
+}
+
+
 function add_user(apiurl,user){
     var userData = JSON.stringify(user);
     var username = user.username;
@@ -1248,11 +1274,15 @@ function prepareUserDataVisualization() {
     $("#messages_list").empty();
     //Be sure that the newUser form is hidden
     $("#newUser").hide();
+    //be sure that the add exercise is not shown
+    $("#add_exercise").hide();
     //Be sure that user information is shown
     $("#userData").show();
     //Be sure that mainContent is shown
     $("#mainContent").show();
 }
+
+
 
 /**
  * Helper method to visualize the form to create a new user (#new_user_form)
@@ -1528,7 +1558,7 @@ function handleAddExercise(event) {
     }
     event.preventDefault();
 
-    prepareUserDataVisualization();
+    //prepareUserDataVisualization();
 	$.ajax({
                 url: "/forum/schema/add-exer/",
                 dataType: DEFAULT_DATATYPE
@@ -1542,11 +1572,58 @@ function handleAddExercise(event) {
                 alert ("Could not fetch form schema.  Please, try again");
             });
 	//createFormFromSchema("/exercisetracker/api/exercises/", "add-exer.schema", "add_exercise_form");
-	$("#add_exercise").show();
-   
+   //add username to form
+    console.log($("#userHeader").children('input[name="username"]').val());
+    var name = $("#userHeader").children('input[name="username"]').val();
+	
+    
+    /*
+    //Remove all children from form_content
+    $("#userData .form_content").empty();
+    //Hide buttons
+    $("#userData .commands input[type='button'").hide();
+    //Reset all input in userData
+    $("#userData input[type='text']").val("??");
+    //Remove old messages
+    $("#messages_list").empty();
+    //Be sure that the newUser form is hidden
+    $("#newUser").hide();
+    $("#userData").hide();
+    //Be sure that mainContent is shown
+    $("#mainContent").show();
+
+ */
+    
+    
+
+    $("#add_exercise").show();
+    $("#exercise_commands").show();
+    $("#add_exercise .exercise_commands input[type='button'").show();
+    $("#addExercise").show();
+
+    $("#add_exercise").children().children('div[class="form_content"]').children('input[name="username"]').val(name);
+
     return false; //IMPORTANT TO AVOID <A> BUBLING
 }
 
+
+function handleSubmitAddExercise(event){
+    if (DEBUG) {
+        console.log ("Triggered handleSubmitAddExercise");
+    }
+    event.preventDefault();
+
+    var $form = $(this).closest("form");
+    var template = serializeFormTemplate($form);
+    var url = $form.attr("action");
+	console.log("#####################");
+	console.log(template);
+	console.log(url);
+	console.log("#####################");
+    //template is missing userid. otherwise functioning
+    add_exercise(url, template);
+    return false; //Avoid executing the default submit    
+}
 
 
 //
@@ -1568,7 +1645,11 @@ $(function(){
 //own additions
 	$("#search_button").on("click",handleSearchUser);
 	$("#add_exercise_button").on("click",handleAddExercise);
+
+    $("#addExercise").on("click",handleSubmitAddExercise);
+
     $("#exercise_list").on("click","li a" ,handleGetExercise);
+
 	//startup sequence. Creates schemas etc
 	startup(ENTRYPOINT);
 	//$("#mainContent").hide();

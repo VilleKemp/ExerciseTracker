@@ -2,30 +2,37 @@
     "type": "object",
     "properties": {
         "username": {
-            "description": "Username of the exercisee",
+            "title": "Username",
+            "description": "Username of the person who did the exercisee",
             "type": "string"
         },
         "type": {
+            "title": "Type",
             "description": "Used to specify the exercise done",
             "type": "string"
         },
         "value": {
+            "title":"Value",
             "description": "Used to specify ammount of exercise done",
             "type": "int"
         },
 		"valueunit": {
+            "title": "Valueunit",
             "description": "Used to specify what unit of measurement value was",
             "type": "string"
         },
 		"date": {
+            "title": "Date",
             "description": "Date used to specify when the exercise was done",
             "type": "string"
         },
 		"time": {
+            "title": "Time",
             "description": "Time the exercise toke",
             "type": "int"
         },
 		"timeunit": {
+            "title": "Time unit",
             "description": "Used to specify the unit the given value was for instance (minutes)",
             "type": "string"
         }
