@@ -698,6 +698,11 @@ function add_exercise(apiurl,exercise){
             console.log ("RECEIVED RESPONSE: data:",data,"; textStatus:",textStatus);
         }
         alert ("Exercise successfully added");
+        //empty and hide the add_exercise form
+        $("#form_content").empty();
+        $("#add_exercise").hide();
+        //refresh the exercise list
+        getUsersExercises("/exercisetracker/api/exercises/", data.username); 
     }).fail(function (jqXHR, textStatus, errorThrown){
         if (DEBUG) {
             console.log ("RECEIVED ERROR: textStatus:",textStatus, ";error:",errorThrown);
@@ -838,16 +843,18 @@ function get_user(apiurl) {
         }
 
 
-        //Fill basic information from the user_basic_form	
+        //Fill basic information from the user_basic_form
+        console.log("###HEERE###");
+        console.log(data);
         $("#username").val("Username: " + data.username);
 		$("#visibility").val("Visibility: " + data.visibility || "??");
 		$("#description").val("Description: " + data.description || "??");
 		$("#password").val(data.password || "??");
 		$("#avatar").val("Avatar: " +data.avatar || "??");
         //delete(data.username);
-        $("#registrationdate").val(getDate(data.registrationdate || 0));
+        //$("#registrationdate").val(getDate(data.registrationdate || 0));
         //delete(data.registrationdate);
-        $("#messagesNumber").val("??");
+        //$("#messagesNumber").val("??");
 		
 
 		
@@ -1565,6 +1572,21 @@ function handleAddExercise(event) {
             }).done(function (data, textStatus, jqXHR) {
 				console.log(data);
                 createFormFromSchema("/exercisetracker/api/exercises/", data, "add_exercise_form");
+                //get name from header
+                console.log($("#userHeader").children('input[name="username"]').val());
+                var name = $("#userHeader").children('input[name="username"]').val();
+                //modify string
+                name = name.replace("Username: ", "");
+                //show form and button
+                $("#add_exercise").show();
+                $("#exercise_commands").show();
+                $("#add_exercise .exercise_commands input[type='button'").show();
+                $("#addExercise").show();
+                //add username to name field and hide it
+                $("#add_exercise").children().children('div[class="form_content"]').children('input[name="username"]').val(name);
+                $("#add_exercise").children().children('div[class="form_content"]').children('input[name="username"]').hide();
+                $("#add_exercise").children().children('div[class="form_content"]').children('label[for="username"]').hide();
+                
             }).fail(function (jqXHR, textStatus, errorThrown) {
                 if (DEBUG) {
                     console.log ("RECEIVED ERROR: textStatus:",textStatus, ";error:",errorThrown);
@@ -1573,35 +1595,6 @@ function handleAddExercise(event) {
             });
 	//createFormFromSchema("/exercisetracker/api/exercises/", "add-exer.schema", "add_exercise_form");
    //add username to form
-    console.log($("#userHeader").children('input[name="username"]').val());
-    var name = $("#userHeader").children('input[name="username"]').val();
-	
-    
-    /*
-    //Remove all children from form_content
-    $("#userData .form_content").empty();
-    //Hide buttons
-    $("#userData .commands input[type='button'").hide();
-    //Reset all input in userData
-    $("#userData input[type='text']").val("??");
-    //Remove old messages
-    $("#messages_list").empty();
-    //Be sure that the newUser form is hidden
-    $("#newUser").hide();
-    $("#userData").hide();
-    //Be sure that mainContent is shown
-    $("#mainContent").show();
-
- */
-    
-    
-
-    $("#add_exercise").show();
-    $("#exercise_commands").show();
-    $("#add_exercise .exercise_commands input[type='button'").show();
-    $("#addExercise").show();
-
-    $("#add_exercise").children().children('div[class="form_content"]').children('input[name="username"]').val(name);
 
     return false; //IMPORTANT TO AVOID <A> BUBLING
 }
@@ -1616,10 +1609,7 @@ function handleSubmitAddExercise(event){
     var $form = $(this).closest("form");
     var template = serializeFormTemplate($form);
     var url = $form.attr("action");
-	console.log("#####################");
-	console.log(template);
-	console.log(url);
-	console.log("#####################");
+
     //template is missing userid. otherwise functioning
     add_exercise(url, template);
     return false; //Avoid executing the default submit    
