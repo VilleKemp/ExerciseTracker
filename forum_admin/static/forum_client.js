@@ -262,7 +262,8 @@ function getUsersExercises(apiurl, username) {
             //Extract the username by getting the data values. Once obtained
             // the username use the method appendUserToList to show the user
             // information in the UI.
-		
+		    type = exercise.type
+            exercise.type = exercise.type.charAt(0).toUpperCase() + exercise.type.slice(1)
             appendExerciseToList(exercise["@controls"].self.href, exercise.type, exercise.date)
 			}
     }});
