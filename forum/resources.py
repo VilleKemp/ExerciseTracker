@@ -544,7 +544,7 @@ class Exercises(Resource):
          #It throws a BadRequest exception, and hence a 400 code if the JSON is
         #not wellformed
         try:
-            user_id=request_body["user_id"]
+            #user_id=request_body["user_id"]
             username=request_body["username"]
             type=request_body["type"]
             value=request_body["value"]
