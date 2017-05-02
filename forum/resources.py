@@ -659,7 +659,7 @@ class Exercise(Resource):
         envelope.add_control_list_users()
         envelope.add_control("self", href=api.url_for(Exercise, exercise_id=exercise_db["exercise_id"]))
         envelope.add_control_add_exercise()
-        
+               
         #RENDER
         return Response(json.dumps(envelope), 200, mimetype=MASON+";" + FORUM_EXERCISE_PROFILE)
 
