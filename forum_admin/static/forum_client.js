@@ -199,6 +199,8 @@ function remove_exercise(apiurl){
 		
 		console.log(username);
 		getUsersExercises("/exercisetracker/api/exercises/", username);
+		//hides exercise information. migth be smarter to empty?
+		$("#exerciseData").hide();
 		
 	});		
 }
@@ -1006,7 +1008,9 @@ function get_exercise(apiurl) {
             //console.log ( "" + data[1]);
         }
 
-
+		//make sure exercise data is shown
+		$("#exerciseData").show();
+		
         //Fill basic information from the user_basic_form
         $("#exerciseid").val(data.exerciseid);   
         $("#type").val("Type: " + data.type);
