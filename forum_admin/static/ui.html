@@ -45,19 +45,28 @@
 
         </ul>
         </div>
+		
         <div id = "mainContent" >
             <!-- Main content area -->
+			
             <div id="userData">  
                 <div class="section" style="color:#27010e" id="userHeader">  
                         <input class="noEditable" name="username" style="background-color:#27010e; color:#f27500" id="username" placeholder="username" type="text"  readonly="readonly"/> 
                         <input class="noEditable" name="description" style="background-color:#27010e; color:#f27500" id="description" placeholder="description" type="text"  readonly="readonly"/> 
 						<input class="noEditable" name="avatar" style="background-color:#27010e; color:#f27500" id="avatar" placeholder="avatar" type="text"  readonly="readonly"/> 
 						<input class="noEditable" name="visibility" style="background-color:#27010e; color:#f27500" id="visibility" placeholder="visibility" type="text"  readonly="readonly"/> 						
+						
+						
+						
 						<!-- Remove user button -->
 						<div id="remove_user_button_container">
 						<a href="#" id="remove_user_button">Remove User</a>
 						</div>
 
+						<!-- Modify user button -->
+						<div id="modify_user_button_container">
+						<a href="#" id="modify_user_button">Modify User</a>
+						</div>
 
 				</div>
                 <div class="section" id="userProfile">
@@ -130,6 +139,17 @@
                     </div>
                 </form>
             </div>
+			<!-- Modify user form -->
+						<div id ="modify_user">
+						<form action="#" id="modify_user_form"> 
+						<div class="form_content">
+                                
+						</div>
+						<div class="user_commands">
+                        <input id="modifyUser" type="button" value="Change user information"/>
+						</div>
+						</form>
+						</div>
     </div>    
 </body>
 

@@ -770,6 +770,7 @@ function add_user(apiurl,user){
             console.log ("RECEIVED RESPONSE: data:",data,"; textStatus:",textStatus);
         }
         alert ("User successfully added");
+		
         //Add the user to the list and load it.
 		
 
@@ -887,6 +888,9 @@ function get_user(apiurl) {
         //Fill basic information from the user_basic_form
         console.log("###HEERE###");
         console.log(data);
+		//save user info for later use
+		var info= data;
+		
         $("#username").val("Username: " + data.username);
 		$("#visibility").val("Visibility: " + data.visibility || "??");
 		$("#description").val("Description: " + data.description || "??");
@@ -907,6 +911,11 @@ function get_user(apiurl) {
 		if("delete user information" in user_links)
 		{
 		$("#remove_user_button").attr("href",user_links["delete user information"].href);	
+			
+		}
+		
+		if("modify-user" in user_links)
+		{
 			
 		}
 		//remove stuff from below?
@@ -948,6 +957,39 @@ function get_user(apiurl) {
         if (messages_url){
             messages_history(messages_url);
         }
+
+		
+		
+		//generate modify user form
+		//TEMPORARY FIX UNTIL THE DATA STRUCTURE HAS BEEN FIXED
+		var schema = user_links["modify-user"].schemaUrl;
+		schema = "/forum/schema/user/";
+		$.ajax({
+                url: schema,
+                dataType: DEFAULT_DATATYPE
+            }).done(function (data, textStatus, jqXHR) {
+                console.log("modify user form creation success");
+				console.log(data);
+
+                createFormFromSchema(user_links["modify-user"].schemaUrl, data, "modify_user_form");
+			//fill the form
+			console.log("right before fill");
+		
+			$("#modify_user").children().children('div[class="form_content"]').children('input[name="username"]').val(info.username);
+			$("#modify_user").children().children('div[class="form_content"]').children('input[name="password"]').val(info.password);
+			$("#modify_user").children().children('div[class="form_content"]').children('input[name="description"]').val(info.description);
+			$("#modify_user").children().children('div[class="form_content"]').children('input[name="avatar"]').val(info.avatar);
+			$("#modify_user").children().children('div[class="form_content"]').children('input[name="visibility"]').val(info.visibility);
+                
+			
+			//hide the form
+			$("#modify_user").hide();
+			
+			
+            })
+
+			
+		//
        getUsersExercises("/exercisetracker/api/exercises/", data.username)
        getUsersFriends(friends_url, data.username)
 
@@ -1587,6 +1629,7 @@ function handleGetUser(event) {
     $(this).addClass("selected");
     console.log ($(this).attr("href"));
     prepareUserDataVisualization();
+
 	console.log($(this));
     get_user($(this).attr("href"));
 
@@ -1737,6 +1780,16 @@ function handleRemoveUser(event){
     return false; //Avoid executing the default submit    
 }
 
+function handleModifyUser(event){
+    if (DEBUG) {
+        console.log ("Triggered handleModifyUser");
+    }
+    event.preventDefault();
+
+
+    return false; //Avoid executing the default submit    
+}
+
 //
 /**** END BUTTON HANDLERS ****/
 
@@ -1744,6 +1797,7 @@ function handleRemoveUser(event){
 //This method is executed when the webpage is loaded.
 $(function(){
     $("#addUserButton").on("click", handleShowUserForm);
+	
     $("#deleteUser").on("click", handleDeleteUser);
     $("#editUser").on("click", handleEditUser);
     $("#deleteUserRestricted").on("click", handleDeleteUserRestricted);
@@ -1764,7 +1818,7 @@ $(function(){
     $("#exercise_list").on("click","li a" ,handleGetExercise);
 
     $("#remove_user_button").on("click",handleRemoveUser);
-	
+    $("#modify_user_button").on("click",handleModifyUser);	
 	//startup sequence. Creates schemas etc
 	startup(ENTRYPOINT);
 	//$("#mainContent").hide();
