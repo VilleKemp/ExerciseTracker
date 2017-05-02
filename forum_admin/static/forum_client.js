@@ -186,6 +186,21 @@ function getUsersFriends(apiurl) {
 }
 
 //own stuff
+
+function remove_user(apiurl){
+	return $.ajax({
+		url: apiurl, //The URL of the resource
+		type: "DELETE", //The resource method
+        dataType:DEFAULT_DATATYPE,
+		contentType: 'application/json'
+    }).done(function (data, textStatus, jqXHR){
+
+		//hides exercise information. migth be smarter to empty?
+		$("#userData").hide();
+		
+	});		
+}
+
 function remove_exercise(apiurl){
 	return $.ajax({
 		url: apiurl, //The URL of the resource
@@ -886,6 +901,15 @@ function get_user(apiurl) {
 		
         //Extract user information
         var user_links = data["@controls"];
+		console.log("#userlinks");
+		console.log(user_links);
+		
+		if("delete user information" in user_links)
+		{
+		$("#remove_user_button").attr("href",user_links["delete user information"].href);	
+			
+		}
+		//remove stuff from below?
         //Extracts urls from links. I need to get if the different links in the
         //response.
         if("list-friends" in user_links)
@@ -1702,6 +1726,16 @@ function handleRemoveExercise(event){
     return false; //Avoid executing the default submit    
 }
 
+function handleRemoveUser(event){
+    if (DEBUG) {
+        console.log ("Triggered handleRemoveUser");
+    }
+    event.preventDefault();
+	console.log($(this).attr("href"));
+	remove_user($(this).attr("href"));
+
+    return false; //Avoid executing the default submit    
+}
 
 //
 /**** END BUTTON HANDLERS ****/
@@ -1729,6 +1763,8 @@ $(function(){
     $("#remove_exercise_button").on("click",handleRemoveExercise);
     $("#exercise_list").on("click","li a" ,handleGetExercise);
 
+    $("#remove_user_button").on("click",handleRemoveUser);
+	
 	//startup sequence. Creates schemas etc
 	startup(ENTRYPOINT);
 	//$("#mainContent").hide();
