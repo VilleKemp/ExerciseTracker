@@ -91,9 +91,11 @@
 						<input class="noEditable" style="background-color:#27010e; color:#f27500" name="valueunit" id="valueunit" placeholder="valueunit" type="text"  readonly="readonly"/> 
 						<input class="noEditable" style="background-color:#27010e; color:#f27500" name="time" id="time" placeholder="time" type="text"  readonly="readonly"/>
 						<input class="noEditable" style="background-color:#27010e; color:#f27500" name="timeunit" id="timeunit" placeholder="timeunit" type="text"  readonly="readonly"/>
-						
-                        <input type="text" style="background-color:#27010e; color:#f27500" class="noeditable" id="messagesNumber" name="messagesNumber" readonly="readonly" size="2" value="??"/> <a href="#messages">messages</a></p>  
-
+						<!-- Remove exercise button -->
+                        <div id="remove_exercise_button_container">
+						<a href="#" id="remove_exercise_button">Remove exercise</a>
+						</div>
+                        
 						<!--Add exercise button -->
 						<div id="add_exercise_button_container">
 						<a href="#" id="add_exercise_button">Add exercise</a>
@@ -117,6 +119,7 @@
 			<div id="friend_button_container">
 			<a href="#" id="createFriend">Add friend</a>
             </div>
+
 			<!-- Add exercise form -->
             <div id ="add_exercise">
                 <form action="#" id="add_exercise_form"> 
@@ -130,7 +133,16 @@
             </div>			
 			
         </div>
-
+            <div id ="newUser">
+                <form action="#" id="new_user_form"> 
+                    <div class="form_content">
+                                
+                    </div>
+                    <div class="commands">
+                        <input id="createUser" type="button" class="createButton" value="Create"/>
+                    </div>
+                </form>
+            </div>
     </div>    
 </body>
 

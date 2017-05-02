@@ -120,6 +120,7 @@ function getUsers(apiurl) {
         var create_ctrl = data["@controls"]["add user"]
         
         if (create_ctrl.schema) {
+            
             createFormFromSchema(create_ctrl.href, create_ctrl.schema, "new_user_form");
         }
         else if (create_ctrl.schemaUrl) {
@@ -207,15 +208,18 @@ function startup(apiurl) {
         users = data.items;
           //Prepare the new_user_form to create a new user
         var create_ctrl = data["@controls"]["add user"]
-        
+        console.log(create_ctrl.schemaUrl);
         if (create_ctrl.schema) {
-            createFormFromSchema(create_ctrl.href, create_ctrl.schema, "new_user_form");
+            createFormFromSchema(create_ctrl.href, create_ctrl.schemaUrl, "new_user_form");
         }
         else if (create_ctrl.schemaUrl) {
             $.ajax({
                 url: create_ctrl.schemaUrl,
                 dataType: DEFAULT_DATATYPE
             }).done(function (data, textStatus, jqXHR) {
+                console.log("####AREWERE##");
+                console.log(create_ctrl.href);
+                console.log(data);
                 createFormFromSchema(create_ctrl.href, data, "new_user_form");
             }).fail(function (jqXHR, textStatus, errorThrown) {
                 if (DEBUG) {
@@ -997,6 +1001,13 @@ function get_exercise(apiurl) {
         
         //Extract user information
         var exercise_links = data["@controls"];
+        console.log(exercise_links);
+        
+        if("remove-exercise" in exercise_links){
+           console.log(exercise_links["remove-exercise"].href);
+            
+        }
+            
         //Extracts urls from links. I need to get if the different links in the
         //response.
         /*if ("forum:private-data" in user_links) {
@@ -1011,11 +1022,12 @@ function get_exercise(apiurl) {
             var delete_link = user_links["forum:delete"].href; // User delete linke
         if ("edit" in user_links)
             var edit_link = user_links["edit"].href;*/
-
+        /*
         if (delete_link){
             //$("#user_form").attr("action", delete_link);
             $("#deleteExercise").show();
         }
+        */
         /*if (edit_link){
             $("#user_form").attr("action", edit_link);
             $("#editUser").show();
@@ -1128,10 +1140,13 @@ function createFormFromSchema(url,schema,id){
     $form_content=$(".form_content",$form);
     $form_content.empty();
     $("input[type='button']",$form).hide();
+    
     if (schema.properties) {
         var props = schema.properties;
+        
         Object.keys(props).forEach(function(key, index) {
             if (props[key].type == "object") {
+               
                 appendObjectFormFields($form_content, key, props[key]);
             }
             else {
@@ -1140,6 +1155,7 @@ function createFormFromSchema(url,schema,id){
             
         });
     }
+    
     return $form;
 }
 /**
@@ -1667,6 +1683,15 @@ function handleSubmitAddExercise(event){
     return false; //Avoid executing the default submit    
 }
 
+function handleRemoveExercise(event){
+    if (DEBUG) {
+        console.log ("Triggered handleRemoveExercise");
+    }
+    event.preventDefault();
+
+    return false; //Avoid executing the default submit    
+}
+
 
 //
 /**** END BUTTON HANDLERS ****/
@@ -1692,7 +1717,7 @@ $(function(){
     $("#friend_list").on("click","li a" ,handleGetUser);
 
     $("#addExercise").on("click",handleSubmitAddExercise);
-
+    $("#remove_exercise_button").on("click",handleRemoveExercise);
     $("#exercise_list").on("click","li a" ,handleGetExercise);
 
 	//startup sequence. Creates schemas etc
