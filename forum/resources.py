@@ -188,6 +188,19 @@ class ForumObject(MasonObject):
             "method": "GET"
             
         }
+	
+    def add_control_list_friends(self, username):
+        """
+        Adds "list exercises" control to an object
+        """
+
+        self["@controls"]["list-friends"] = {
+            "title": "list friends",
+            "href": api.url_for(Friends, username=username),
+            "encoding": "json",
+            "method": "GET"
+            
+        }
 
     def add_control_get_exercise(self, exercise_id):
         """
@@ -1015,6 +1028,8 @@ class User(Resource):
         envelope.add_control_modify_user(username)
         envelope.add_control_list_users()
         envelope.add_control_delete_user(username)
+        envelope.add_control_list_friends(username)
+
      
         #mahdollisesti turhia?
         #envelope.add_control_modify_exercise
@@ -1138,26 +1153,60 @@ class Friends(Resource):
         envelope = ForumObject()
         #add controls to response
         envelope.add_control("self", href=api.url_for(Friends,username=username))
-        envelope.add_control_list_users() 
+        envelope.add_control_list_users()
+		
         
         items = envelope["items"] = []
 
         for user in friends:
-            username=g.con.get_username(user["friend_id"])
+            friendname=g.con.get_username(user["friend_id"])
             item = ForumObject(
-                username=username
+                friend=friendname#["username"]
                 
 
             )
-            item.add_control_get_user_information(username)
+            item.add_control_get_user_information(friendname)
             #add controls to each object in the list
-            item.add_control("self", href=api.url_for(Users, username=username))
+            item.add_control("self", href=api.url_for(User, username=friendname))
             #WIP
             #envelope.add_control_get_user_information(username)
             
   
             items.append(item)
+        '''
+		users_db = g.con.get_users()
+        if not users_db:
+            return create_error_response(404, "No users")
+
+        #FILTER AND GENERATE THE RESPONSE
+       #Create the envelope
+        envelope = ForumObject()
+        #add controls to response
+        envelope.add_control("self", href=api.url_for(Users))
+ 
+        envelope.add_control_add_user()
+        #not yet implemented
+        #envelope.add_control_list_exercises()
+
         
+
+        
+        items = envelope["items"] = []
+
+        for user in users_db:
+            item = ForumObject(
+                username=user["username"],
+                description = user["description"],
+                avatar=user["avatar"],
+                visibility=user["visibility"]
+            )
+            #add controls to each object in the list
+            item.add_control("self", href=api.url_for(User, username=user["username"]))
+            #WIP
+            #envelope.add_control_get_user_information(username)
+            
+  
+            items.append(item)'''
 
         return Response(json.dumps(envelope), 200, mimetype=MASON+";")
 
