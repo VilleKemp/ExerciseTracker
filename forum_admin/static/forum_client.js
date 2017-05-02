@@ -1046,6 +1046,34 @@ function get_exercise(apiurl) {
 
 }
 
+function add_friend(apiurl,user){
+    var userData = JSON.stringify(user);
+    var username = user.username;
+    return $.ajax({
+        url: apiurl,
+        type: "POST",
+        dataType:DEFAULT_DATATYPE,
+        data:userData,
+        //processData:false,
+        contentType: PLAINJSON
+    }).done(function (data, textStatus, jqXHR){
+        if (DEBUG) {
+            console.log ("RECEIVED RESPONSE: data:",data,"; textStatus:",textStatus);
+        }
+        alert ("Friend successfully added");
+        //Add the user to the list and load it.
+		
+
+		
+
+    }).fail(function (jqXHR, textStatus, errorThrown){
+        if (DEBUG) {
+            console.log ("RECEIVED ERROR: textStatus:",textStatus, ";error:",errorThrown);
+        }
+        alert ("Could not create new user:"+jqXHR.responseJSON.message);
+    });
+}
+
 /**** END RESTFUL CLIENT****/
 
 /**** UI HELPERS ****/
