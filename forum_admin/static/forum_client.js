@@ -916,6 +916,11 @@ function get_user(apiurl) {
         {
             var friends_url = user_links["list-friends"].href;
         }
+		if("add-friend" in user_links)
+        {
+            var my_friend_url = user_links["add-friend"].href;
+        }
+
 
         if ("forum:private-data" in user_links) {
            var private_profile_url = user_links["forum:private-data"].href; //Restricted profile
@@ -929,14 +934,22 @@ function get_user(apiurl) {
             var delete_link = user_links["forum:delete"].href; // User delete linke
         if ("edit" in user_links)
             var edit_link = user_links["edit"].href;
-
-         if (delete_link){
+		
+		if (delete_link){
+            $("#user_form").attr("action", delete_link);
+            $("#deleteUser").show();
+        }
+        if (delete_link){
             $("#user_form").attr("action", delete_link);
             $("#deleteUser").show();
         }
         if (edit_link){
             $("#user_form").attr("action", edit_link);
             $("#editUser").show();
+        }
+		if (friends_url){
+            $("#add_friend_href").attr("action", my_friend_url);
+            $("#addFriend").show();
         }
 
         //Fill the user profile with restricted user profile. This method
@@ -1100,7 +1113,7 @@ function add_friend(apiurl,user){
         url: apiurl,
         type: "POST",
         dataType:DEFAULT_DATATYPE,
-        data:userData,
+        data:username,
         //processData:false,
         contentType: PLAINJSON
     }).done(function (data, textStatus, jqXHR){
@@ -1569,6 +1582,22 @@ function handleCreateUser(event){
     add_user(url, template);
     return false; //Avoid executing the default submit
 }
+
+function handleAddFriend(event){
+    if (DEBUG) {
+        console.log ("Triggered handleAddFriend");
+    }
+    var $form = $(this).closest("form");
+    var template = serializeFormTemplate($form);
+    var url = $form.attr("action");
+	console.log("#####################");
+	console.log(template);
+	console.log(url);
+	console.log("#####################");
+
+    add_friend($(this).attr("href"));
+    return false; //Avoid executing the default submit
+}
 /**
  * Uses the API to retrieve user's information from the clicked user. In addition, 
  * this function modifies the selected user in the #user_list (removes the .selected
@@ -1749,6 +1778,7 @@ $(function(){
     $("#deleteUserRestricted").on("click", handleDeleteUserRestricted);
     $("#editUserRestricted").on("click", handleEditUserRestricted);
     $("#createUser").on("click", handleCreateUser);
+	$("#createFriend").on("click", handleAddFriend);
     
     $(".deleteMessage").on("click", handleDeleteMessage);
     $("#deleteExercise").on("click", handleDeleteExercise);

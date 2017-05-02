@@ -201,6 +201,17 @@ class ForumObject(MasonObject):
             "method": "GET"
             
         }
+	
+    def add_control_add_friend(self):
+	"""
+	Adds "list exercises" control to an object
+	"""
+	self["@controls"]["add-friend"] = {
+            "title": "add friend",
+            "href": api.url_for(Friends, username=username),
+            "encoding": "json",
+            "method": "POST"            
+	}
 
     def add_control_get_exercise(self, exercise_id):
         """
@@ -1029,6 +1040,7 @@ class User(Resource):
         envelope.add_control_list_users()
         envelope.add_control_delete_user(username)
         envelope.add_control_list_friends(username)
+        envelope.add_control_add_friend
 
      
         #mahdollisesti turhia?
