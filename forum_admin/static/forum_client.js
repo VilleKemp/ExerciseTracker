@@ -186,6 +186,23 @@ function getUsersFriends(apiurl) {
 }
 
 //own stuff
+function remove_exercise(apiurl){
+	return $.ajax({
+		url: apiurl, //The URL of the resource
+		type: "DELETE", //The resource method
+        dataType:DEFAULT_DATATYPE,
+		contentType: 'application/json'
+    }).done(function (data, textStatus, jqXHR){
+		//refresh the exercise list
+		var username = $("#username").val();
+		username = username.replace("Username: ", "");
+		
+		console.log(username);
+		getUsersExercises("/exercisetracker/api/exercises/", username);
+		
+	});		
+}
+
 function startup(apiurl) {
     apiurl = apiurl || ENTRYPOINT;
     $("#mainContent").hide();
@@ -1005,6 +1022,8 @@ function get_exercise(apiurl) {
         
         if("remove-exercise" in exercise_links){
            console.log(exercise_links["remove-exercise"].href);
+		   //set remove exercise buttons href
+		   $("#remove_exercise_button").attr("href",exercise_links["remove-exercise"].href);
             
         }
             
@@ -1673,6 +1692,8 @@ function handleRemoveExercise(event){
         console.log ("Triggered handleRemoveExercise");
     }
     event.preventDefault();
+	console.log($(this).attr("href"));
+	remove_exercise($(this).attr("href"));
 
     return false; //Avoid executing the default submit    
 }
