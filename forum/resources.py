@@ -202,7 +202,7 @@ class ForumObject(MasonObject):
             
         }
 	
-    def add_control_add_friend(self):
+    def add_control_add_friend(self, username):
 	"""
 	Adds "list exercises" control to an object
 	"""
@@ -1040,7 +1040,7 @@ class User(Resource):
         envelope.add_control_list_users()
         envelope.add_control_delete_user(username)
         envelope.add_control_list_friends(username)
-        envelope.add_control_add_friend
+        envelope.add_control_add_friend(username)
 
      
         #mahdollisesti turhia?

@@ -919,6 +919,7 @@ function get_user(apiurl) {
 		if("add-friend" in user_links)
         {
             var my_friend_url = user_links["add-friend"].href;
+			console.log(user_links["add-friend"].href);
         }
 
 
@@ -947,8 +948,9 @@ function get_user(apiurl) {
             $("#user_form").attr("action", edit_link);
             $("#editUser").show();
         }
-		if (friends_url){
-            $("#add_friend_href").attr("href", my_friend_url);
+		if (my_friend_url ){
+            $("#add_friend_href").attr("href", user_links["add-friend"].href);
+
             //$("#addFriend").show();
         }
         //Fill the user profile with restricted user profile. This method
@@ -1107,12 +1109,13 @@ function get_exercise(apiurl) {
 
 function add_friend(apiurl,user){
     var userData = JSON.stringify(user);
-    var username = user.username;
+    //var username = user.username;
+	console.log ("RECEIVED URL: url:",apiurl, "; Received DATA:", userData);
     return $.ajax({
         url: apiurl,
         type: "POST",
         dataType:DEFAULT_DATATYPE,
-        data:username,
+        data:userData,
         //processData:false,
         contentType: PLAINJSON
     }).done(function (data, textStatus, jqXHR){
@@ -1589,13 +1592,20 @@ function handleAddFriend(event){
     var $form = $(this).closest("form");
     var template = serializeFormTemplate($form);
     var url = $form.attr("action");
+	$(this).closest("form").attr("action")
 	console.log("#####################");
 	console.log(template);
 	console.log(url);
 	console.log("#####################");
+	console.log ($(this).attr("href"));
+	
+	event.preventDefault();
+	prepareUserDataVisualization();
+	
 
+	//console.log ("RECEIVED URL: url:",apiurl);
 	//get_user("/exercisetracker/api/users/"+$("#search_field").find('input[name="search_field_text"]').val());
-    add_friend($(this).attr("href"), $("#newFriend").find('input[name="newFriend_text"]').val());
+    add_friend($(this).attr("href"), $("#addFriend").find('input[name="newFriend_text"]').val());
     return false; //Avoid executing the default submit
 }
 /**
@@ -1778,7 +1788,7 @@ $(function(){
     $("#deleteUserRestricted").on("click", handleDeleteUserRestricted);
     $("#editUserRestricted").on("click", handleEditUserRestricted);
     $("#createUser").on("click", handleCreateUser);
-	$("#createFriend").on("click", handleAddFriend);
+	$("#add_friend_href").on("click", handleAddFriend);
     
     $(".deleteMessage").on("click", handleDeleteMessage);
     $("#deleteExercise").on("click", handleDeleteExercise);

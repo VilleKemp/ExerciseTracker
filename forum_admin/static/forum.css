@@ -132,7 +132,7 @@ width: 70%;
   background: #180d29;
 }
 
-#search_button:visited, #createFriend:link {
+#search_button:visited, #add_friend_href:link {
     color:#f27500;
     text-decoration: none;
 }#friend_button_container {
