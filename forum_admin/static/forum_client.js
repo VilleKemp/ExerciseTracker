@@ -948,10 +948,9 @@ function get_user(apiurl) {
             $("#editUser").show();
         }
 		if (friends_url){
-            $("#add_friend_href").attr("action", my_friend_url);
-            $("#addFriend").show();
+            $("#add_friend_href").attr("href", my_friend_url);
+            //$("#addFriend").show();
         }
-
         //Fill the user profile with restricted user profile. This method
         // Will call also to the list of messages.
         if (private_profile_url){
@@ -1595,7 +1594,8 @@ function handleAddFriend(event){
 	console.log(url);
 	console.log("#####################");
 
-    add_friend($(this).attr("href"));
+	//get_user("/exercisetracker/api/users/"+$("#search_field").find('input[name="search_field_text"]').val());
+    add_friend($(this).attr("href"), $("#newFriend").find('input[name="newFriend_text"]').val());
     return false; //Avoid executing the default submit
 }
 /**
