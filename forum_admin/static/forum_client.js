@@ -1506,6 +1506,21 @@ function handleCreateUser(event){
     add_user(url, template);
     return false; //Avoid executing the default submit
 }
+
+function handleAddFriend(event){
+    if (DEBUG) {
+        console.log ("Triggered handleAddFriend");
+    }
+    var $form = $(this).closest("form");
+    var template = serializeFormTemplate($form);
+    var url = $form.attr("action");
+	console.log("#####################");
+	console.log(template);
+	console.log(url);
+	console.log("#####################");
+    add_user(url, template);
+    return false; //Avoid executing the default submit
+}
 /**
  * Uses the API to retrieve user's information from the clicked user. In addition, 
  * this function modifies the selected user in the #user_list (removes the .selected
@@ -1665,6 +1680,7 @@ $(function(){
     $("#deleteUserRestricted").on("click", handleDeleteUserRestricted);
     $("#editUserRestricted").on("click", handleEditUserRestricted);
     $("#createUser").on("click", handleCreateUser);
+	$("#createFriend").on("click", handleAddFriend);
     
     $(".deleteMessage").on("click", handleDeleteMessage);
     $("#deleteExercise").on("click", handleDeleteExercise);
