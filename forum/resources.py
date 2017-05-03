@@ -212,6 +212,16 @@ class ForumObject(MasonObject):
             "encoding": "json",
             "method": "POST"            
 	}
+    def add_control_remove_friend(self, username):
+        """
+        Adds "list exercises" control to an object
+        """
+        self["@controls"]["remove-friend"] = {
+                "title": "remove friend",
+                "href": api.url_for(Friends, username=username),
+                "encoding": "json",
+                "method": "DELETE"            
+        }
 
     def add_control_get_exercise(self, exercise_id):
         """
@@ -1166,6 +1176,8 @@ class Friends(Resource):
         #add controls to response
         envelope.add_control("self", href=api.url_for(Friends,username=username))
         envelope.add_control_list_users()
+        envelope.add_control_remove_friend(username);
+
 		
         
         items = envelope["items"] = []
@@ -1244,6 +1256,22 @@ class Friends(Resource):
             return create_error_response(415, "UnsupportedMediaType",
                                          "Use a JSON compatible format")
         request_body = request.get_json(force=True)
+
+        if not request_body:
+            return create_error_response(415, "Unsupported Media Type",
+                                         "Use a JSON compatible format",
+                                         )
+        
+        #Get the request body and serialize it to object
+        #We should check that the format of the request body is correct. Check
+        #That mandatory attributes are there.
+
+        # pick up nickname so we can check for conflicts
+        try:
+            username = request_body["username"]
+
+        except TypeError:
+            return create_error_response(400, "Wrong request format", "Username was missing from the request")
  
         
         try:
