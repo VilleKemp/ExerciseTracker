@@ -724,6 +724,31 @@ function private_data(apiurl){
  * @param {object} user - An associative array containing the new user's information
  * 
 **/   
+function modify_user(apiurl,user){
+    var userData = JSON.stringify(user);
+    return $.ajax({
+        url: apiurl,
+        type: "PUT",
+        dataType:DEFAULT_DATATYPE,
+        data:userData,
+        //processData:false,
+        contentType: PLAINJSON
+    }).done(function (data, textStatus, jqXHR){
+        if (DEBUG) {
+            console.log ("RECEIVED RESPONSE: data:",data,"; textStatus:",textStatus);
+        }
+        alert ("User modified");
+        //empty and hide
+        $("#modify_user_form").children('div[class=form_content]').empty();
+        $("#modify_user").hide();
+        //refresh user info
+
+        get_user(apiurl); 
+        $("#userData").show();        
+    })
+    
+}
+
 
 function add_exercise(apiurl,exercise){
     var exerciseData = JSON.stringify(exercise);
@@ -916,7 +941,7 @@ function get_user(apiurl) {
 		
 		if("modify-user" in user_links)
 		{
-			
+        $("#modifyUser").attr("href",user_links["modify-user"].href);
 		}
 		//remove stuff from below?
         //Extracts urls from links. I need to get if the different links in the
@@ -971,7 +996,7 @@ function get_user(apiurl) {
                 console.log("modify user form creation success");
 				console.log(data);
 
-                createFormFromSchema(user_links["modify-user"].schemaUrl, data, "modify_user_form");
+                createFormFromSchema(user_links["modify-user"].href, data, "modify_user_form");
 			//fill the form
 			console.log("right before fill");
 		
@@ -1753,7 +1778,7 @@ function handleSubmitAddExercise(event){
     var template = serializeFormTemplate($form);
     var url = $form.attr("action");
 
-    //template is missing userid. otherwise functioning
+    
     add_exercise(url, template);
     return false; //Avoid executing the default submit    
 }
@@ -1785,10 +1810,31 @@ function handleModifyUser(event){
         console.log ("Triggered handleModifyUser");
     }
     event.preventDefault();
-
-
+    //hides user information and shows modify user form
+    $("#userData").hide();
+    $("#modify_user").show();
+    $("#modifyUser").show();
+    //hide username field and label becouse they can't be modified but are needed
+    $("#modify_user_form").children('div[class=form_content]').children('label[for=username]').hide();
+    $("#modify_user_form").children('div[class=form_content]').children('input[name=username]').hide();
     return false; //Avoid executing the default submit    
 }
+
+function handleSubmitModifyUser(event){
+    if (DEBUG) {
+        console.log ("Triggered handleSubmitModifyUser");
+    }
+    event.preventDefault();
+
+    var $form = $(this).closest("form");
+    var template = serializeFormTemplate($form);
+    var url = $form.attr("action");
+
+    modify_user(url , template);
+    
+    return false; //Avoid executing the default submit    
+}
+
 
 //
 /**** END BUTTON HANDLERS ****/
@@ -1818,7 +1864,9 @@ $(function(){
     $("#exercise_list").on("click","li a" ,handleGetExercise);
 
     $("#remove_user_button").on("click",handleRemoveUser);
-    $("#modify_user_button").on("click",handleModifyUser);	
+    //modify user buttons
+    $("#modify_user_button").on("click",handleModifyUser);
+    $("#modifyUser").on("click",handleSubmitModifyUser);	
 	//startup sequence. Creates schemas etc
 	startup(ENTRYPOINT);
 	//$("#mainContent").hide();
