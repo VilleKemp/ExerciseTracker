@@ -87,6 +87,33 @@ const ENTRYPOINT = "/exercisetracker/api/users/"; //Entrypoint: Resource Users
  *
  * @param {string} [apiurl = ENTRYPOINT] - The url of the Users instance.
 **/
+
+function modify_exercise(apiurl,exercise){
+    var userData = JSON.stringify(exercise);
+    return $.ajax({
+        url: apiurl,
+        type: "PUT",
+        dataType:DEFAULT_DATATYPE,
+        data:userData,
+        //processData:false,
+        contentType: PLAINJSON
+    }).done(function (data, textStatus, jqXHR){
+        if (DEBUG) {
+            console.log ("RECEIVED RESPONSE: data:",data,"; textStatus:",textStatus);
+        }
+        alert ("Exercise modified");
+        //empty and hide
+        $("#modify_exercise_form").children('div[class=form_content]').empty();
+        $("#modify_exercise").hide();
+        //refresh user info
+
+        
+        get_exercise(apiurl)
+        $("#userData").show();        
+    })
+    
+}
+
 function getUsers(apiurl) {
     apiurl = apiurl || ENTRYPOINT;
     $("#mainContent").hide();
@@ -910,6 +937,9 @@ function get_user(apiurl) {
         }
 
 
+        //hide
+
+        
         //Fill basic information from the user_basic_form
         console.log("###HEERE###");
         console.log(data);
@@ -1101,7 +1131,9 @@ function get_exercise(apiurl) {
 
 		//make sure exercise data is shown
 		$("#exerciseData").show();
-		
+		$("#modify_exercise").hide();
+        
+        
         //Fill basic information from the user_basic_form
         $("#exerciseid").val(data.exerciseid);   
         $("#type").val("Type: " + data.type);
@@ -1121,33 +1153,36 @@ function get_exercise(apiurl) {
 		   $("#remove_exercise_button").attr("href",exercise_links["remove-exercise"].href);
             
         }
+        
+        if("modify-exercise"in exercise_links){
+           $("#modify_exercise_button").attr("href",exercise_links["modify-exercise"].href);
+           
+        }
+        console.log("creating modify form");
+        //create modify form
+        schemaurl= exercise_links["modify-exercise"].schemaUrl;
+        //TEMPORARY FIX REMOVE LATER
+        schemaurl=schemaurl.replace("exercisetracker","forum");
+        $.ajax({
+                url: schemaurl,
+                dataType: DEFAULT_DATATYPE
+            }).done(function (info, textStatus, jqXHR) {
+                
+                createFormFromSchema(exercise_links["modify-exercise"].href, info, "modify_exercise_form");
+                //fill the form
+                $("#modify_exercise_form").children("div[class=form_content]").children("input[name=username]").val(data.username);
+                $("#modify_exercise_form").children("div[class=form_content]").children("input[name=type]").val(data.type);
+                $("#modify_exercise_form").children("div[class=form_content]").children("input[name=value]").val(data.value);
+                $("#modify_exercise_form").children("div[class=form_content]").children("input[name=valueunit]").val(data.valueunit);
+                $("#modify_exercise_form").children("div[class=form_content]").children("input[name=date]").val(data.date);
+                $("#modify_exercise_form").children("div[class=form_content]").children("input[name=time]").val(data.time);
+                $("#modify_exercise_form").children("div[class=form_content]").children("input[name=timeunit]").val(data.timeunit);
+                
+                
             
-        //Extracts urls from links. I need to get if the different links in the
-        //response.
-        /*if ("forum:private-data" in user_links) {
-           var private_profile_url = user_links["forum:private-data"].href; //Restricted profile
-        }
-        if ("forum:messages-history" in user_links){            
-            var messages_url = user_links["forum:messages-history"].href;
-            // cut out the optional query parameters. this solution is not pretty. 
-            messages_url = messages_url.slice(0, messages_url.indexOf("{?")); 
-        }
-        if ("forum:delete" in user_links)
-            var delete_link = user_links["forum:delete"].href; // User delete linke
-        if ("edit" in user_links)
-            var edit_link = user_links["edit"].href;*/
-        /*
-        if (delete_link){
-            //$("#user_form").attr("action", delete_link);
-            $("#deleteExercise").show();
-        }
-        */
-        /*if (edit_link){
-            $("#user_form").attr("action", edit_link);
-            $("#editUser").show();
-        }*/
+            }) 
 
-
+            
     }).fail(function (jqXHR, textStatus, errorThrown){
         if (DEBUG) {
             console.log ("RECEIVED ERROR: textStatus:",textStatus, ";error:",errorThrown);
@@ -1719,7 +1754,7 @@ function handleSearchUser(event) {
     event.preventDefault();
 
     prepareUserDataVisualization();
-	
+	$("#modify_exercise_form").children("div[class=exercise_commands]").hide();
 	console.log ("/exercisetracker/api/users/"+$("#search_field").find('input[name="search_field_text"]').val());
     
 	get_user("/exercisetracker/api/users/"+$("#search_field").find('input[name="search_field_text"]').val());
@@ -1835,6 +1870,32 @@ function handleSubmitModifyUser(event){
     return false; //Avoid executing the default submit    
 }
 
+function handleModifyExercise(event){
+    if (DEBUG) {
+        console.log ("Triggered handleModifyExercise");
+    }
+    event.preventDefault();
+
+    $("#modify_exercise").show();
+    $("#modify_exercise_form").children("div[class=exercise_commands]").show();
+    $("#modify_exercise_form").children("div[class=exercise_commands]").children().show();    
+    return false; //Avoid executing the default submit    
+}
+
+function handleSubmitModifyExercise(event){
+    if (DEBUG) {
+        console.log ("Triggered handleSubmitModifyExercise");
+    }
+    event.preventDefault();
+
+    var $form = $(this).closest("form");
+    var template = serializeFormTemplate($form);
+    var url = $form.attr("action");
+
+    modify_exercise(url , template);
+       
+    return false; //Avoid executing the default submit    
+}
 
 //
 /**** END BUTTON HANDLERS ****/
@@ -1859,33 +1920,20 @@ $(function(){
 	$("#add_exercise_button").on("click",handleAddExercise);
     $("#friend_list").on("click","li a" ,handleGetUser);
 
+    $("#modify_exercise_button").on("click",handleModifyExercise);
+    $("#modifyExercise").on("click",handleSubmitModifyExercise);    
     $("#addExercise").on("click",handleSubmitAddExercise);
     $("#remove_exercise_button").on("click",handleRemoveExercise);
     $("#exercise_list").on("click","li a" ,handleGetExercise);
 
+    
     $("#remove_user_button").on("click",handleRemoveUser);
-    //modify user buttons
     $("#modify_user_button").on("click",handleModifyUser);
     $("#modifyUser").on("click",handleSubmitModifyUser);	
 	//startup sequence. Creates schemas etc
 	startup(ENTRYPOINT);
 	//$("#mainContent").hide();
-//
 
-
-    
-    //TODO 1: Add corresponding click handlers for .deleteMessage button and
-    // #user_list li a anchors. Since these elements are generated dynamically
-    // (they are not in the initial HTML code), you must use delegated events.
-    // Recommend delegated elements are #messages_list for .deleteMessage buttons and
-    // #user_list for "#user_list li a" anchors.
-    // The handlers are:
-    // .deleteMessage => handleDeleteMessage
-    // #user_list li a => handleGetUser
-    // More information for direct and delegated events from http://api.jquery.com/on/
-    
-
-    
 
 
 });
