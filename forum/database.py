@@ -993,8 +993,9 @@ class Connection(object):
         _date = exercise.get('date', None)
         _time = exercise.get('time', None)
         _timeunit = exercise.get('timeunit', None)
+
         query2 += query2_public
-        pvalue_array.extend([_type,_value,_valueunit,_date,_time,_timeunit])
+        pvalue_array.extend([_type,_value,_valueunit,_date,_time,_timeunit,exercise_id])
 
         #Activate foreign key support
         self.set_foreign_keys_support()
@@ -1010,12 +1011,12 @@ class Connection(object):
         if row is None:
             return None
         else:
-            #user_id = row["user_id"]
-            #pvalue_array.append(user_id)
-            #execute the main statement
+
+            query2+=query2_end
             pvalue = tuple(pvalue_array)
             print query2
             print pvalue
+            
             cur.execute(query2, pvalue)
             self.con.commit()
             #Check that I have modified the user
