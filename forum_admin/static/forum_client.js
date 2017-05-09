@@ -141,29 +141,11 @@ function getUsers(apiurl) {
             //Extract the username by getting the data values. Once obtained
             // the username use the method appendUserToList to show the user
             // information in the UI.
-            appendUserToList(user["@controls"].self.href, user.username)
+            appendUserToList(user["@controls"].self.href, user.username);
         }
 
-        //Prepare the new_user_form to create a new user
-        var create_ctrl = data["@controls"]["add user"]
+
         
-        if (create_ctrl.schema) {
-            
-            createFormFromSchema(create_ctrl.href, create_ctrl.schema, "new_user_form");
-        }
-        else if (create_ctrl.schemaUrl) {
-            $.ajax({
-                url: create_ctrl.schemaUrl,
-                dataType: DEFAULT_DATATYPE
-            }).done(function (data, textStatus, jqXHR) {
-                createFormFromSchema(create_ctrl.href, data, "new_user_form");
-            }).fail(function (jqXHR, textStatus, errorThrown) {
-                if (DEBUG) {
-                    console.log ("RECEIVED ERROR: textStatus:",textStatus, ";error:",errorThrown);
-                }
-                alert ("Could not fetch form schema.  Please, try again");
-            });
-        }
     }).fail(function (jqXHR, textStatus, errorThrown){
         if (DEBUG) {
             console.log ("RECEIVED ERROR: textStatus:",textStatus, ";error:",errorThrown);
@@ -251,6 +233,7 @@ function remove_exercise(apiurl){
 function startup(apiurl) {
     apiurl = apiurl || ENTRYPOINT;
     $("#mainContent").hide();
+	$("#hideAllUsersButtonContainer").hide();
     return $.ajax({
         url: apiurl,
         dataType:DEFAULT_DATATYPE,
@@ -279,10 +262,9 @@ function startup(apiurl) {
                 url: create_ctrl.schemaUrl,
                 dataType: DEFAULT_DATATYPE
             }).done(function (data, textStatus, jqXHR) {
-                console.log("####AREWERE##");
-                console.log(create_ctrl.href);
-                console.log(data);
+
                 createFormFromSchema(create_ctrl.href, data, "new_user_form");
+				
             }).fail(function (jqXHR, textStatus, errorThrown) {
                 if (DEBUG) {
                     console.log ("RECEIVED ERROR: textStatus:",textStatus, ";error:",errorThrown);
@@ -1901,6 +1883,29 @@ function handleSubmitModifyExercise(event){
     return false; //Avoid executing the default submit    
 }
 
+function handleShowAllUsers(event){
+    if (DEBUG) {
+        console.log ("Triggered handleShowAllUsers");
+    }
+    event.preventDefault();
+	getUsers();
+	$("#user_list").show();
+    $("#showAllUsersButtonContainer").hide();
+    $("#hideAllUsersButtonContainer").show();	
+    return false; //Avoid executing the default submit    
+}
+
+function handleHideAllUsers(event){
+    if (DEBUG) {
+        console.log ("Triggered handleHideAllUsers");
+    }
+    event.preventDefault();
+    $("#showAllUsersButtonContainer").show();
+    $("#hideAllUsersButtonContainer").hide();		
+    $("#user_list").hide();       
+    return false; //Avoid executing the default submit    
+}
+
 //
 /**** END BUTTON HANDLERS ****/
 
@@ -1933,7 +1938,9 @@ $(function(){
     
     $("#remove_user_button").on("click",handleRemoveUser);
     $("#modify_user_button").on("click",handleModifyUser);
-    $("#modifyUser").on("click",handleSubmitModifyUser);	
+    $("#modifyUser").on("click",handleSubmitModifyUser);
+	$("#showAllUsersButton").on("click", handleShowAllUsers);	
+	$("#hideAllUsersButton").on("click", handleHideAllUsers);
 	//startup sequence. Creates schemas etc
 	startup(ENTRYPOINT);
 	//$("#mainContent").hide();
