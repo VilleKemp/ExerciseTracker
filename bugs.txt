@@ -1,1 +1,2 @@
 add friends r‰j‰ht‰‰ jos sinne lis‰t‰‰n jo olemassa oleva kaveri
+database.py add_friend kaatu jos username on v‰‰r‰

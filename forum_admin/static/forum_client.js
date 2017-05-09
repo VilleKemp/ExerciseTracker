@@ -181,9 +181,11 @@ function getUsersFriends(apiurl) {
             //Extract the username by getting the data values. Once obtained
             // the username use the method appendUserToList to show the user
             // information in the UI.
-            console.log("HREF: " + friend["@controls"].self.href + "   Friendname:" + friend.friend)
-            appendFriendToList(friend["@controls"].self.href, friend.friend)
-            console.log
+            friend_links = friend["@controls"];
+            friend_links["remove-friend"].href;
+            console.log("HREF: " + friend["@controls"].self.href + "   Friendname:" + friend.friend);
+            appendFriendToList(friend["@controls"].self.href,friend.friend);
+            //friend_links["remove-friend"].href,
         }
         
     }).fail(function (jqXHR, textStatus, errorThrown){
@@ -967,6 +969,12 @@ function get_user(apiurl) {
         {
             var friends_url = user_links["list-friends"].href;
         }
+        if("add-friend" in user_links)
+        {
+            var my_friend_url = user_links["add-friend"].href;
+            console.log(user_links["add-friend"].href);
+        }
+
 
         if ("forum:private-data" in user_links) {
            var private_profile_url = user_links["forum:private-data"].href; //Restricted profile
@@ -980,8 +988,12 @@ function get_user(apiurl) {
             var delete_link = user_links["forum:delete"].href; // User delete linke
         if ("edit" in user_links)
             var edit_link = user_links["edit"].href;
-
-         if (delete_link){
+		
+		if (delete_link){
+            $("#user_form").attr("action", delete_link);
+            $("#deleteUser").show();
+        }
+        if (delete_link){
             $("#user_form").attr("action", delete_link);
             $("#deleteUser").show();
         }
@@ -989,7 +1001,11 @@ function get_user(apiurl) {
             $("#user_form").attr("action", edit_link);
             $("#editUser").show();
         }
+		if (my_friend_url ){
+            $("#add_friend_href").attr("href", user_links["add-friend"].href);
 
+            //$("#addFriend").show();
+        }
         //Fill the user profile with restricted user profile. This method
         // Will call also to the list of messages.
         if (private_profile_url){
@@ -1034,6 +1050,8 @@ function get_user(apiurl) {
 		//
        getUsersExercises("/exercisetracker/api/exercises/", data.username)
        getUsersFriends(friends_url, data.username)
+
+
 
     }).fail(function (jqXHR, textStatus, errorThrown){
         if (DEBUG) {
@@ -1182,9 +1200,17 @@ function get_exercise(apiurl) {
 
 }
 
-function add_friend(apiurl,user){
-    var userData = JSON.stringify(user);
-    var username = user.username;
+function add_friend(apiurl,username, friendname){
+    
+    //var username = user.username;
+    var name = username;// $("#userHeader").children('input[name="username"]').val();
+    //var name = $("#userHeader").find('input[name="username"]').val()
+
+    name = name.replace("Username: ", "");
+    var Data = {"username":name, "friendname":friendname};
+    var userData = JSON.stringify(Data);
+    //headers: {"Authorization":"admin", }
+	console.log ("RECEIVED URL: url:",apiurl, "; Received DATA:", userData);
     return $.ajax({
         url: apiurl,
         type: "POST",
@@ -1194,8 +1220,9 @@ function add_friend(apiurl,user){
         contentType: PLAINJSON
     }).done(function (data, textStatus, jqXHR){
         if (DEBUG) {
-            console.log ("RECEIVED RESPONSE: data:",data,"; textStatus:",textStatus);
+            console.log ("RECEIVEEED RESPONSE: data:",data,"; textStatus:",textStatus);
         }
+        getUsersFriends(apiurl)
         alert ("Friend successfully added");
         //Add the user to the list and load it.
 		
@@ -1210,6 +1237,42 @@ function add_friend(apiurl,user){
     });
 }
 
+function remove_friend(apiurl,username, friendname){
+    
+    //var username = user.username;
+    var name = username;// $("#userHeader").children('input[name="username"]').val();
+    //var name = $("#userHeader").find('input[name="username"]').val()
+
+    name = name.replace("Username: ", "");
+    var Data = {"username":name, "friendname":friendname};
+    var userData = JSON.stringify(Data);
+    //headers: {"Authorization":"admin", }
+    console.log ("RECEIVED URL: url:",apiurl, "; Received DATA:", userData);
+    return $.ajax({
+        url: apiurl, //The URL of the resource
+        type: "DELETE", //The resource method
+        dataType:DEFAULT_DATATYPE,
+        data:userData,
+        contentType: 'application/json'
+    }).done(function (data, textStatus, jqXHR){
+        if (DEBUG) {
+            console.log ("RECEIVEED RESPONSE: data:",data,"; textStatus:",textStatus);
+        }
+        getUsersFriends(apiurl)
+        alert ("Friend successfully deleted");
+        //Add the user to the list and load it.
+        
+
+        
+
+    }).fail(function (jqXHR, textStatus, errorThrown){
+        if (DEBUG) {
+            console.log ("RECEIVED ERROR: textStatus:",textStatus, ";error:",errorThrown);
+        }
+        alert ("Could not delete friend:"+jqXHR.responseJSON.message);
+    });
+}
+   
 /**** END RESTFUL CLIENT****/
 
 /**** UI HELPERS ****/
@@ -1231,10 +1294,13 @@ function appendUserToList(url, username) {
     $("#user_list").append($user);
     return $user;
 }
-function appendFriendToList(url, friendname) {
+function appendFriendToList(url, removeurl, friendname) {
     var $friend = $('<li>').html('<a class= "user_link" href="'+url+'">'+friendname+'</a>');
+    //var $removefriend = $('<li>').html('<a class= "user_link" href="'+removeurl+'">'+"Remove"+'</a>');
+    //$("#add_friend_href").attr("href", user_links["add-friend"].href);
     //Add to the user list
     $("#friend_list").append($friend);
+    //$("#remove_friend_list").append($removefriend);
     return $friend;
 }
 
@@ -1658,6 +1724,39 @@ function handleCreateUser(event){
 
     return false; //Avoid executing the default submit
 }
+
+function handleAddFriend(event){
+    if (DEBUG) {
+        console.log ("Triggered handleAddFriend");
+    }
+	
+	event.preventDefault();
+	//prepareUserDataVisualization();
+	
+
+	//console.log ("RECEIVED URL: url:",$(this).attr("href"));
+	//get_user("/exercisetracker/api/users/"+$("#search_field").find('input[name="search_field_text"]').val());
+    
+    add_friend($(this).attr("href"), $("#userHeader").children('input[name="username"]').val(), $("#addFriend").find('input[name="newFriend_text"]').val());
+    return false; //Avoid executing the default submit
+}
+
+function handleRemoveFriend(event){
+    if (DEBUG) {
+        console.log ("Triggered handleAddFriend");
+    }
+    
+
+    event.preventDefault();
+    //prepareUserDataVisualization();
+    
+
+    //console.log ("RECEIVED URL: url:",$(this).attr("href"));
+    //get_user("/exercisetracker/api/users/"+$("#search_field").find('input[name="search_field_text"]').val());
+    
+    remove_friend($(this).attr("href"), $("#userHeader").children('input[name="username"]').val(), $("#addFriend").find('input[name="newFriend_text"]').val());
+    return false; //Avoid executing the default submit
+}
 /**
  * Uses the API to retrieve user's information from the clicked user. In addition, 
  * this function modifies the selected user in the #user_list (removes the .selected
@@ -1920,6 +2019,7 @@ $(function(){
     $("#deleteUserRestricted").on("click", handleDeleteUserRestricted);
     $("#editUserRestricted").on("click", handleEditUserRestricted);
     $("#createUser").on("click", handleCreateUser);
+	$("#add_friend_href").on("click", handleAddFriend);
     
     $(".deleteMessage").on("click", handleDeleteMessage);
     $("#deleteExercise").on("click", handleDeleteExercise);
@@ -1929,6 +2029,7 @@ $(function(){
 	$("#search_button").on("click",handleSearchUser);
 	$("#add_exercise_button").on("click",handleAddExercise);
     $("#friend_list").on("click","li a" ,handleGetUser);
+    $("#remove_friend_list").on("click","li a" ,handleRemoveFriend);
 
     $("#modify_exercise_button").on("click",handleModifyExercise);
     $("#modifyExercise").on("click",handleSubmitModifyExercise);    
