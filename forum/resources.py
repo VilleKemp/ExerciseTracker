@@ -1190,6 +1190,7 @@ class Friends(Resource):
 
             )
             item.add_control_get_user_information(friendname)
+            item.add_control_remove_friend(friendname)
             #add controls to each object in the list
             item.add_control("self", href=api.url_for(User, username=friendname))
             #WIP
@@ -1304,10 +1305,14 @@ class Friends(Resource):
             * 400 if data missing
             * 204 if succesfull
         """
-        if JSON != request.headers.get("Content-Type",""):
+        '''if JSON != request.headers.get("Content-Type",""):
             return create_error_response(415, "UnsupportedMediaType",
-                                         "Use a JSON compatible format")
+                                         "Use a JSON compatible format")'''
         request_body = request.get_json(force=True)
+        if not request_body:
+            return create_error_response(415, "Unsupported Media Type",
+                                         "Use a JSON compatible format",
+                                         )
          #It throws a BadRequest exception, and hence a 400 code if the JSON is
         #not wellformed
 

@@ -155,7 +155,7 @@ function getUsers(apiurl) {
     });
 }
 
-function getUsersFriends(apiurl) {
+function getUsersFriends(apiurl, friendname) {
     apiurl = apiurl || ENTRYPOINT;
     //$("#mainContent").hide();
     return $.ajax({
@@ -166,6 +166,7 @@ function getUsersFriends(apiurl) {
         //Remove old list of users
         //clear the form data hide the content information(no selected)
         $("#friend_list").empty();
+		$("#remove_friend_list").empty();
         //$("#mainContent").hide();
 
     }).done(function (data, textStatus, jqXHR){
@@ -181,10 +182,12 @@ function getUsersFriends(apiurl) {
             //Extract the username by getting the data values. Once obtained
             // the username use the method appendUserToList to show the user
             // information in the UI.
-            friend_links = friend["@controls"];
-            friend_links["remove-friend"].href;
-            console.log("HREF: " + friend["@controls"].self.href + "   Friendname:" + friend.friend);
-            appendFriendToList(friend["@controls"].self.href,friend.friend);
+            var friend_links = friend["@controls"];
+			console.log(friend_links);
+            var remove_link = friend_links["remove-friend"].href;
+            console.log("HREF: " + friend["@controls"].self.href + " Friendname:" + friend.friend);
+			console.log("HREF Remove: " + friend_links["remove-friend"].href + " Friendname:" + friend.friend);
+            appendFriendToList(friend["@controls"].self.href,friend.friend,friend_links["remove-friend"].href);
             //friend_links["remove-friend"].href,
         }
         
@@ -1294,13 +1297,13 @@ function appendUserToList(url, username) {
     $("#user_list").append($user);
     return $user;
 }
-function appendFriendToList(url, removeurl, friendname) {
+function appendFriendToList(url, friendname, removeurl) {
     var $friend = $('<li>').html('<a class= "user_link" href="'+url+'">'+friendname+'</a>');
-    //var $removefriend = $('<li>').html('<a class= "user_link" href="'+removeurl+'">'+"Remove"+'</a>');
+    var $removefriend = $('<li>').html('<a id= '+ friendname +' class= "user_link" href="'+removeurl+'">'+"Remove"+'</a>');
     //$("#add_friend_href").attr("href", user_links["add-friend"].href);
     //Add to the user list
     $("#friend_list").append($friend);
-    //$("#remove_friend_list").append($removefriend);
+    $("#remove_friend_list").append($removefriend);
     return $friend;
 }
 
@@ -1754,8 +1757,8 @@ function handleRemoveFriend(event){
     //console.log ("RECEIVED URL: url:",$(this).attr("href"));
     //get_user("/exercisetracker/api/users/"+$("#search_field").find('input[name="search_field_text"]').val());
     
-    remove_friend($(this).attr("href"), $("#userHeader").children('input[name="username"]').val(), $("#addFriend").find('input[name="newFriend_text"]').val());
-    return false; //Avoid executing the default submit
+    remove_friend($(this).attr("href"),$("#userHeader").children('input[name="username"]').val(), $(this).attr("id"))//$("#userHeader").children('input[name="username"]').val(), $("#addFriend").find('input[name="newFriend_text"]').val());
+	return false; //Avoid executing the default submit
 }
 /**
  * Uses the API to retrieve user's information from the clicked user. In addition, 
