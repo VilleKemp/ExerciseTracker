@@ -1190,7 +1190,7 @@ class Friends(Resource):
 
             )
             item.add_control_get_user_information(friendname)
-            item.add_control_remove_friend(friendname)
+            item.add_control_remove_friend(username)
             #add controls to each object in the list
             item.add_control("self", href=api.url_for(User, username=friendname))
             #WIP
@@ -1253,9 +1253,9 @@ class Friends(Resource):
             
         """
         
-        if JSON != request.headers.get("Content-Type",""):
-            return create_error_response(415, "UnsupportedMediaType",
-                                         "Use a JSON compatible format")
+        #if JSON != request.headers.get("Content-Type",""):
+         #   return create_error_response(415, "UnsupportedMediaType",
+          #                               "Use a JSON compatible format")
         request_body = request.get_json(force=True)
 
         if not request_body:
