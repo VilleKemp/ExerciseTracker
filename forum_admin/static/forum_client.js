@@ -207,6 +207,7 @@ function remove_user(apiurl){
 
 		//hides exercise information. migth be smarter to empty?
 		$("#userData").hide();
+		getUsers();
 		
 	});		
 }
@@ -925,7 +926,7 @@ function get_user(apiurl) {
 
 
         //hide
-
+		$("#modify_exercise").hide();
         
         //Fill basic information from the user_basic_form
 
