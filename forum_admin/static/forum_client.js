@@ -108,7 +108,8 @@ function modify_exercise(apiurl,exercise){
         //refresh user info
 
         
-        get_exercise(apiurl)
+        get_exercise(apiurl);
+		get_user($("#remove_user_button").attr('href'));
         $("#userData").show();        
     })
     
@@ -823,8 +824,12 @@ function add_user(apiurl,user){
         }
         alert ("User successfully added");
 		
-        //Add the user to the list and load it.
-		
+		get_user(data["@controls"].self.href);
+
+		$("#newUser").hide();
+		$("#userData").show();
+		prepareUserDataVisualization();
+		$("#modify_exercise").hide();
 
 		
 
@@ -941,8 +946,7 @@ function get_user(apiurl) {
 
         
         //Fill basic information from the user_basic_form
-        console.log("###HEERE###");
-        console.log(data);
+
 		//save user info for later use
 		var info= data;
 		
@@ -1585,8 +1589,10 @@ function handleShowUserForm(event){
     if (DEBUG) {
         console.log ("Triggered handleShowUserForm");
     }
-    //Show the form. Note that the form was updated when I apply the user collection
+	//make sure modify_user doesn't show
+    $("#modify_user").hide();
     showNewUserForm();
+	$("#modify_user").hide();
     return false;
 }
 
@@ -1664,11 +1670,9 @@ function handleCreateUser(event){
     var $form = $(this).closest("form");
     var template = serializeFormTemplate($form);
     var url = $form.attr("action");
-	console.log("#####################");
-	console.log(template);
-	console.log(url);
-	console.log("#####################");
+
     add_user(url, template);
+
     return false; //Avoid executing the default submit
 }
 /**
