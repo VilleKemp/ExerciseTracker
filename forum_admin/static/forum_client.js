@@ -42,6 +42,13 @@ const ENTRYPOINT = "/exercisetracker/api/users/"; //Entrypoint: Resource Users
 
 
 /**** START RESTFUL CLIENT****/
+/**** OWN IMPLEMENTATION****/
+/****
+Modifies exercise from data get from the form.
+->Sends API call of PUT  to Exercise resorouce inorder to modify it in the database 
+<-Returns 200 if OK
+****/
+
 
 function modify_exercise(apiurl,exercise){
     var userData = JSON.stringify(exercise);
@@ -66,7 +73,11 @@ function modify_exercise(apiurl,exercise){
     })
     
 }
-
+/****
+Gets all users from database.
+->Sends GET API call to Users resource inorder ot get all users.
+<-Returns 200 and Users if succesful
+****/
 function getUsers(apiurl) {
     apiurl = apiurl || ENTRYPOINT;
     $("#mainContent").hide();
@@ -106,7 +117,11 @@ function getUsers(apiurl) {
         alert ("Could not fetch the list of users.  Please, try again");
     });
 }
-
+/****
+Gets all  friends of the userfrom database.
+->Sends GET API call to Friends resource inorder to get all users.
+<-Returns 200 and Users if succesful
+****/
 function getUsersFriends(apiurl, friendname) {
     apiurl = apiurl || ENTRYPOINT;
     return $.ajax({
@@ -148,9 +163,11 @@ function getUsersFriends(apiurl, friendname) {
         //alert ("Could not fetch the list of friends.  Please, try again");
     });
 }
-
-//own stuff
-
+/****
+Removes specified user from database.
+->Sends Remove API call to Users resource inorder to delete it.
+<-Returns 200 if User was deleted sucessfully. 
+****/
 function remove_user(apiurl){
 	return $.ajax({
 		url: apiurl, //The URL of the resource
@@ -166,7 +183,11 @@ function remove_user(apiurl){
 		
 	});		
 }
-
+/****
+Removes specified exercise from database.
+->Sends Remove API call to Exercise resource inorder to delete. it
+<-Returns 200 if User was deleted sucessfully. 
+****/
 function remove_exercise(apiurl){
 	return $.ajax({
 		url: apiurl, //The URL of the resource
@@ -185,7 +206,9 @@ function remove_exercise(apiurl){
 		
 	});		
 }
-
+/****
+Startup function that initializes the website and nessecary setup.
+****/
 function startup(apiurl) {
     apiurl = apiurl || ENTRYPOINT;
     $("#mainContent").hide();
@@ -237,7 +260,11 @@ function startup(apiurl) {
         alert ("Could not fetch the list of users.  Please, try again");
     });
 }
-
+/****
+Gets all exercises of the user
+->Sends Get API call to Exercises resource inorder to find them.
+<-Returns 200 and Exercises if found. 
+****/
 function getUsersExercises(apiurl, username) {
     apiurl = apiurl || ENTRYPOINT;
     return $.ajax({
@@ -270,46 +297,11 @@ function getUsersExercises(apiurl, username) {
 			}
     }});
 }
-
-    
-function delete_exercise(apiurl){
-    $.ajax({
-       url: apiurl, //The URL of the resource
-       type: "DELETE", //The resource method
-      // dataType:RESPONSE_FORMAT, //The format expected in the
-      //response : xml or json
-       headers: {"Authorization":"admin"}// An object containing
- //headers
-    }).done(function (data, textStatus, jqXHR){
-       alert("exercise deleted");
-       reloadUserData();
-
-    }).fail(function (jqXHR, textStatus, errorThrown){
-        alert("couldn't delete exercise");
-    });
-}
-
-function delete_user(apiurl){
-    $.ajax({
-        url: apiurl,
-        type: "DELETE",
-    }).done(function (data, textStatus, jqXHR){
-        if (DEBUG) {
-            console.log ("RECEIVED RESPONSE: data:",data,"; textStatus:",textStatus);
-        }
-        alert ("The user information has been deleted from the database");
-        //Update the list of users from the server.
-        getUsers();
-
-    }).fail(function (jqXHR, textStatus, errorThrown){
-        if (DEBUG) {
-            console.log ("RECEIVED ERROR: textStatus:",textStatus, ";error:",errorThrown);
-        }
-        alert ("The user information could not be deleted from the database");
-    });
-}
-
-
+/****
+Modifies specified user in the database.
+->Sends Put API call to User resource inorder to modify it.
+<-Returns 200 if User was modified sucessfully. 
+****/
 function modify_user(apiurl,user){
     var userData = JSON.stringify(user);
     return $.ajax({
@@ -334,7 +326,11 @@ function modify_user(apiurl,user){
     
 }
 
-
+/****
+Adds specified exercise into  the database.
+->Sends Post API call to Exercises resource inorder to add to it.
+<-Returns 200 if Exercise was added sucessfully. 
+****/
 function add_exercise(apiurl,exercise){
     var exerciseData = JSON.stringify(exercise);
     return $.ajax({
@@ -362,7 +358,11 @@ function add_exercise(apiurl,exercise){
     
     
 }
-
+/****
+Adds specific user in to the database.
+->Sends Post API call to User resource inorder to add to it.
+<-Returns 200 if User was added sucessfully. 
+****/
 function add_user(apiurl,user){
     var userData = JSON.stringify(user);
     var username = user.username;
@@ -395,6 +395,11 @@ function add_user(apiurl,user){
     });
 }
 
+/****
+Gets specific user in the database.
+->Sends Get API call to User resource inorder to get it.
+<-Returns 200 and User if found. 
+****/
 function get_user(apiurl) {
     return $.ajax({
 		url: apiurl,
@@ -494,7 +499,12 @@ function get_user(apiurl) {
 	
 	
 }
-
+/****
+Gets specific exercise from the database.
+->Sends Get API call to Exercise resource inorder to get it.
+<-Returns 200 and exercise if found.
+After that adds and shows found information to UI  
+****/
 function get_exercise(apiurl) {
     return $.ajax({
         url: apiurl,
@@ -566,7 +576,11 @@ function get_exercise(apiurl) {
     });
 
 }
-
+/****
+Adds specified friend to a user
+->Sends post API call to Friends resource inorder to add to it.
+<-Returns 200 if friend was added sucessfully. 
+****/
 function add_friend(apiurl,username, friendname){
     
     var name = username;// $("#userHeader").children('input[name="username"]').val();
@@ -595,6 +609,11 @@ function add_friend(apiurl,username, friendname){
     });
 }
 
+/****
+Removes specified friend from the database.
+->Sends remove API call to Friends resource inorder to remove from it.
+<-Returns 200 if friend was deleted sucessfully. 
+****/
 function remove_friend(apiurl,username, friendname){
     
     var name = username;// $("#userHeader").children('input[name="username"]').val();
@@ -650,6 +669,8 @@ function appendExerciseToList(url, type, date) {
 
 }
 
+
+/*** Functions that were in the original forum exercise***/
 /**
  * Populate a form with the <input> elements contained in the <i>schema</i> input parameter.
  * The action attribute is filled in with the <i>url</i> parameter. Values are filled
@@ -872,15 +893,14 @@ function reloadUserData() {
     var selected = $("#user_list li.selected a");
     selected.click();
 }
-
+/*** End of functions that were in the original forum exercise***/
 /**** END UI HELPERS ****/
 
 /**** BUTTON HANDLERS ****/
 
 /**
- * Shows in #mainContent the #new_user_form. Internally it calls to {@link #showNewUserForm}
- *
- * TRIGGER: #addUserButton
+Handles call for handleShowUserForm. 
+Runs after it's parent button is clicked.
 **/
 function handleShowUserForm(event){
     if (DEBUG) {
@@ -894,9 +914,8 @@ function handleShowUserForm(event){
 }
 
 /**
- * Uses the API to create a new user with the form attributes in the present form.
- *
- * TRIGGER: #createUser 
+Handles call for handleShowUserForm. 
+Runs after it's parent button is clicked.
 **/
 function handleCreateUser(event){
     if (DEBUG) {
@@ -910,7 +929,11 @@ function handleCreateUser(event){
 
     return false; //Avoid executing the default submit
 }
-
+/**
+Handles call for Adding a friend. 
+Runs after it's parent button is clicked.
+calls add_friend funtion that processes the call
+**/
 function handleAddFriend(event){
     if (DEBUG) {
         console.log ("Triggered handleAddFriend");
@@ -921,7 +944,11 @@ function handleAddFriend(event){
     add_friend($(this).attr("href"), $("#userHeader").children('input[name="username"]').val(), $("#addFriend").find('input[name="newFriend_text"]').val());
     return false; //Avoid executing the default submit
 }
-
+/**
+Handles call for removing a friend. 
+Runs after it's parent button is clicked.
+calls remove_friend function that processes the call
+**/
 function handleRemoveFriend(event){
     if (DEBUG) {
         console.log ("Triggered handleAddFriend");
@@ -934,11 +961,9 @@ function handleRemoveFriend(event){
 	return false; //Avoid executing the default submit
 }
 /**
- * Uses the API to retrieve user's information from the clicked user. In addition, 
- * this function modifies the selected user in the #user_list (removes the .selected
- * class from the old user and add it to the current user)
- *
- * TRIGGER: click on #user_list li a 
+Handles call for to get a user.
+Runs after it's parent button is clicked.
+calls get_user function that processes the call
 **/
 function handleGetUser(event) {
     if (DEBUG) {
@@ -958,7 +983,11 @@ function handleGetUser(event) {
    
     return false; //IMPORTANT TO AVOID <A> BUBLING
 }
-
+/**
+Handles call for to get a exercise.
+Runs after it's parent button is clicked.
+calls get_exercise function that processes the call
+**/
 function handleGetExercise(event) {
     if (DEBUG) {
         console.log ("Triggered handleGetExercise");
@@ -975,15 +1004,11 @@ function handleGetExercise(event) {
    
     return false; //IMPORTANT TO AVOID <A> BUBLING
 }
-
-function handleDeleteExercise(event){
-    if (DEBUG) {
-        console.log ("Triggered handleDeleteExercise");
-    }
-    var exerciseurl = $(this).closest("form").attr("action");
-    delete_message(exerciseurl);        
-}
-
+/**
+Handles call to find specific user.
+Runs after it's parent button is clicked and supplied the data from textbox field.
+calls get_user function that processes the call
+**/
 function handleSearchUser(event) {
     if (DEBUG) {
         console.log ("Triggered handleSearchUser");
@@ -999,6 +1024,11 @@ function handleSearchUser(event) {
    
     return false; //IMPORTANT TO AVOID <A> BUBLING
 }
+/**
+Handles call for to add a exercise.
+Runs after it's parent button is clicked.
+Handles the function and adds necessary data to the form
+**/
 function handleAddExercise(event) {
     if (DEBUG) {
         console.log ("Triggered handleAddExercise");
@@ -1036,7 +1066,11 @@ function handleAddExercise(event) {
     return false; //IMPORTANT TO AVOID <A> BUBLING
 }
 
-
+/**
+Handles call for to add a exercise.
+Runs after it's parent button is clicked.
+calls add_exercise function that processes the call
+**/
 function handleSubmitAddExercise(event){
     if (DEBUG) {
         console.log ("Triggered handleSubmitAddExercise");
@@ -1052,6 +1086,11 @@ function handleSubmitAddExercise(event){
     return false; //Avoid executing the default submit    
 }
 
+/**
+Handles call for to remove a exercise.
+Runs after it's parent button is clicked.
+calls remove_exercise function that processes the call
+**/
 function handleRemoveExercise(event){
     if (DEBUG) {
         console.log ("Triggered handleRemoveExercise");
@@ -1063,6 +1102,11 @@ function handleRemoveExercise(event){
     return false; //Avoid executing the default submit    
 }
 
+/**
+Handles call for to remove a user.
+Runs after it's parent button is clicked.
+calls remove_user function that processes the call
+**/
 function handleRemoveUser(event){
     if (DEBUG) {
         console.log ("Triggered handleRemoveUser");
@@ -1074,6 +1118,11 @@ function handleRemoveUser(event){
     return false; //Avoid executing the default submit    
 }
 
+/**
+Handles call for to modify User.
+Runs after it's parent button is clicked.
+Handles the call and shows modify user form
+**/
 function handleModifyUser(event){
     if (DEBUG) {
         console.log ("Triggered handleModifyUser");
@@ -1089,6 +1138,11 @@ function handleModifyUser(event){
     return false; //Avoid executing the default submit    
 }
 
+/**
+Handles call for to sumbit modified user.
+Runs after it's parent button is clicked.
+calls modify_user function that processes the call
+**/
 function handleSubmitModifyUser(event){
     if (DEBUG) {
         console.log ("Triggered handleSubmitModifyUser");
@@ -1104,6 +1158,11 @@ function handleSubmitModifyUser(event){
     return false; //Avoid executing the default submit    
 }
 
+/**
+Handles call to show modify exercise form.
+Runs after it's parent button is clicked.
+Handles the calls and shows modify-exercise form.
+**/
 function handleModifyExercise(event){
     if (DEBUG) {
         console.log ("Triggered handleModifyExercise");
@@ -1116,6 +1175,11 @@ function handleModifyExercise(event){
     return false; //Avoid executing the default submit    
 }
 
+/**
+Handles call for to sumbit modified exercise.
+Runs after it's parent button is clicked.
+calls modify_exercise function that processes the call
+**/
 function handleSubmitModifyExercise(event){
     if (DEBUG) {
         console.log ("Triggered handleSubmitModifyExercise");
@@ -1131,6 +1195,11 @@ function handleSubmitModifyExercise(event){
     return false; //Avoid executing the default submit    
 }
 
+/**
+Handles call for to list all user.
+Runs after it's parent button is clicked.
+calls getUsers function that processes the call and adds the users to list and shows the list.
+**/
 function handleShowAllUsers(event){
     if (DEBUG) {
         console.log ("Triggered handleShowAllUsers");
@@ -1143,6 +1212,11 @@ function handleShowAllUsers(event){
     return false; //Avoid executing the default submit    
 }
 
+/**
+Handles call for to hide user list.
+Runs after it's parent button is clicked.
+Hides users list.
+**/
 function handleHideAllUsers(event){
     if (DEBUG) {
         console.log ("Triggered handleHideAllUsers");
@@ -1164,7 +1238,6 @@ $(function(){
     $("#createUser").on("click", handleCreateUser);
 	$("#add_friend_href").on("click", handleAddFriend);
     
-    $("#deleteExercise").on("click", handleDeleteExercise);
     $("#user_list").on("click","li a" ,handleGetUser);
 
 	$("#search_button").on("click",handleSearchUser);
