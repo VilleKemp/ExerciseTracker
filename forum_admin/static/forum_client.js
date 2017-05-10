@@ -1,4 +1,5 @@
 /**** START CONSTANTS****/
+/**** ALL HELPER FUNCTIONS ARE ORIGINAL TEAHER IMPLEMENTATIONS****/
 
 /** 
  * Set this to true to activate the debugging messages. 
