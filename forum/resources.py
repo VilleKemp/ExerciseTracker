@@ -460,8 +460,6 @@ def close_connection(exc):
 
 #Define the resources
 
-#TODO TONI t‰nne classi exercise ja exercises. Katso apiarysta minka mallisia palautusten pit‰‰ olla. Jos apiaryssa on jotain vikaa niin sano. Sita voi muuttaa. Tama on suoraan ex4 filu. ainoat asiat mita olen muuttanu on #OWN STUFF merkilla
-        #merkitty osa add_controlseissa ja users get.
 class Exercises(Resource):
     """
     Resource Exercisess implementation
@@ -491,15 +489,10 @@ class Exercises(Resource):
         #add controls to response
         envelope.add_control("self", href=api.url_for(Exercises))
         envelope.add_control_add_exercise()
- 
-        #envelope.add_control_add_user()
-        #envelope.add_control_list_exercises()
+
         envelope.add_control_list_exercises()
         envelope.add_control_list_users()
         #not yet implemented
-        #envelope.add_control_list_exercises()
-        #SHOULD NOT BE IN HERE
-        #envelope.add_control_get_user_information()
                 
         items = envelope["items"] = []
         
@@ -518,7 +511,6 @@ class Exercises(Resource):
             item.add_control("profile", href=FORUM_EXERCISE_PROFILE)
             #add controls to each object in the list
             
-            #item.add_control("self", href=api.url_for(Exercises, exercise_id=exercise["exercise_id"]))
 
             
             items.append(item)
@@ -558,14 +550,13 @@ class Exercises(Resource):
         # using JSON. We use force=True since the input media type is not
         # application/json.
 
-        if JSON != request.headers.get("Content-Type",""):
+        '''if JSON != request.headers.get("Content-Type",""):
             return create_error_response(415, "UnsupportedMediaType",
-                                         "Use a JSON compatible format")
+                                         "Use a JSON compatible format")'''
         request_body = request.get_json(force=True)
          #It throws a BadRequest exception, and hence a 400 code if the JSON is
         #not wellformed
         try:
-            #user_id=request_body["user_id"]
             username=request_body["username"]
             type=request_body["type"]
             value=request_body["value"]
@@ -585,7 +576,6 @@ class Exercises(Resource):
 
         #Create the new message and build the response code"
         newexercise_id = g.con.create_exercise(exercise)
-        #newexerciseid = g.con.create_exercise(username, type, value, valueunit, date, time, timeunit)
         if not newexercise_id:
             return create_error_response(500, "Problem with the database",
                                          "Cannot access the database")
@@ -611,10 +601,6 @@ class Exercises(Resource):
             )
         
         envelope.add_control("self", href=api.url_for(Exercises, exercise_id=newexercise_id))
-        #envelope.add_get_exercise()
-        #envelope.add_remove_exercise()
-        #envelope.add_modify_exercise()
-        #envelope.add_list_exercises()
         envelope.add_control_list_exercises()
         envelope.add_control_remove_exercise(newexercise_id)
         envelope.add_control_get_exercise(newexercise_id)
@@ -653,18 +639,6 @@ class Exercise(Resource):
         if not exercise_db:
             return create_error_response(404, "There is no a exercise with id %s" % exercise_id)#,
 
-                       #resource_type="Exercise",
-                      # resource_url=request.path,
-                       #resource_id=exercise_id)
-
-        #envelope = ForumObject()
-        #envelope.add_namespace("forum", LINK_RELATIONS_URL)
-
-        #envelope.add_control_users_exercise()
-        #envelope.add_control_add_exercise()
-
-        
-
         #for  exercise in exercises_db:
         envelope = ForumObject()
         #add controls to response
@@ -682,11 +656,7 @@ class Exercise(Resource):
         )
         items.append(item)
         envelope  = item
-        
 
-        
-
-        #envelope.add_control("self", href=api.url_for(Exercises))
         envelope.add_control_list_exercises()
         envelope.add_control_remove_exercise(exercise_id)
         envelope.add_control_modify_exercise(exercise_id)
@@ -748,9 +718,9 @@ class Exercise(Resource):
                                          "There is no a exercise with id %s" % exercise_id
                                         )
 
-        if JSON != request.headers.get("Content-Type",""):
+        '''if JSON != request.headers.get("Content-Type",""):
             return create_error_response(415, "UnsupportedMediaType",
-                                         "Use a JSON compatible format")
+                                         "Use a JSON compatible format")'''
         request_body = request.get_json(force=True)
          #It throws a BadRequest exception, and hence a 400 code if the JSON is
         #not wellformed
@@ -819,9 +789,9 @@ class Exercise(Resource):
                                          "There is no a exercise with id %s" % exercise_id
                                         )
 
-        if JSON != request.headers.get("Content-Type",""):
+        '''if JSON != request.headers.get("Content-Type",""):
             return create_error_response(415, "UnsupportedMediaType",
-                                         "Use a JSON compatible format")
+                                         "Use a JSON compatible format")'''
         request_body = request.get_json(force=True)
          #It throws a BadRequest exception, and hence a 400 code if the JSON is
         #not wellformed
@@ -834,7 +804,6 @@ class Exercise(Resource):
             date=request_body["date"],   
             time=request_body["time"],   
             timeunit=request_body["timeunit"]   
-            #ipaddress = request.remote_addr
 
         except KeyError:
             #This is launched if either title or body does not exist or if
@@ -910,10 +879,7 @@ class Users(Resource):
             )
             #add controls to each object in the list
             item.add_control("self", href=api.url_for(User, username=user["username"]))
-            #WIP
-            #envelope.add_control_get_user_information(username)
-            
-  
+
             items.append(item)
 
 
@@ -998,11 +964,6 @@ class Users(Resource):
         #Controls
         envelope.add_control("self", href=api.url_for(User,username=username))       
         envelope.add_control_get_user_information(username)
-                #not yet implemented
-        #envelope.add_control_list_exercises()
-                    #WIP
-        #envelope.add_control_get_user_information(username)
-
         
         #CREATE RESPONSE AND RENDER
         return Response(json.dumps(envelope),status=200)
@@ -1051,12 +1012,6 @@ class User(Resource):
         envelope.add_control_delete_user(username)
         envelope.add_control_list_friends(username)
         envelope.add_control_add_friend(username)
-
-     
-        #mahdollisesti turhia?
-        #envelope.add_control_modify_exercise
-        #envelope.add_control_remove_exercise
-        #envelope.add_control_get_exercise
 
         return Response(json.dumps(envelope), 200, mimetype=MASON+";")
   
@@ -1107,10 +1062,14 @@ class User(Resource):
         """
        
 
-        if JSON != request.headers.get("Content-Type",""):
+        '''if JSON != request.headers.get("Content-Type",""):
             return create_error_response(415, "UnsupportedMediaType",
-                                         "Use a JSON compatible format")
+                                         "Use a JSON compatible format")'''
         request_body = request.get_json(force=True)
+        if not request_body:
+            return create_error_response(415, "Unsupported Media Type",
+                                         "Use a JSON compatible format",
+                                         )
 
         try:
             username = request_body["username"]
@@ -1143,7 +1102,6 @@ class User(Resource):
         envelope.add_control_modify_user(username)
         envelope.add_control_list_users()
         envelope.add_control_delete_user(username)
-        #exercise jutut
 
         return Response(json.dumps(envelope), 200, mimetype=MASON+";")       
          
@@ -1171,7 +1129,7 @@ class Friends(Resource):
                                          % username)
         #FILTER AND GENERATE RESPONSE
         #Create the envelope:
-#Create the envelope
+        #Create the envelope
         envelope = ForumObject()
         #add controls to response
         envelope.add_control("self", href=api.url_for(Friends,username=username))
@@ -1193,46 +1151,9 @@ class Friends(Resource):
             item.add_control_remove_friend(username)
             #add controls to each object in the list
             item.add_control("self", href=api.url_for(User, username=friendname))
-            #WIP
-            #envelope.add_control_get_user_information(username)
-            
-  
+
             items.append(item)
-        '''
-		users_db = g.con.get_users()
-        if not users_db:
-            return create_error_response(404, "No users")
-
-        #FILTER AND GENERATE THE RESPONSE
-       #Create the envelope
-        envelope = ForumObject()
-        #add controls to response
-        envelope.add_control("self", href=api.url_for(Users))
- 
-        envelope.add_control_add_user()
-        #not yet implemented
-        #envelope.add_control_list_exercises()
-
         
-
-        
-        items = envelope["items"] = []
-
-        for user in users_db:
-            item = ForumObject(
-                username=user["username"],
-                description = user["description"],
-                avatar=user["avatar"],
-                visibility=user["visibility"]
-            )
-            #add controls to each object in the list
-            item.add_control("self", href=api.url_for(User, username=user["username"]))
-            #WIP
-            #envelope.add_control_get_user_information(username)
-            
-  
-            items.append(item)'''
-
         return Response(json.dumps(envelope), 200, mimetype=MASON+";")
 
 
@@ -1333,250 +1254,7 @@ class Friends(Resource):
     
 
 #######################################################################################
-class User_public(Resource):
 
-    def get(self, nickname):
-        """
-        
-        Get the public profile (avatar and signature) of a single user.
-        
-        RESPONSE ENTITY BODY:
-        * Media type: Mason
-          https://github.com/JornWildt/Mason
-         * Profile: Forum_User_Profile
-           http://atlassian.virtues.fi: 8090/display/PWP
-           /Exercise+4#Exercise4-Forum_User_Profile
-        """
-        
-        user_db = g.con.get_user(nickname)
-        if not user_db:
-            return create_error_response(404, "Unknown user",
-                                         "There is no a user with nickname %s"
-                                         % nickname)
-        
-        pub_profile = user_db["public_profile"]
-        
-        # We could also by lazy and do the next step with:
-        # envelope = ForumObject(nickname=nickname)
-        # envelope.update(pub_profile)
-        
-        envelope = ForumObject(
-            nickname=nickname,
-            registrationdate=pub_profile["registrationdate"],
-            signature=pub_profile["signature"],
-            avatar=pub_profile["avatar"],
-        )
-        
-        envelope.add_namespace("forum", LINK_RELATIONS_URL)
-        envelope.add_control("self", href=api.url_for(User_public, nickname=nickname))
-        envelope.add_control("up", href=api.url_for(User, nickname=nickname))
-        envelope.add_control("forum:private-data", href=api.url_for(User_restricted, nickname=nickname))
-        envelope.add_control_messages_history(nickname)
-        envelope.add_control_edit_public_profile(nickname)
-        
-        return Response(json.dumps(envelope), 200, mimetype=MASON + ";" + FORUM_USER_PROFILE)
-
-    def put(self, nickname):
-        """
-        Modify the public profile of a user. 
-        
-        REQUEST ENTITY BODY:
-        * Media type: JSON
-        
-        """
-        
-        if not g.con.contains_user(nickname):
-            return create_error_response(404, "Unknown user", "There is no user with nickname {}".format(nickname))
-            
-        request_body = request.get_json()
-        if not request_body:
-            return create_error_response(415, "Unsupported Media Type", "Use a JSON compatible format")            
-        
-        try:
-            avatar = request_body["avatar"]
-            signature = request_body["signature"]
-        except KeyError:
-            return create_error_response(400, "Wrong request format", "Be sure to include all mandatory properties")
-        
-        user = {
-            "public_profile":
-            {
-                "signature": signature,
-                "avatar": avatar
-            }
-        }
-            
-        if not g.con.modify_user(nickname, user):
-            return create_error_response(404, "Unknown user", "There is no user with nickname {}".format(nickname))
-        
-        return "", 204
-
-class User_restricted(Resource):
-
-    def get (self, nickname):
-        """
-        Get the private profile of a user
-        
-        RESPONSE ENTITY BODY:
-        * Media type: Mason
-          https://github.com/JornWildt/Mason
-         * Profile: Forum_User_Profile
-           http://atlassian.virtues.fi: 8090/display/PWP
-           /Exercise+4#Exercise4-Forum_User_Profile
-        """
-        
-        user_db = g.con.get_user(nickname)
-        if not user_db:
-            return create_error_response(404, "Unknown user",
-                                         "There is no a user with nickname %s"
-                                         % nickname)
-        
-        priv_profile = user_db["restricted_profile"]
-        
-        # Here we can't just update the envelope
-        # with private profile because some of the keys
-        # differ... So, lesson, if you want to be lazy
-        # make sure to use the same key names everywhere =p
-        
-        try:
-            country, locality = priv_profile["residence"].split(":")
-            address = {"addressCountry": country, "addressLocality": locality}
-        except (AttributeError, ValueError):
-            address = {"addressCountry": "", "addressLocality": ""}
-        
-        envelope = ForumObject(
-            nickname=nickname,
-            address=address,
-            birthDate=priv_profile["birthday"],
-            email=priv_profile["email"],
-            familyName=priv_profile["lastname"],
-            gender=priv_profile["gender"],
-            givenName=priv_profile["firstname"],
-            website=priv_profile["website"],
-            telephone=priv_profile["mobile"],
-            skype=priv_profile["skype"],
-            image=priv_profile["picture"]
-        )
-        
-        envelope.add_namespace("forum", LINK_RELATIONS_URL)
-        envelope.add_control("self", href=api.url_for(User_restricted, nickname=nickname))
-        envelope.add_control("up", href=api.url_for(User, nickname=nickname))
-        envelope.add_control("forum:public-data", href=api.url_for(User_public, nickname=nickname))
-        envelope.add_control_messages_history(nickname)
-        envelope.add_control_edit_private_profile(nickname)
-        
-        return Response(json.dumps(envelope), 200, mimetype=MASON + ";" + FORUM_USER_PROFILE)
-
-    def put(self, nickname):
-        """
-        Edit the private profile of a user
-        
-        REQUEST ENTITY BODY:
-        * Media type: JSON
-        """
-        
-        if not g.con.contains_user(nickname):
-            return create_error_response(404, "Unknown user", "There is no user with nickname {}".format(nickname))
-            
-        request_body = request.get_json()
-        if not request_body:
-            return create_error_response(415, "Unsupported Media Type", "Use  JSON format")            
-        
-        # Note: this is basically the reverse of what
-        # we did in get(). Those identical keys would
-        # have been nice again, no?
-        
-        try:
-            priv_profile = dict(
-                residence="{addressCountry}:{addressLocality}".format(**request_body["address"]),
-                birthday=request_body["birthDate"],
-                email=request_body["email"],
-                lastname=request_body["familyName"],
-                gender=request_body["gender"],
-                firstname=request_body["givenName"],
-                website=request_body.get("website", ""),
-                mobile=request_body.get("telephone", ""),
-                skype=request_body.get("skype", ""),
-                image=request_body.get("picture", "")
-            )
-        except KeyError:
-            return create_error_response(400, "Wrong request format", "Be sure to include all mandatory properties")
-        
-        user = {"restricted_profile": priv_profile}
-            
-        if not g.con.modify_user(nickname, user):
-            return NotFound()
-        
-        return "", 204
-
-
-class History(Resource):
-    def get (self, nickname):
-        """
-            This method returns a list of messages that has been sent by an user
-            and meet certain restrictions (result of an algorithm).
-            The restrictions are given in the URL as query parameters.
-
-            INPUT:
-            The query parameters are:
-             * length: the number of messages to return
-             * after: the messages returned must have been modified after
-                      the time provided in this parameter.
-                      Time is UNIX timestamp
-             * before: the messages returned must have been modified before the
-                       time provided in this parameter. Time is UNIX timestamp
-
-            RESPONSE STATUS CODE:
-             * Returns 200 if the list can be generated and it is not empty
-             * Returns 404 if no message meets the requirement
-
-            RESPONSE ENTITY BODY:
-            * Media type recommended: application/vnd.mason+json
-            * Profile recommended: Forum_Message
-                /profiles/message-profile
-
-            Link relations used in items: None
-
-            Semantic descriptions used in items: headline
-
-            Link relations used in links: messages-all, author
-
-            Semantic descriptors used in queries: after, before, lenght
-        """
-
-        #INTIAL CHECKING
-        #Extract query parameters
-        parameters = request.args
-        length = int(parameters.get('length', -1))
-        before = int(parameters.get('before', -1))
-        after = int(parameters.get('after', -1))
-        #PERFORM OPERATIONS
-        #Get the messages. This method return None if there is
-        #not user with nickname = nickname
-        messages_db = g.con.get_messages(nickname, length, before, after)
-        if messages_db is None or not messages_db:
-            return create_error_response(404, "Empty list",
-                                         "Cannot find any message with the"
-                                         " provided restrictions")
-        envelope = ForumObject()
-        envelope.add_namespace("forum", LINK_RELATIONS_URL)
-        envelope.add_control("self", href=api.url_for(History, nickname=nickname))
-        envelope.add_control("author", href=api.url_for(User,nickname=nickname))
-        envelope.add_control_messages_all()
-        envelope.add_control_users_all()
-
-        items = envelope["items"] = []
-
-        for msg in messages_db:
-            item = ForumObject(id=msg["messageid"], headline=msg["title"])
-            item.add_control("self", href=api.url_for(Message, messageid=msg["messageid"]))
-            item.add_control("profile", href=FORUM_MESSAGE_PROFILE)
-            items.append(item)
-
-        #RENDER
-        return Response(json.dumps(envelope), 200, mimetype=MASON+";" + FORUM_MESSAGE_PROFILE)
-
-        return None
 
 #Add the Regex Converter so we can use regex expressions when we define the
 #routes
@@ -1595,12 +1273,7 @@ api.add_resource(Exercise, "/exercisetracker/api/exercises/<exercise_id>/",
                  endpoint="exercise")
 api.add_resource(Friends,"/exercisetracker/api/users/<username>/friends",
                  endpoint="friends")
-###
-#TODO TONI
-# sama ku ylemp‰n‰ on tehty userille. Exercise add_controls funktiot ei toimi ennen t‰t‰
 
-api.add_resource(History, "/forum/api/users/<nickname>/history/",
-                 endpoint="history")
 
 #Redirect profile
 @app.route("/profiles/<profile_name>")
