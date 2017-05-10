@@ -136,7 +136,7 @@ width: 70%;
     color:#f27500;
     text-decoration: none;
 }#friend_button_container {
-width: 70%;
+width: 150px;
   text-align: center;
   position: center;
   border: #f27500;
@@ -146,11 +146,95 @@ width: 70%;
   margin-bottom: 4em;
   background: #180d29;
 }
+#showAllUsersButton:visited, #showAllUsersButton:link {
+    color:black;
+    text-decoration: none;
+}#showAllUsersButtonContainer {
+width: 70%;
+  text-align: center;
+  border: #f27500;
+  position: relative;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 4em;
+  background: white;
+}
+
+#hideAllUsersButton:visited, #hideAllUsersButton:link {
+    color:black;
+    text-decoration: none;
+}#hideAllUsersButtonContainer {
+width: 70%;
+  text-align: center;
+  border: #f27500;
+  position: relative;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 4em;
+  background: white;
+}
+
+#remove_user_button:visited, #remove_user_button:link {
+    color:black;
+    text-decoration: none;
+}#remove_user_button_container {
+width: 150px;
+  text-align: center;
+  border: #f27500;
+  position: relative;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 4em;
+  background: white;
+}
+
+#modify_user_button:visited, #modify_user_button:link {
+    color:black;
+    text-decoration: none;
+}#modify_user_button_container {
+width: 150px;
+  text-align: center;
+  border: #f27500;
+  position: relative;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 4em;
+  background: white;
+}
+
+#remove_exercise_button:visited, #remove_exercise_button:link {
+    color:black;
+    text-decoration: none;
+}#remove_exercise_button_container {
+width: 150px;
+  text-align: center;
+  border: #f27500;
+  position: relative;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 4em;
+  background: white;
+}
+
+#modify_exercise_button:visited, #modify_exercise_button:link {
+    color:black;
+    text-decoration: none;
+}#modify_exercise_button_container {
+width: 150px;
+  text-align: center;
+  border: #f27500;
+  position: relative;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 4em;
+  background: white;
+}
+
 #add_exercise_button:visited, #add_exercise_button:link {
     color:black;
     text-decoration: none;
 }#add_exercise_button_container {
-width: 70%;
+width: 150px;
   text-align: center;
   border: #f27500;
   position: relative;
